@@ -361,6 +361,9 @@ exports.window = class ui_window extends exports.rect {
 			},
 		}));
 	}
+	close(){
+		this.deleted = true;
+	}
 	draw(ctx, dims){
 		
 	}

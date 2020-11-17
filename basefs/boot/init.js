@@ -17,7 +17,22 @@ var screen = require('/lib/screen.js'),
 		size: 32,
 		weight: 'bold',
 	})),
-	cat_window = new ui.window({ title: 'CAT', x: ui.align.middle, y: ui.align.middle, offset: { x: 75, y: 0, }, width: '600px', height: '400px', icon: '/usr/share/missing.png' }),
+	cat_window = new ui.window({
+		title: 'CAT',
+		x: ui.align.middle, 
+		y: ui.align.middle,
+		offset: { x: 75, y: 0, },
+		width: '600px',
+		height: '400px',
+		icon: '/usr/share/missing.png',
+		menu: {
+			'File': {
+				'Exit': () => {
+					cat_window.close();
+				},
+			},
+		},
+	}),
 	cat_image = cat_window.content.append(new ui.image({
 		x: ui.align.middle,
 		y: ui.align.middle,
@@ -33,6 +48,7 @@ var screen = require('/lib/screen.js'),
 		size: 32,
 		family: 'impact',
 		weight: 'bold',
+		cursor: 'text',
 	})),
 	cat_reload = cat_window.content.append(new ui.button({
 		x: ui.align.middle,
