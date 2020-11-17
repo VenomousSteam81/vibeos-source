@@ -35,6 +35,13 @@ var screen = require('/lib/screen.js'),
 				ok(){
 					alert();
 				},
+				ok1(){
+					alert();
+				},
+				ok2(){
+					alert();
+				},
+				
 			},
 		},
 	}),

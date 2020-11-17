@@ -332,12 +332,6 @@ exports.window = class ui_window extends exports.rect {
 			buttons: {},
 		}, opts);
 		
-		if(opts.menu)this.menu = this.append(new exports.menu({
-			width: '100%',
-			height: 20,
-			window: this,
-		}, opts.menu));
-		
 		this.border = this.append(new exports.border({
 			size: 3,
 			width: '100%',
@@ -431,7 +425,11 @@ exports.window = class ui_window extends exports.rect {
 			},
 		}));
 		
-		if(opts.menu)this.content.offset.height -= 20, this.content.offset.y += 20;
+		if(opts.menu)this.content.offset.height -= 20, this.content.offset.y += 20, this.menu = this.append(new exports.menu({
+			width: '100%',
+			height: 20,
+			window: this,
+		}, opts.menu));
 	}
 	close(){
 		this.deleted = true;
@@ -491,6 +489,60 @@ exports.button = class ui_button extends exports.rect {
 	}
 }
 
+exports.system_button = class ui_button extends exports.rect {
+	constructor(opts){
+		super({
+			height: 22,
+			color: '#E1E1E1',
+			auto_width: true, // determine width automatically
+			cursor: 'link',
+		});
+		
+		Object.assign(this, opts);
+		
+		this.offset = {
+			height: -2,
+			x: 1,
+		};
+		
+		this.border = this.append(new exports.border({
+			size: 1,
+			width: '100%',
+			height: '100%',
+		}));
+		
+		this.text = this.append(new exports.text({
+			x: this.icon ? 32 : 8,
+			y: '50%',
+			size: 14,
+			color: '#000',
+			baseline: 'middle',
+			width: 50,
+			height: '100%',
+			text: this.text,
+			interact: false,
+		}));
+		
+		Object.defineProperty(this, 'color', { get: _ => 
+			this.mouse_pressed
+			? colors.menu_button.active.main
+			: this.mouse_hover
+				? colors.menu_button.hover.main
+				: colors.menu_button.idle.main });
+		
+		Object.defineProperty(this.border, 'color',  { get: _ => this.mouse_pressed
+			? colors.menu_button.active.border
+			: this.mouse_hover
+				? colors.menu_button.hover.border
+				: colors.menu_button.idle.border });
+	}
+	draw(ctx, dims){
+		this.width = this.auto_width ? this.text.measure(ctx).width + 20 : this.width;
+		
+		return Reflect.apply(exports.rect.prototype.draw, this, [ ctx, dims ]);
+	}
+}
+
 exports.menu_button = class ui_button extends exports.rect {
 	constructor(opts, items){
 		super({
@@ -539,8 +591,48 @@ exports.menu_button = class ui_button extends exports.rect {
 				: colors.menu_button.idle.border });
 		
 		this.buttons = [];
+		
+		var prev;
+		
+		Object.entries(items).forEach(([ key, val]) => {
+			var preve = prev,
+				added = this.append(new exports.system_button({
+					text: key,
+					x: 0,
+					y: 20,
+					width: '100%',
+					height: this.height,
+					auto_width: false,
+				}, val));
+			
+			this.buttons.push(added);
+			
+			if(preve)Object.defineProperty(added, 'y', { get: _ => preve.height + preve.y - 2 });
+			
+			added.on('mouseup', () => {
+				val();
+				
+				this.toggle = 0;
+				this.buttons.forEach(button => button.visible = false);
+			});
+			
+			prev = added;
+		});
+		
+		this.buttons.forEach(button => button.visible = false);
+		
+		this.on('mousedown', event => {
+			this.toggle ^= 1;
+			
+			this.buttons.forEach(button => button.visible = this.toggle);
+		});
 	}
 	draw(ctx, dims){
+		if(!this.focused && this.toggle){
+			this.toggle = 0;
+			this.buttons.forEach(button => button.visible = false);
+		}
+		
 		this.width = this.auto_width ? this.text.measure(ctx).width + 20 : this.width;
 		
 		return Reflect.apply(exports.rect.prototype.draw, this, [ ctx, dims ]);

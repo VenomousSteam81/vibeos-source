@@ -109,6 +109,13 @@ var dims = exports.dims = {
 				
 				target_win.active = true;
 			}else if(event.type == 'mousedown')wins.forEach(element => element.active = false);
+			
+			var menu_toggles = all_elements.filter(element => element instanceof ui.menu_button);
+			
+			if(event.type == 'mousedown')menu_toggles.forEach(element => {
+				if(element.includes(target))element.focused = true;
+				else element.focused = false;
+			});
 		},
 	}),
 	render_layers = class extends Array {
