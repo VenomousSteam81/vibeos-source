@@ -4,14 +4,11 @@ var path = require('path'),
 	lzutf8 = require('lzutf8'),
 	Buffer = require('buffer').Buffer,
 	proxy = Symbol(),
-	dynamic_fs = JSON.parse(localStorage.getItem('__fs') || '{}'),
+	fs_name = '__fs_1.0.0',
+	dynamic_fs = JSON.parse(localStorage.getItem(fs_name) || '{}'),
 	filesystem = Object.assign(base_fs_data, dynamic_fs),
 	mounted = [],
-	update_fs = () => {
-		// REMOVE ANY FILES (NOT DIRECTORIES) FROM SAVED FS, CUTS DOWN ON MEMORY AND STORAGE
-		
-		localStorage.setItem('__fs', JSON.stringify(dynamic_fs));
-	},
+	update_fs = () => localStorage.setItem(fs_name, JSON.stringify(dynamic_fs)),
 	errors = {
 		enoent(file){
 			return new TypeError('ENOENT: no such file or directory, open \'' + file + '\'');
@@ -19,8 +16,8 @@ var path = require('path'),
 		enotdir(dir){
 			return new TypeError('ENOTDIR: not a directory, scandir \'' + dir + '\'');
 		},
-		eisdir(operation){
-			return new TypeError('EISDIR: illegal operation on a directory, ' + operation);
+		eisdir(operation, file){
+			return new TypeError('EISDIR: illegal operation on a directory, ' + operation + ' \'' + file + '\'');
 		}
 	},
 	walk_depth_dynamic = file => {
@@ -55,7 +52,7 @@ var path = require('path'),
 		
 		if(depth instanceof Error)return depth;
 		
-		if(fs.statSync(file).isDirectory())return errors.eisdir('read \'' + file + '\'');
+		if(fs.statSync(file).isDirectory())return errors.eisdir('read', file);
 		
 		var data = Buffer.from(lzutf8.decompress(depth, { inputEncoding: 'Base64' }), 'base64');
 		
@@ -64,7 +61,7 @@ var path = require('path'),
 	write_file = (file, data, options = {}) => {
 		if(typeof data != 'string' && !(data instanceof Buffer) && !Array.isArray(data))return { error: new TypeError('[ERR_INVALID_ARG_TYPE]: The "data" argument must be of type string or an instance of Buffer, TypedArray, or DataView. Received ' + data) };
 		
-		if(fs.existsSync(file) && fs.statSync(file).isDirectory())return errors.eisdir('open \'' + file + '\'');
+		if(fs.existsSync(file) && fs.statSync(file).isDirectory())return errors.eisdir('open', file);
 		
 		var resolved = path.resolve(file),
 			resolved_split = resolved.split('/').filter(file => file),
