@@ -43,7 +43,7 @@ var screen = require('/lib/screen.js'),
 		text: 'regen',
 	}));
 
-cat_reload.on('mousedown', event => {
+cat_reload.on('mouseup', event => {
 	cat_image.path = 'https://cataas.com/cat?' + Date.now();
 	cat_image.gen();
 });
