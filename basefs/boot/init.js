@@ -17,21 +17,21 @@ var screen = require('/lib/screen.js'),
 		size: 32,
 		weight: 'bold',
 	})),
-	ademo_window = new ui.window({ x: ui.align.middle, y: ui.align.middle, offset: { x: 75, y: 75, }, width: '600px', height: '400px', icon: '/usr/share/missing.png' }),
-	atest_text = ademo_window.content.append(new ui.text({
+	cat_window = new ui.window({ title: 'CAT', x: ui.align.middle, y: ui.align.middle, offset: { x: 75, y: 75, }, width: '600px', height: '400px', icon: '/usr/share/missing.png' }),
+	cat_image = cat_window.content.append(new ui.image({
 		x: ui.align.middle,
 		y: ui.align.middle,
-		text: 'm',
-		color: '#F00',
-		size: 32,
-		weight: 'bold',
+		width: '90%',
+		height: '90%',
+		path: 'https://cataas.com/cat',
 	})),
-	atest_text_2 = ademo_window.content.append(new ui.text({
+	cat_text = cat_window.content.append(new ui.text({
 		x: ui.align.middle,
-		y: 50,
-		text: 'awesome',
-		color: '#00F',
+		y: ui.align.bottom,
+		text: 'cool cat',
+		color: '#FFF',
 		size: 32,
+		family: 'impact',
 		weight: 'bold',
 	}));
 
@@ -41,7 +41,7 @@ var screen = require('/lib/screen.js'),
 	},
 });*/
 
-screen.render_layers.append(background, demo_window, ademo_window);
+screen.render_layers.append(background, demo_window, cat_window);
 
 // begin rendering
 screen.render();

@@ -78,10 +78,10 @@ exports.fixed_sp = (data, bounds) => {
 			data.y = (bounds.height / 2) - (correct.height / 2);
 			break;
 		case exports.align.top:
-			data.y = bounds.height - correct.height;
+			data.y = correct.height;
 			break;
 		case exports.align.bottom:
-			data.y = correct.height;
+			data.y = bounds.height - correct.height;
 			break;
 	}
 	
