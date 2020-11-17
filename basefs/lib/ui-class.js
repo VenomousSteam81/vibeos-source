@@ -225,8 +225,9 @@ exports.image = class ui_image extends exports.element {
 			path: '/usr/share/missing.png',
 		});
 		
+		// determine if there is a protocol for the image, otherwise load from filesystem
 		this.image = Object.assign(new Image(), {
-			src: fs.data_uri(this.path),
+			src: /^\w+:\/{2}/.test(this.path) ? this.path : fs.data_uri(this.path),
 		});
 	}
 	draw(ctx, dims){
