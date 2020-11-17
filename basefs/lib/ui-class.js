@@ -17,6 +17,24 @@ var fs = require('fs'),
 				secondary_hover: '#E5E5E5',
 			},
 		},
+		menu: {
+			main: '#FFFFFF',
+			border: '#F0F0F0',
+		},
+		menu_button: {
+			idle: {
+				main: '#FFFFFF',
+				border: '#FFFFFF',
+			},
+			hover: {
+				main: '#E5F3FF',
+				border: '#CCE8FF',
+			},
+			active: {
+				main: '#CCE8FF',
+				border: '#91C9F7',
+			},
+		},
 		button: {
 			idle: {
 				border: '#ADADAD',
@@ -257,6 +275,52 @@ exports.image = class ui_image extends exports.element {
 	}
 }
 
+exports.menu = class ui_menu extends exports.rect {
+	constructor(opts, menu){
+		super(opts, {
+			x: exports.align.center,
+			width: '100%',
+			height: 20,
+			color: colors.menu.main,
+		});
+		
+		this.border = this.append(new exports.border({
+			width: '100%',
+			height: '100%',
+			color: colors.menu.border,
+		}));
+		
+		this.y = 32; // this.window.title_bar.height
+		
+		this.buttons = [];
+		
+		var prev;
+		
+		Object.entries(menu).forEach(([ key, val ]) => {
+			var preve = prev,
+				added = this.append(new exports.menu_button({
+					text: key,
+					x: 0,
+					y: 0,
+					height: this.height,
+				}, val));
+			
+			this.buttons.push(added);
+			
+			if(preve)Object.defineProperty(added, 'x', { get: _ => preve.width + preve.x });
+			
+			prev = added;
+		});
+	}
+	draw(ctx, dims){
+		ctx.fillStyle = this.color; // this.window.title_bar.color;
+		
+		var fixed = exports.fixed_sp(this, dims);
+		
+		ctx.fillRect(fixed.x, fixed.y, fixed.width, fixed.height);
+	}
+}
+
 exports.window = class ui_window extends exports.rect {
 	constructor(opts){
 		var othis = super(opts);
@@ -268,10 +332,16 @@ exports.window = class ui_window extends exports.rect {
 			buttons: {},
 		}, opts);
 		
+		if(opts.menu)this.menu = this.append(new exports.menu({
+			width: '100%',
+			height: 20,
+			window: this,
+		}, opts.menu));
+		
 		this.border = this.append(new exports.border({
 			size: 3,
-			width: this.width,
-			height: this.height,
+			width: '100%',
+			height: '100%',
 		}));
 		
 		this.title_bar = this.append(new exports.rect({
@@ -360,12 +430,11 @@ exports.window = class ui_window extends exports.rect {
 				height: -32,
 			},
 		}));
+		
+		if(opts.menu)this.content.offset.height -= 20, this.content.offset.y += 20;
 	}
 	close(){
 		this.deleted = true;
-	}
-	draw(ctx, dims){
-		
 	}
 }
 
@@ -382,6 +451,8 @@ exports.button = class ui_button extends exports.rect {
 		
 		this.border = this.append(new exports.border({
 			size: 1,
+			width: '100%',
+			height: '100%',
 		}));
 		
 		this.text = this.append(new exports.text({
@@ -411,9 +482,63 @@ exports.button = class ui_button extends exports.rect {
 				: this.mouse_hover
 					? colors.button.hover.border
 					: colors.button.idle.border },
-			width: { get: _ => this.width },
-			height: { get: _ => this.height },
 		});
+	}
+	draw(ctx, dims){
+		this.width = this.auto_width ? this.text.measure(ctx).width + 20 : this.width;
+		
+		return Reflect.apply(exports.rect.prototype.draw, this, [ ctx, dims ]);
+	}
+}
+
+exports.menu_button = class ui_button extends exports.rect {
+	constructor(opts, items){
+		super({
+			height: 22,
+			color: '#E1E1E1',
+			auto_width: true, // determine width automatically
+			cursor: 'link',
+		});
+		
+		Object.assign(this, opts);
+		
+		this.offset = {
+			height: -2,
+			x: 1,
+		};
+		
+		this.border = this.append(new exports.border({
+			size: 1,
+			width: '100%',
+			height: '100%',
+		}));
+		
+		this.text = this.append(new exports.text({
+			x: this.icon ? 32 : 8,
+			y: '50%',
+			size: 14,
+			color: '#000',
+			baseline: 'middle',
+			width: 50,
+			height: '100%',
+			text: this.text,
+			interact: false,
+		}));
+		
+		Object.defineProperty(this, 'color', { get: _ => 
+			this.mouse_pressed
+			? colors.menu_button.active.main
+			: this.mouse_hover
+				? colors.menu_button.hover.main
+				: colors.menu_button.idle.main });
+		
+		Object.defineProperty(this.border, 'color',  { get: _ => this.mouse_pressed
+			? colors.menu_button.active.border
+			: this.mouse_hover
+				? colors.menu_button.hover.border
+				: colors.menu_button.idle.border });
+		
+		this.buttons = [];
 	}
 	draw(ctx, dims){
 		this.width = this.auto_width ? this.text.measure(ctx).width + 20 : this.width;

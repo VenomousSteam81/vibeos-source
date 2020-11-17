@@ -26,9 +26,14 @@ var screen = require('/lib/screen.js'),
 		height: '400px',
 		icon: '/usr/share/missing.png',
 		menu: {
-			'File': {
-				'Exit': () => {
+			File: {
+				Exit(){
 					cat_window.close();
+				},
+			},
+			Test: {
+				ok(){
+					alert();
 				},
 			},
 		},
