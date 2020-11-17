@@ -12,14 +12,7 @@ var path = require('path'),
 			})),
 			dir_stats = fs.statSync(dir);
 		
-		return Object.assign(files, {
-			'.s': {
-				d: true,
-				c: dir_stats.ctimeMs,
-				a: dir_stats.atimeMs,
-				m: dir_stats.mtimeMs,
-			},
-		});
+		return files;
 	};
 
 module.exports = get_files;
