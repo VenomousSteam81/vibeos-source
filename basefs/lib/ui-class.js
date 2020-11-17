@@ -332,12 +332,6 @@ exports.window = class ui_window extends exports.rect {
 			buttons: {},
 		}, opts);
 		
-		this.border = this.append(new exports.border({
-			size: 3,
-			width: '100%',
-			height: '100%',
-		}));
-		
 		this.title_bar = this.append(new exports.rect({
 			width: '100%',
 			height: 32,
@@ -392,17 +386,9 @@ exports.window = class ui_window extends exports.rect {
 		
 		Object.defineProperty(this.buttons.close.text, 'color', { get: _ => (this.buttons.close.mouse_pressed || this.buttons.close.mouse_hover) ? '#FFF' : '#000' });
 		
-		Object.defineProperty(this.border, 'color', {
-			get: () => this.active ? colors.window.active.border : colors.window.inactive.border,
-		});
+		Object.defineProperty(this.title_bar, 'color', { get: () => this.active ? colors.window.active.main : colors.window.inactive.main });
 		
-		Object.defineProperty(this.title_bar, 'color', {
-			get: () => this.active ? colors.window.active.main : colors.window.inactive.main,
-		});
-		
-		Object.defineProperty(this.title_text, 'color', {
-			get: () => this.active ? colors.window.active.text : colors.window.inactive.text,
-		});
+		Object.defineProperty(this.title_text, 'color', { get: () => this.active ? colors.window.active.text : colors.window.inactive.text });
 		
 		if(this.icon)this.title_image = this.title_bar.append(new exports.image({
 			path: this.icon,
@@ -430,6 +416,14 @@ exports.window = class ui_window extends exports.rect {
 			height: 20,
 			window: this,
 		}, opts.menu));
+		
+		this.border = this.append(new exports.border({
+			size: 2,
+			width: '100%',
+			height: '100%',
+		}));
+		
+		Object.defineProperty(this.border, 'color', { get: () => this.active ? colors.window.active.border : colors.window.inactive.border });
 	}
 	close(){
 		this.deleted = true;
