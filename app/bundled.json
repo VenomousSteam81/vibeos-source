@@ -1,0 +1,34 @@
+[{
+	"mod": "buffer",
+	"options": {}
+},{
+	"mod": ["basefs", "lib", "node", "mime.js"],
+	"options": {
+		"expose": "mime"
+	}
+},{
+	"mod": ["app", "path.js"],
+	"options": {
+		"expose": "path"
+	}
+},{
+	"mod": ["app", "start.js"],
+	"options": {
+		"expose": "./start.js"
+	}
+},{
+	"mod": ["app", "require.js"],
+	"options": {
+		"expose": "require"
+	}
+},{
+	"mod": ["app", "lzutf8.js"],
+	"options": {
+		"expose": "lzutf8"
+	}
+},{
+	"mod": ["basefs", "lib", "node", "fs.js"],
+	"options": {
+		"expose": "fs"
+	}
+}]
