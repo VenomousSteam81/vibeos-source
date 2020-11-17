@@ -73,6 +73,8 @@ var dims = exports.dims = {
 			
 			target.mouse_hover = true;
 			
+			mouse.cursor = target.cursor;
+			
 			if(event.type == 'mousedown' && mouse.buttons.left)mouse.target = target;
 			else if(event.type == 'mouseup')mouse.target = null;
 			

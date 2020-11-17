@@ -116,6 +116,8 @@ exports.element = class extends events {
 		this.width = 0;
 		this.height = 0;
 		
+		this.cursor = 'pointer';
+		
 		this.uuid = exports.gen_uuid();
 		
 		this.elements = [];
@@ -170,6 +172,19 @@ exports.text = class ui_text extends exports.element {
 			align: 'start',
 			color: '#FFF',
 		});
+	}
+	measure(ctx){
+		ctx.save();
+		ctx.fillStyle = this.color;
+		ctx.textAlign = this.align;
+		ctx.textBaseline = this.baseline;
+		ctx.font = (this.weight ? this.weight + ' ' : '') + this.size + 'px ' + this.family;
+		
+		var ret = ctx.measureText(this.text);
+		
+		ctx.restore();
+		
+		return ret;
 	}
 	draw(ctx, dims){
 		ctx.fillStyle = this.color;
@@ -354,17 +369,16 @@ exports.window = class ui_window extends exports.rect {
 exports.button = class ui_button extends exports.rect {
 	constructor(opts){
 		super({
-			width: 50,
 			height: 22,
 			color: '#E1E1E1',
+			auto_width: true, // determine width automatically
+			cursor: 'link',
 		});
 		
 		Object.assign(this, opts);
 		
 		this.border = this.append(new exports.border({
 			size: 1,
-			width: this.width,
-			height: this.height,
 		}));
 		
 		this.text = this.append(new exports.text({
@@ -373,19 +387,13 @@ exports.button = class ui_button extends exports.rect {
 			size: 14,
 			color: '#000',
 			baseline: 'middle',
+			width: 50,
 			height: '100%',
 			text: this.text,
 			interact: false,
 		}));
 		
 		Object.defineProperty(this.text.offset, 'x', { get: _ => this.mouse_pressed ? 1 : 0 });
-		
-		Object.defineProperty(this.border, 'color', { get: _ => 
-			this.mouse_pressed
-			? colors.button.active.border
-			: this.mouse_hover
-				? colors.button.hover.border
-				: colors.button.idle.border });
 		
 		Object.defineProperty(this, 'color', { get: _ => 
 			this.mouse_pressed
@@ -394,5 +402,19 @@ exports.button = class ui_button extends exports.rect {
 				? colors.button.hover.main
 				: colors.button.idle.main });
 		
+		Object.defineProperties(this.border, {
+			color: { get: _ => this.mouse_pressed
+				? colors.button.active.border
+				: this.mouse_hover
+					? colors.button.hover.border
+					: colors.button.idle.border },
+			width: { get: _ => this.width },
+			height: { get: _ => this.height },
+		});
+	}
+	draw(ctx, dims){
+		this.width = this.auto_width ? this.text.measure(ctx).width + 20 : this.width;
+		
+		return Reflect.apply(exports.rect.prototype.draw, this, [ ctx, dims ]);
 	}
 }

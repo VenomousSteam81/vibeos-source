@@ -3,10 +3,15 @@ var path = require('path'),
 	mime = require('mime'),
 	lzutf8 = require('lzutf8'),
 	Buffer = require('buffer').Buffer,
-	fs_frag = class {
-		constructor(){
-			
-		}
+	is_object = item => item && typeof item == 'object' && !Array.isArray(item),
+	merge_deep = (target, ...sources) => {
+		if(!sources.length)return target;
+		var source = sources.shift();
+
+		if(is_object(target) && is_object(source))for(const key in source)if(is_object(source[key]))!target[key] && Object.assign(target, { [key]: {} }), merge_deep(target[key], source[key]);
+		else Object.assign(target, { [key]: source[key] });
+
+		return merge_deep(target, ...sources);
 	},
 	filesys = class {
 		constructor(name){
@@ -40,6 +45,23 @@ var path = require('path'),
 			if(depth instanceof Error)throw depth;
 			
 			return depth;
+		}
+		mount(mount_point, type, data){
+			var parsed = data;
+			
+			switch(type){
+				case'json':
+					parsed = JSON.parse(data);
+					break
+			}
+			
+			console.log('[FS] Mounting ' + type + ' volume at ' + mount_point);
+			
+			merge_deep(this.static, this.dynamic, this.dynamic, parsed);
+			
+			filesystem.update();
+			
+			return module.exports;
 		}
 		stat(file){
 			var depth = this.walk_file(path.resolve(file));
@@ -85,8 +107,6 @@ var path = require('path'),
 				depth = this.walk_file(dirname),
 				depth_dyn = this.walk_file_dynamic(dirname),
 				compressed = lzutf8.compress(Buffer.from(data).toString('base64'), { outputEncoding: 'Base64' });
-			
-			console.log(depth_dyn);
 			
 			depth[basename] = compressed;
 			depth_dyn[basename] = compressed;
@@ -137,87 +157,43 @@ var path = require('path'),
 	};
 
 module.exports = {
-	filesystem: filesystem,
-	mount(mount_point, type, data){
-		var parsed = data;
-		
-		switch(type){
-			case'json':
-				parsed = JSON.parse(data);
-				break
-		}
-		
-		console.log('[FS] Mounting ' + type + ' volume at ' + mount_point);
-		
-		Object.assign(filesystem.static, parsed);
-		
-		filesystem.update();
-		
-		return module.exports;
-	},
 	readFile(file, ...args){
 		var options = args.find(arg => typeof arg == 'object') || {},
 			callback = args.find(arg => typeof arg == 'function') || {},
-			ret;
-
-		try{ ret = filesystem.read(file, options.encoding) }catch(err){ ret = err };
+			ret; try{ ret = filesystem.read(file, options.encoding) }catch(err){ ret = err };
 		
 		callback(ret, ret instanceof Error ? null : ret);
 	},
-	readFileSync(file, encoding){
-		return filesystem.read(file, encoding);
-	},
-	writeFileSync(file, data, options){
-		return filesystem.write(file, data, options);
-	},
+	readFileSync: filesystem.read.bind(filesystem),
+	writeFileSync: filesystem.write.bind(filesystem),
 	writeFile(file, data, ...args){
 		var options = args.find(arg => typeof arg == 'object') || {},
 			callback = args.find(arg => typeof arg == 'function') || {},
-			ret = filesystem.write(file, data, options);
+			ret; try{ ret = filesystem.write(file, data, options) }catch(err){ ret = err };
 		
 		callback(ret, ret instanceof Error ? null : ret);
 	},
-	readdirSync(dir, callback){
-		return filesystem.read_dir(dir);
-	},
+	readdirSync: filesystem.read_dir.bind(filesystem),
 	readdir(dir, callback){
-		var ret = filesystem.read_dir(dir);
-		
-		callback(ret.error, ret.data);
-	},
-	existsSync(file){
-		return filesystem.exists(file);
-	},
-	exists(file, callback){
-		var ret = exists(file);
+		var ret; try{ ret = filesystem.read_dir(file) }catch(err){ ret = err };
 		
 		callback(ret, ret instanceof Error ? null : ret);
 	},
-	statSync(file){
-		return filesystem.stat(file);
-	},
+	existsSync: filesystem.exists.bind(filesystem),
+	exists: (file, callback) => callback(null, filesystem.exists(file)),
+	statSync: filesystem.stat.bind(filesystem),
 	stat(file, callback){
-		var ret;
-		try{ ret = filesystem.stat(file) }catch(err){ ret = err };
+		var ret; try{ ret = filesystem.stat(file) }catch(err){ ret = err };
 		
 		callback(ret, ret instanceof Error ? null : ret);
 	},
-	unlinkSync(file){
-		var ret = unlink(file);
-		
-		if(ret instanceof Error)throw ret;
-		
-		return ret;
-	},
+	unlinkSync: filesystem.unlink.bind(filesystem),
 	unlink(file, callback){
-		var ret = unlink(file);
+		var ret; try{ ret = filesystem.unlink(file) }catch(err){ ret = err };
 		
 		callback(ret, ret instanceof Error ? null : ret);
 	},
-	download(file){
-		return filesystem.download(file);
-	},
-	data_uri(file){
-		return filesystem.data_uri(file);
-	},
+	mount: filesystem.mount.bind(filesystem),
+	download: filesystem.download.bind(filesystem),
+	data_uri: filesystem.data_uri.bind(filesystem),
 };
