@@ -3,17 +3,22 @@ var path = require('path'),
 	mime = require('mime'),
 	lzutf8 = require('lzutf8'),
 	Buffer = require('buffer').Buffer,
-	filesys = class FileSystem {
+	fs_frag = class {
+		constructor(){
+			
+		}
+	},
+	filesys = class {
 		constructor(name){
 			var dyn = JSON.parse(localStorage.getItem(name) || '{}');
 			
-			this.static = {};
 			this.dynamic = {};
+			this.static = {};
+			
+			Object.assign(this.dynamic, dyn);
+			Object.assign(this.static, dyn);
 			
 			this.name = name;
-			
-			Object.assign(this.static, dyn);
-			Object.assign(this.dynamic, dyn);
 		}
 		update(){
 			localStorage.setItem(this.name, JSON.stringify(this.dynamic));
@@ -22,9 +27,7 @@ var path = require('path'),
 			var arr = path.resolve(file).split('/').filter(file => file),
 				depth = this.dynamic;
 			
-			arr.forEach(val => depth = depth[val] || {});
-			
-			if(depth instanceof Error)throw depth;
+			arr.forEach(val => depth = depth[val] || (depth[val] = {}));
 			
 			return depth;			
 		}
@@ -83,6 +86,8 @@ var path = require('path'),
 				depth_dyn = this.walk_file_dynamic(dirname),
 				compressed = lzutf8.compress(Buffer.from(data).toString('base64'), { outputEncoding: 'Base64' });
 			
+			console.log(depth_dyn);
+			
 			depth[basename] = compressed;
 			depth_dyn[basename] = compressed;
 			
@@ -132,6 +137,7 @@ var path = require('path'),
 	};
 
 module.exports = {
+	filesystem: filesystem,
 	mount(mount_point, type, data){
 		var parsed = data;
 		
@@ -152,7 +158,9 @@ module.exports = {
 	readFile(file, ...args){
 		var options = args.find(arg => typeof arg == 'object') || {},
 			callback = args.find(arg => typeof arg == 'function') || {},
-			ret = filesystem.read(file, options.encoding);
+			ret;
+
+		try{ ret = filesystem.read(file, options.encoding) }catch(err){ ret = err };
 		
 		callback(ret, ret instanceof Error ? null : ret);
 	},
@@ -160,24 +168,20 @@ module.exports = {
 		return filesystem.read(file, encoding);
 	},
 	writeFileSync(file, data, options){
-		var ret = write_file(file, data, options);
-		
-		if(ret instanceof Error)throw ret;
-		
-		return ret;
+		return filesystem.write(file, data, options);
 	},
 	writeFile(file, data, ...args){
 		var options = args.find(arg => typeof arg == 'object') || {},
 			callback = args.find(arg => typeof arg == 'function') || {},
-			ret = write_file(file, data, options);
+			ret = filesystem.write(file, data, options);
 		
 		callback(ret, ret instanceof Error ? null : ret);
 	},
 	readdirSync(dir, callback){
-		return ret.data;
+		return filesystem.read_dir(dir);
 	},
 	readdir(dir, callback){
-		var ret = read_dir(dir);
+		var ret = filesystem.read_dir(dir);
 		
 		callback(ret.error, ret.data);
 	},
