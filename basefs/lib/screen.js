@@ -69,7 +69,7 @@ var dims = exports.dims = {
 			
 			all_elements = all_elements.sort((ele, pele) => pele.layer - ele.layer);
 			
-			var target = all_elements.find(element => exports.element_in_mouse(element)) || { emit(){} };
+			var target = all_elements.find(element => exports.element_in_mouse(element)) || { emit(){}, cursor: 'pointer', };
 			
 			target.mouse_hover = true;
 			
