@@ -2,7 +2,7 @@
 
 ## Building:
 
-`npm install`
-`node build`
+```npm install```
+```node build```
 
 run dist.html
