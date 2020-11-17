@@ -1,7 +1,7 @@
 var screen = require('/lib/screen.js'),
 	ui = require('/lib/ui-class.js'),
 	background = new ui.image({ width: '100%', height: '100%', path: '/usr/share/wallpaper/default.png' }),
-	demo_window = new ui.window({ x: ui.align.middle, y: ui.align.middle, width: '600px', height: '400px', icon: '/usr/share/missing.png' }),
+	demo_window = new ui.window({ x: ui.align.middle, y: ui.align.middle, width: '600px', height: '400px', offset: { x: -25, y: -25 }, icon: '/usr/share/missing.png' }),
 	test_text = demo_window.content.append(new ui.text({
 		x: ui.align.middle,
 		y: ui.align.middle,
@@ -17,7 +17,7 @@ var screen = require('/lib/screen.js'),
 		size: 32,
 		weight: 'bold',
 	})),
-	cat_window = new ui.window({ title: 'CAT', x: ui.align.middle, y: ui.align.middle, offset: { x: 75, y: 75, }, width: '600px', height: '400px', icon: '/usr/share/missing.png' }),
+	cat_window = new ui.window({ title: 'CAT', x: ui.align.middle, y: ui.align.middle, offset: { x: 75, y: 0, }, width: '600px', height: '400px', icon: '/usr/share/missing.png' }),
 	cat_image = cat_window.content.append(new ui.image({
 		x: ui.align.middle,
 		y: ui.align.middle,
@@ -33,13 +33,20 @@ var screen = require('/lib/screen.js'),
 		size: 32,
 		family: 'impact',
 		weight: 'bold',
+	})),
+	cat_reload = cat_window.content.append(new ui.button({
+		x: ui.align.middle,
+		y: ui.align.bottom,
+		offset: {
+			y: -75,
+		},
+		text: 'regen',
 	}));
 
-/*Object.defineProperty(test_rect_dragbar, 'color', {
-	get(){
-		return this.mouse_pressed ? '#0F0' : this.mouse_hover ? '#F00' : '#00F'
-	},
-});*/
+cat_reload.on('mousedown', event => {
+	cat_image.path = 'https://cataas.com/cat?' + Date.now();
+	cat_image.gen();
+});
 
 screen.render_layers.append(background, demo_window, cat_window);
 

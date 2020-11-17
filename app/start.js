@@ -1,6 +1,6 @@
 var path = require('path'),
 	Buffer = require('buffer').Buffer,
-	fs = window.fs = require('fs'), // .mount('/', 'object', base_fs_data),
+	fs = window.fs = require('fs').mount('/', 'object', base_fs_data),
 	crequire = require('require'),
 	cvrequire = crequire.init(fs, '/');
 

@@ -6,7 +6,114 @@ var path = require('path'),
 	proxy = Symbol(),
 	fs_name = '__fs_1.0.0',
 	dynamic_fs = JSON.parse(localStorage.getItem(fs_name) || '{}'),
-	filesystem = Object.assign(base_fs_data, dynamic_fs),
+	filesys = window.filesys = class FileSystem {
+		constructor(name){
+			var dyn = JSON.parse(localStorage.getItem(name) || '{}');
+			
+			this.static = {};
+			this.dynamic = {};
+			
+			this.name = name;
+			
+			Object.assign(this.static, dyn);
+			Object.assign(this.dynamic, dyn);
+		}
+		update(){
+			localStorage.setItem(this.name, JSON.stringify(this.dynamic));
+		}
+		walk_file_dynamic(file){
+			var arr = path.resolve(file).split('/').filter(file => file),
+				depth = this.dynamic;
+			
+			arr.forEach(val => depth = depth[val] || {});
+			
+			if(depth instanceof Error)throw depth;
+			
+			return depth;			
+		}
+		walk_file(file){
+			var arr = path.resolve(file).split('/').filter(file => file),
+				depth = this.static;
+			
+			arr.forEach(val => depth = depth[val] || errors.enoent(file));
+			
+			if(depth instanceof Error)throw depth;
+			
+			return depth;
+		}
+		stat(file){
+			var depth = this.walk_file(path.resolve(file));
+			
+			return {
+				isDirectory: () => typeof depth == 'object',
+				ctimeMs: () => Date.now(),
+				atimeMs: () => Date.now(),
+				mtimeMs: () => Date.now(),
+			};
+		}
+		exists(file){
+			try{
+				this.walk_file(file);
+				return true;
+			}catch(err){}
+			
+			return false;
+		}
+		read(file, encoding){
+			var depth = this.walk_file(file);
+			
+			if(this.stat(file).isDirectory())throw errors.eisdir('read', file);
+			
+			var data = Buffer.from(lzutf8.decompress(depth, { inputEncoding: 'Base64' }), 'base64');
+			
+			return encoding ? data.toString(encoding) : data
+		}
+		write(file, data, options){
+			if(typeof data != 'string' && !(data instanceof Buffer) && !Array.isArray(data))throw errors.invalid_arg_type('data', ['Buffer', 'TypedArray', 'DataView'], typeof data);
+			
+			if(fs.existsSync(file) && fs.statSync(file).isDirectory())return errors.eisdir('open', file);
+			
+			var resolved = path.resolve(file),
+				resolved_split = resolved.split('/').filter(file => file),
+				dirname = path.dirname(file),
+				basename = path.basename(file),
+				depth = this.walk_file(dirname),
+				depth_dyn = this.walk_file_dynamic(dirname),
+				compressed = lzutf8.compress(Buffer.from(data).toString('base64'), { outputEncoding: 'Base64' });
+			
+			depth[basename] = compressed;
+			depth_dyn[basename] = compressed;
+			
+			this.update();
+		}
+		unlink(file){
+			var resolved = path.resolve(file),
+				resolved_split = resolved.split('/').filter(file => file),
+				dirname = path.dirname(file),
+				basename = path.basename(file),
+				depth = this.walk_file(dirname),
+				depth_dyn = this.walk_file_dynamic(dirname),
+				ret = Reflect.deleteProperty(depth, basename) && Reflect.deleteProperty(depth_dyn, basename);
+			
+			this.update();
+			
+			return ret;
+		}
+		data_uri(file){
+			return 'data:' + mime.getType(file) + ';base64,' + this.read(file, 'base64');
+		}
+		download(file){
+			var object_url = URL.createObjectURL(new Blob([ this.read(file) ])),
+				link = Object.assign(document.body.appendChild(document.createElement('a')), {
+					download: path.basename(file),
+					href: object_url,
+				});
+			
+			link.click();
+			URL.revokeObjectURL(object_url);
+		}
+	},
+	filesystem = Object.assign({}, dynamic_fs),
 	mounted = [],
 	update_fs = () => localStorage.setItem(fs_name, JSON.stringify(dynamic_fs)),
 	errors = {
@@ -18,7 +125,10 @@ var path = require('path'),
 		},
 		eisdir(operation, file){
 			return new TypeError('EISDIR: illegal operation on a directory, ' + operation + ' \'' + file + '\'');
-		}
+		},
+		invalid_arg_type(label, types, recieved){
+			return new TypeError('INVALID_ARG_TYPE: The "' + label + '" argument must be of type ' + types.join(', ') + '. Received ' + recieved)
+		},
 	},
 	walk_depth_dynamic = file => {
 		var split = file.split('/').filter(file => file),
@@ -59,7 +169,7 @@ var path = require('path'),
 		return encoding ? data.toString(encoding) : data;
 	},
 	write_file = (file, data, options = {}) => {
-		if(typeof data != 'string' && !(data instanceof Buffer) && !Array.isArray(data))return { error: new TypeError('[ERR_INVALID_ARG_TYPE]: The "data" argument must be of type string or an instance of Buffer, TypedArray, or DataView. Received ' + data) };
+		if(typeof data != 'string' && !(data instanceof Buffer) && !Array.isArray(data))throw new errors.invalid_arg_type('data', ['Buffer', 'TypedArray', 'DataView'], typeof data);
 		
 		if(fs.existsSync(file) && fs.statSync(file).isDirectory())return errors.eisdir('open', file);
 		
@@ -134,7 +244,6 @@ var path = require('path'),
 		}
 	},
 	fs = module.exports = {
-		filesystem: filesystem,
 		mount(mount_point, type, data){
 			var // depth = walk_depth_dir(mount_point).data,
 				parsed = data;

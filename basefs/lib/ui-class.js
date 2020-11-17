@@ -17,6 +17,20 @@ var fs = require('fs'),
 				secondary_hover: '#E5E5E5',
 			},
 		},
+		button: {
+			idle: {
+				border: '#ADADAD',
+				main: '#E1E1E1',
+			},
+			hover: {
+				border: '#0078D7',
+				main: '#E5F1FB',
+			},
+			active: {
+				border: '#005499',
+				main: '#CCE4F7',
+			},
+		},
 	};
 
 exports.align = {
@@ -174,17 +188,6 @@ exports.text = class ui_text extends exports.element {
 	}
 }
 
-exports.button = class ui_button extends exports.element {
-	constructor(opts){
-		super(opts, {
-			
-		});
-	}
-	draw(ctx, dims){
-		
-	}
-}
-
 exports.rect = class ui_rect extends exports.element {
 	constructor(opts){
 		super(opts, {
@@ -225,7 +228,9 @@ exports.image = class ui_image extends exports.element {
 			path: '/usr/share/missing.png',
 		});
 		
-		// determine if there is a protocol for the image, otherwise load from filesystem
+		this.gen();
+	}
+	gen(){
 		this.image = Object.assign(new Image(), {
 			src: /^\w+:\/{2}/.test(this.path) ? this.path : fs.data_uri(this.path),
 		});
@@ -342,6 +347,52 @@ exports.window = class ui_window extends exports.rect {
 		}));
 	}
 	draw(ctx, dims){
+		
+	}
+}
+
+exports.button = class ui_button extends exports.rect {
+	constructor(opts){
+		super({
+			width: 50,
+			height: 22,
+			color: '#E1E1E1',
+		});
+		
+		Object.assign(this, opts);
+		
+		this.border = this.append(new exports.border({
+			size: 1,
+			width: this.width,
+			height: this.height,
+		}));
+		
+		this.text = this.append(new exports.text({
+			x: this.icon ? 32 : 8,
+			y: '50%',
+			size: 14,
+			color: '#000',
+			baseline: 'middle',
+			height: '100%',
+			text: this.text,
+			interact: false,
+		}));
+		
+		Object.defineProperty(this.text.offset, 'x', { get: _ => this.mouse_pressed ? 1 : 0 });
+		
+		Object.defineProperty(this.border, 'color', { get: _ => 
+			this.mouse_pressed
+			? colors.button.active.border
+			: this.mouse_hover
+				? colors.button.hover.border
+				: colors.button.idle.border });
+		
+		Object.defineProperty(this, 'color', { get: _ => 
+			this.mouse_pressed
+			? colors.button.active.main
+			: this.mouse_hover
+				? colors.button.hover.main
+				: colors.button.idle.main });
 		
 	}
 }
