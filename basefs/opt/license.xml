@@ -19,7 +19,7 @@
         <text color='#000' x='100' y='25' size='30'>vibeOS License</text>
         <text color='#000' x='100' y='50' size='15'>Introduced: August 8, 2020 | Last Revised: August 8, 2020</text>
         <text color='#000' x='100' y='70' size='15'>Adapted for OSDV on November 17, 2020 by ctaetcsh</text>
-		<button text='Close' x='ui.align.right' y='ui.align.bottom' offset_x='-20' offset_y='-20' onclick='window.close()'></button>
+		<button x='ui.align.right' y='ui.align.bottom' offset_x='-20' offset_y='-20' onclick='window.close()'>Close</button>
 		
     </content>
 </app>

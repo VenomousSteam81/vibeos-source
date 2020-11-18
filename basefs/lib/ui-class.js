@@ -775,7 +775,14 @@ ui.parse_xml = xml => {
 			if(attr.offset_width)attr.offset.width = +attr.offset_width;
 			if(attr.offset_height)attr.offset.height = +attr.offset_height;
 			
-			if(node.nodeName == 'text')attr.text = node.innerHTML;
+			switch(node.nodeName){
+				case'text':
+				case'button':
+					
+					attr.text = node.innerHTML;
+					
+					break;
+			}
 			
 			var element = new ui[node.nodeName](attr);
 			
