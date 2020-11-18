@@ -777,8 +777,13 @@ ui.parse_xml = xml => {
 		if(attr.offset_width)attr.offset.width = +attr.offset_width;
 		if(attr.offset_height)attr.offset.height = +attr.offset_height;
 		
-		
 		var element = new ui[node.nodeName](attr);
+		
+		Object.entries(attr).filter(([ key, val ]) => key.startsWith('on')).forEach(([ key, val ]) => {
+			element.on(key.substr(2), event => {
+				eval(val);
+			});
+		});
 		
 		win.content.append(element);
 	});
