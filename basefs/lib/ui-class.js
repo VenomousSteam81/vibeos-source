@@ -1,5 +1,6 @@
 var fs = require('fs'),
 	events = require('events'),
+	dom_utils = require('/lib/dom-utils.js'),
 	colors = {
 		window: {
 			primary_hover: '#E81123',
@@ -702,7 +703,32 @@ exports.input = class ui_input extends exports.rect {
 		});
 	}
 	draw(ctx, dims){
+		Reflect.apply(exports.rect.prototype.draw, this, [ ctx, dims ]);
+	}
+}
+
+exports.webview = class ui_webview extends exports.rect {
+	constructor(opts){
+		super(opts, {
+			width: 100,
+			height: 20,
+			placeholder: '',
+		});
 		
+		Object.assign(this, {
+			url: 'about:blank',
+		}, opts);
+		
+		this.iframe = dom_utils.add_ele('iframe', document.body, {
+			src: this.url,
+			style: 'display: block; position: absolute;',
+		});
+	}
+	draw(ctx, dims){
+		this.iframe.style.width = this.width;
+		this.iframe.style.height = this.height;
+		this.iframe.style.top = this.y;
+		this.iframe.style.left = this.x;
 		
 		Reflect.apply(exports.rect.prototype.draw, this, [ ctx, dims ]);
 	}
