@@ -767,7 +767,10 @@ ui.parse_xml = xml => {
 		}),
 		contents = parsed.querySelectorAll('content *');
 	
-	console.log(contents);
+	parsed.querySelectorAll('script').forEach(node => {
+		new Function('window', node.innerHTML)(win);
+	});
+	
 	contents.forEach(node => {
 		var attr = Object.fromEntries([...node.attributes].map(attr => [ attr.nodeName, attr.nodeValue ]));
 		
