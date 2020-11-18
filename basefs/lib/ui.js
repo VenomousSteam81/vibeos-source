@@ -325,7 +325,7 @@ ui.menu = class ui_menu extends ui.rect {
 		
 		var prev;
 		
-		Object.entries(menu).forEach(([ key, val ]) => {
+		/*Object.entries(menu).forEach(([ key, val ]) => {
 			var preve = prev,
 				added = this.append(new ui.menu_button({
 					text: key,
@@ -337,6 +337,22 @@ ui.menu = class ui_menu extends ui.rect {
 			this.buttons.push(added);
 			
 			if(preve)Object.defineProperty(added, 'x', { get: _ => preve.width + preve.x });
+			
+			prev = added;
+		});*/
+		
+		Object.entries(menu).forEach(([ key, val ], ind) => {
+			var preev = prev, // assign as variable gets changed
+				added = this.append(new ui.menu_button({
+					text: key,
+					get x(){
+						return preev ? prev.width + preev.x : 0;
+					},
+					y: 0,
+					height: '100%',
+				}, val));
+			
+			this.buttons.push(added);
 			
 			prev = added;
 		});
@@ -545,6 +561,8 @@ ui.button = class ui_button extends ui.rect {
 				},
 			},
 		}));
+		
+		this.width = this.auto_width ? this.text.measure(web.screen.ctx).width + 20 : this.width;
 	}
 	draw(ctx, dims){
 		this.width = this.auto_width ? this.text.measure(ctx).width + 20 : this.width;
@@ -560,9 +578,16 @@ ui.system_button = class ui_button extends ui.rect {
 			color: '#E1E1E1',
 			auto_width: true, // determine width automatically
 			cursor: 'link',
+			get color(){
+				return this.mouse_pressed
+					? colors.menu_button.active.main
+					: this.mouse_hover
+						? colors.menu_button.hover.main
+						: colors.menu_button.idle.main;
+			},
 		});
 		
-		Object.assign(this, opts);
+		Object.defineProperties(this, Object.getOwnPropertyDescriptors(opts));
 		
 		this.offset = {
 			height: -2,
@@ -573,6 +598,13 @@ ui.system_button = class ui_button extends ui.rect {
 			size: 1,
 			width: '100%',
 			height: '100%',
+			get color(){
+				return this.mouse_pressed
+					? colors.menu_button.active.border
+					: this.mouse_hover
+						? colors.menu_button.hover.border
+						: colors.menu_button.idle.border;
+			},
 		}));
 		
 		this.text = this.append(new ui.text({
@@ -586,19 +618,6 @@ ui.system_button = class ui_button extends ui.rect {
 			text: this.text,
 			interact: false,
 		}));
-		
-		Object.defineProperty(this, 'color', { get: _ => 
-			this.mouse_pressed
-			? colors.menu_button.active.main
-			: this.mouse_hover
-				? colors.menu_button.hover.main
-				: colors.menu_button.idle.main });
-		
-		Object.defineProperty(this.border, 'color',  { get: _ => this.mouse_pressed
-			? colors.menu_button.active.border
-			: this.mouse_hover
-				? colors.menu_button.hover.border
-				: colors.menu_button.idle.border });
 	}
 	draw(ctx, dims){
 		this.width = this.auto_width ? this.text.measure(ctx).width + 20 : this.width;
@@ -614,9 +633,16 @@ ui.menu_button = class ui_button extends ui.rect {
 			color: '#E1E1E1',
 			auto_width: true, // determine width automatically
 			cursor: 'link',
+			get color(){
+				return 	this.mouse_pressed
+					? colors.menu_button.active.main
+					: this.mouse_hover
+						? colors.menu_button.hover.main
+						: colors.menu_button.idle.main
+			},
 		});
 		
-		Object.assign(this, opts);
+		Object.defineProperties(this, Object.getOwnPropertyDescriptors(opts));
 		
 		this.offset = {
 			height: -2,
@@ -627,6 +653,13 @@ ui.menu_button = class ui_button extends ui.rect {
 			size: 1,
 			width: '100%',
 			height: '100%',
+			get color(){
+				return this.mouse_pressed
+					? colors.menu_button.active.border
+					: this.mouse_hover
+						? colors.menu_button.hover.border
+						: colors.menu_button.idle.border
+			},
 		}));
 		
 		this.text = this.append(new ui.text({
@@ -641,37 +674,24 @@ ui.menu_button = class ui_button extends ui.rect {
 			interact: false,
 		}));
 		
-		Object.defineProperty(this, 'color', { get: _ => 
-			this.mouse_pressed
-			? colors.menu_button.active.main
-			: this.mouse_hover
-				? colors.menu_button.hover.main
-				: colors.menu_button.idle.main });
-		
-		Object.defineProperty(this.border, 'color',  { get: _ => this.mouse_pressed
-			? colors.menu_button.active.border
-			: this.mouse_hover
-				? colors.menu_button.hover.border
-				: colors.menu_button.idle.border });
-		
 		this.buttons = [];
 		
 		var prev;
 		
 		Object.entries(items).forEach(([ key, val]) => {
-			var preve = prev,
+			var preev = prev,
 				added = this.append(new ui.system_button({
 					text: key,
 					x: 0,
-					y: 20,
+					get y(){
+						return preev ? 20 + preev.y - 4 : 20
+					},
 					width: '100%',
 					height: this.height,
 					auto_width: false,
 				}, val));
 			
 			this.buttons.push(added);
-			
-			if(preve)Object.defineProperty(added, 'y', { get: _ => preve.height + preve.y - 2 });
 			
 			added.on('mouseup', () => {
 				val();
