@@ -1,29 +1,32 @@
-var dims = exports.dims = {
-		x: 0,
-		y: 0,
-		width: 854,
-		height: 480,
-	},
-	fs = require('fs'),
+var screen = web.screen = exports;
+
+screen.dims = {
+	x: 0,
+	y: 0,
+	width: 854,
+	height: 480,
+};
+
+var fs = require('fs'),
 	dom_utils = require('./dom-utils.js'),
 	ui = require('./ui.js'),
 	request_frame = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || (func => setTimeout(func, 1000 / 60)),
-	canvas = exports.canvas = dom_utils.add_ele('canvas', document.body, {
+	canvas = screen.canvas = dom_utils.add_ele('canvas', document.body, {
 		className: 'webos',
-		width: dims.width,
-		height: dims.height,
+		width: screen.dims.width,
+		height: screen.dims.height,
 		style: `
 			display: block;
 			position: absolute;
-			width: ${dims.width}px;
-			height: ${dims.height}px;
+			width: ${screen.dims.width}px;
+			height: ${screen.dims.height}px;
 			margin: auto;
 			top: 0px;
 			bottom: 0px;
 			left: 0px;
 			right: 0px;`,
 	}),
-	mouse = exports.mouse = Object.assign(new (require('events')), {
+	mouse = screen.mouse = Object.assign(new (require('events')), {
 		buttons: {},
 		previous: {},
 		cursor: 'pointer',
@@ -65,11 +68,11 @@ var dims = exports.dims = {
 					add_elements(element.elements, fixed);
 				});
 			
-			add_elements(exports.render_layers, dims);
+			add_elements(screen.layers, screen.dims);
 			
 			all_elements = all_elements.sort((ele, pele) => pele.layer - ele.layer);
 			
-			var target = all_elements.find(element => exports.element_in_mouse(element)) || { emit(){}, cursor: 'pointer', };
+			var target = all_elements.find(element => screen.element_in_mouse(element)) || { emit(){}, cursor: 'pointer', };
 			
 			target.mouse_hover = true;
 			
@@ -119,14 +122,7 @@ var dims = exports.dims = {
 				else element.focused = false;
 			});
 		},
-	}),
-	render_layers = class extends Array {
-		append(...elements){
-			this.push(...elements);
-			
-			return this;
-		}
-	};
+	});
 
 canvas.addEventListener('mousemove', mouse.handler);
 canvas.addEventListener('mousedown', mouse.handler);
@@ -137,11 +133,17 @@ canvas.addEventListener('mouseleave', () => mouse.buttons = {});
 
 document.body.style = 'margin: 0px; background: #000;';
 
-var ctx = exports.ctx = canvas.getContext('2d');
+var ctx = screen.ctx = canvas.getContext('2d');
 
-exports.render_layers = new render_layers();
+screen.layers = Object.assign([], {
+	append(...elements){
+		screen.layers.push(...elements);
+		
+		return elements[0];
+	}
+});;
 
-exports.render = () => {
+screen.render = () => {
 	var render_through = (orig_elements, dims) => {
 		// keep original elements reference to delete any garbage
 		var elements = orig_elements.filter(element => element.visible);
@@ -161,14 +163,14 @@ exports.render = () => {
 		});
 	};
 	
-	render_through(exports.render_layers, dims);
+	render_through(screen.layers, screen.dims);
 	
 	canvas.style.cursor = 'url("' + fs.data_uri('/usr/share/cursor/' + mouse.cursor + '.cur') + '"), none';
 	
-	request_frame(exports.render);
+	request_frame(screen.render);
 };
 
-exports.element_in_mouse = element => {
+screen.element_in_mouse = element => {
 	var region = {
 			sx: element.fixed.x,
 			sy: element.fixed.y,

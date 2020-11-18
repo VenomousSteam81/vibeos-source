@@ -1,6 +1,5 @@
 var screen = require('/lib/screen.js'),
 	ui = require('/lib/ui.js'),
-	background = new ui.image({ width: '100%', height: '100%', path: '/usr/share/wallpaper/default.png' }),
 	demo_window = new ui.window({ x: ui.align.middle, y: ui.align.middle, width: '600px', height: '400px', offset: { x: -25, y: -25 }, icon: '/usr/share/missing.png' }),
 	test_text = demo_window.content.append(new ui.text({
 		x: ui.align.middle,
@@ -28,9 +27,12 @@ var screen = require('/lib/screen.js'),
 		},
 	}));
 
-screen.render_layers.append(
-	background,
-	require('/var/demos/cats.js'),
+web.bg = screen.layers.append(require('/opt/ui/bg'));
+web.bar = screen.layers.append(require('/opt/ui/bar'));
+
+
+screen.layers.append(
+	// require('/var/demos/cats'),
 	ui.parse_xml(fs.readFileSync('/var/xml/license.xml', 'utf8')),
 );
 

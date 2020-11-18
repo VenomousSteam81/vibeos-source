@@ -1,6 +1,6 @@
 var path = require('path'),
 	mime = require('mime'),
-	os = {};
+	web = {};
 
 exports.cache = {};
 
@@ -9,6 +9,9 @@ exports.init = (fs, base_dir, stack = 'main') => {
 		var file = path.resolve(dire);
 		
 		if(/^[^\.\/\\]/g.test(dire) && exports.cache[dire])return exports.cache[dire];
+		
+		// add js extension if missing
+		if(!path.extname(file))file = file + '.js';
 		
 		if(!fs.existsSync(file))file = path.join(base_dir, file);
 		
@@ -39,6 +42,7 @@ exports.init = (fs, base_dir, stack = 'main') => {
 				Buffer: Buffer,
 				__filename: file,
 				__dirname: path.dirname(file),
+				web: web,
 			};
 		
 		new Function(Object.keys(args), script)(...Object.values(args));
