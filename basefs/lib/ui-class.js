@@ -769,8 +769,16 @@ ui.parse_xml = xml => {
 	
 	console.log(contents);
 	contents.forEach(node => {
-		var attributes = Object.fromEntries([...node.attributes].map(attr => [ attr.nodeName, attr.nodeValue ])),
-			element = new ui[node.nodeName](attributes);
+		var attr = Object.fromEntries([...node.attributes].map(attr => [ attr.nodeName, attr.nodeValue ]));
+		
+		attr.offset = {};
+		if(attr.offset_x)attr.offset.x = +attr.offset_x;
+		if(attr.offset_y)attr.offset.y = +attr.offset_y;
+		if(attr.offset_width)attr.offset.width = +attr.offset_width;
+		if(attr.offset_height)attr.offset.height = +attr.offset_height;
+		
+		
+		var element = new ui[node.nodeName](attr);
 		
 		win.content.append(element);
 	});
