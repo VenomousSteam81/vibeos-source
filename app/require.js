@@ -1,4 +1,5 @@
 var path = require('path'),
+	mime = require('mime'),
 	os = {};
 
 exports.cache = {};
@@ -19,6 +20,8 @@ exports.init = (fs, base_dir, stack = 'main') => {
 	};
 	
 	require.exec = (script, file) => {
+		if(mime.getType(file) == 'application/json')return JSON.parse(file);
+		
 		var _exports = {},
 			_module = {
 				get exports(){

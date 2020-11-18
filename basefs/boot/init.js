@@ -79,7 +79,8 @@ var screen = require('/lib/screen.js'),
 			y: -75,
 		},
 		text: 'regen',
-	}));
+	})),
+	start_window = ui.parse_xml(fs.readFileSync('/opt/welcome.xml', 'utf8'));
 
 test_input.on('submit', event => {
 	alert(test_input.value);
@@ -89,8 +90,9 @@ cat_reload.on('mouseup', event => {
 	cat_image.path = 'https://cataas.com/cat?' + Date.now();
 	cat_image.gen();
 });
+
 // cat_window
-screen.render_layers.append(background, cat_window, demo_window);
+screen.render_layers.append(background, cat_window, demo_window, start_window);
 
 // begin rendering
 screen.render();

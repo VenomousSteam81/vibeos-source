@@ -40,7 +40,7 @@ var path = require('path'),
 			var arr = path.resolve(file).split('/').filter(file => file),
 				depth = this.static;
 			
-			arr.forEach(val => depth = depth[val] || errors.enoent(file));
+			arr.forEach(val => depth = depth[val] == null ? errors.enoent(file) : depth[val]);
 			
 			if(depth instanceof Error)throw depth;
 			

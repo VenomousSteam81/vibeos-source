@@ -60,9 +60,10 @@ var fs = require('fs'),
 		setInterval(() => blinking[uuid] = blinking[uuid].length ? '' : '⎸', 1000);
 		
 		return blinking[uuid];
-	};
+	},
+	ui = exports;
 
-exports.align = {
+ui.align = {
 	left: Symbol(),
 	right: Symbol(),
 	top: Symbol(),
@@ -70,14 +71,14 @@ exports.align = {
 	middle: Symbol(),
 };
 
-exports.gen_uuid = () => [...Array(4)].map(() => {
+ui.gen_uuid = () => [...Array(4)].map(() => {
 	var d0 = Math.random() * 0xffffffff | 0;
 	return ('' + (d0 & 0xff).toString(16)).padStart(2, 0) + ('' + (d0 >> 8 & 0xff).toString(16)).padStart(2, 0) + ('' + (d0 >> 16 & 0xff).toString(16)).padStart(2, 0) + ('' + (d0 >> 24 & 0xff).toString(16)).padStart(2, 0)
 }).join('-').toUpperCase();
 
-exports.percentage = (perc, full) => (perc * full) / 100;
+ui.percentage = (perc, full) => (perc * full) / 100;
 
-exports.fixed_sp = (data, bounds) => {
+ui.fixed_sp = (data, bounds) => {
 	var data = Object.assign({}, data),
 		correct = {
 			width: 0,
@@ -93,7 +94,7 @@ exports.fixed_sp = (data, bounds) => {
 			switch(type){
 				case'%':
 					
-					ret = exports.percentage(actu, cor);
+					ret = ui.percentage(actu, cor);
 					
 					break;
 			}
@@ -105,25 +106,25 @@ exports.fixed_sp = (data, bounds) => {
 	correct.height = proc(data.height, bounds.height) + (data.offset.height || 0);
 	
 	switch(data.x){
-		case exports.align.middle:
+		case ui.align.middle:
 			data.x = (bounds.width / 2) - (correct.width / 2);
 			break;
-		case exports.align.right:
+		case ui.align.right:
 			data.x = bounds.width - correct.width;
 			break;
-		case exports.align.left:
+		case ui.align.left:
 			data.x = correct.width;
 			break;
 	}
 	
 	switch(data.y){
-		case exports.align.middle:
+		case ui.align.middle:
 			data.y = (bounds.height / 2) - (correct.height / 2);
 			break;
-		case exports.align.top:
+		case ui.align.top:
 			data.y = correct.height;
 			break;
-		case exports.align.bottom:
+		case ui.align.bottom:
 			data.y = bounds.height - correct.height;
 			break;
 	}
@@ -134,9 +135,9 @@ exports.fixed_sp = (data, bounds) => {
 	return correct;
 }
 
-exports.last_layer = 0;
+ui.last_layer = 0;
 
-exports.element = class extends events {
+ui.element = class extends events {
 	constructor(opts, addon){
 		super();
 		
@@ -147,11 +148,11 @@ exports.element = class extends events {
 		
 		this.cursor = 'pointer';
 		
-		this.uuid = exports.gen_uuid();
+		this.uuid = ui.gen_uuid();
 		
 		this.elements = [];
 		// layer out of parent elements
-		this.layer = exports.last_layer++;
+		this.layer = ui.last_layer++;
 		
 		this.interact = true;
 		this.visible = true;
@@ -192,7 +193,7 @@ exports.element = class extends events {
 	}
 };
 
-exports.text = class ui_text extends exports.element {
+ui.text = class ui_text extends ui.element {
 	constructor(opts){
 		super(opts, {
 			size: 16,
@@ -227,13 +228,13 @@ exports.text = class ui_text extends exports.element {
 		this.width = measured.width;
 		this.height = this.size;
 		
-		var fixed = exports.fixed_sp(this, dims);
+		var fixed = ui.fixed_sp(this, dims);
 		
 		ctx.fillText(this.text, fixed.x, fixed.y);
 	}
 }
 
-exports.rect = class ui_rect extends exports.element {
+ui.rect = class ui_rect extends ui.element {
 	constructor(opts){
 		super(opts, {
 			color: '#FFF',
@@ -242,13 +243,13 @@ exports.rect = class ui_rect extends exports.element {
 	draw(ctx, dims){
 		ctx.fillStyle = this.color;
 		
-		var fixed = exports.fixed_sp(this, dims);
+		var fixed = ui.fixed_sp(this, dims);
 		
 		ctx.fillRect(fixed.x, fixed.y, fixed.width, fixed.height);
 	}
 }
 
-exports.border = class ui_rect extends exports.element {
+ui.border = class ui_rect extends ui.element {
 	constructor(opts){
 		super(opts, {
 			color: '#FFF',
@@ -261,13 +262,13 @@ exports.border = class ui_rect extends exports.element {
 		ctx.strokeStyle = this.color;
 		ctx.lineWidth = this.size;
 		
-		var fixed = exports.fixed_sp(this, dims);
+		var fixed = ui.fixed_sp(this, dims);
 		
 		ctx.strokeRect(fixed.x, fixed.y, fixed.width, fixed.height);
 	}
 }
 
-exports.image = class ui_image extends exports.element {
+ui.image = class ui_image extends ui.element {
 	constructor(opts){
 		super(opts, {
 			path: '/usr/share/missing.png',
@@ -281,22 +282,22 @@ exports.image = class ui_image extends exports.element {
 		});
 	}
 	draw(ctx, dims){
-		var fixed = exports.fixed_sp(this, dims);
+		var fixed = ui.fixed_sp(this, dims);
 		
 		ctx.drawImage(this.image, fixed.x, fixed.y, fixed.width, fixed.height);
 	}
 }
 
-exports.menu = class ui_menu extends exports.rect {
+ui.menu = class ui_menu extends ui.rect {
 	constructor(opts, menu){
 		super(opts, {
-			x: exports.align.center,
+			x: ui.align.center,
 			width: '100%',
 			height: 20,
 			color: colors.menu.main,
 		});
 		
-		this.border = this.append(new exports.border({
+		this.border = this.append(new ui.border({
 			width: '100%',
 			height: '100%',
 			color: colors.menu.border,
@@ -310,7 +311,7 @@ exports.menu = class ui_menu extends exports.rect {
 		
 		Object.entries(menu).forEach(([ key, val ]) => {
 			var preve = prev,
-				added = this.append(new exports.menu_button({
+				added = this.append(new ui.menu_button({
 					text: key,
 					x: 0,
 					y: 0,
@@ -327,13 +328,13 @@ exports.menu = class ui_menu extends exports.rect {
 	draw(ctx, dims){
 		ctx.fillStyle = this.color; // this.window.title_bar.color;
 		
-		var fixed = exports.fixed_sp(this, dims);
+		var fixed = ui.fixed_sp(this, dims);
 		
 		ctx.fillRect(fixed.x, fixed.y, fixed.width, fixed.height);
 	}
 }
 
-exports.window = class ui_window extends exports.rect {
+ui.window = class ui_window extends ui.rect {
 	constructor(opts){
 		var othis = super(opts);
 		
@@ -344,13 +345,13 @@ exports.window = class ui_window extends exports.rect {
 			buttons: {},
 		}, opts);
 		
-		this.title_bar = this.append(new exports.rect({
+		this.title_bar = this.append(new ui.rect({
 			width: '100%',
 			height: 32,
 			drag: this,
 		}));
 		
-		this.title_text = this.title_bar.append(new exports.text({
+		this.title_text = this.title_bar.append(new ui.text({
 			x: this.icon ? 32 : 8,
 			y: 16,
 			size: 14,
@@ -360,8 +361,8 @@ exports.window = class ui_window extends exports.rect {
 			interact: false,
 		}));
 		
-		this.buttons.close = this.title_bar.append(new exports.rect({
-			x: exports.align.right,
+		this.buttons.close = this.title_bar.append(new ui.rect({
+			x: ui.align.right,
 			y: 0,
 			width: 45,
 			height: 29,
@@ -371,8 +372,8 @@ exports.window = class ui_window extends exports.rect {
 			},
 		}));
 		
-		this.buttons.close.text = this.buttons.close.append(new exports.text({
-			x: exports.align.middle,
+		this.buttons.close.text = this.buttons.close.append(new ui.text({
+			x: ui.align.middle,
 			y: 15,
 			size: 14,
 			baseline: 'middle',
@@ -402,15 +403,15 @@ exports.window = class ui_window extends exports.rect {
 		
 		Object.defineProperty(this.title_text, 'color', { get: () => this.active ? colors.window.active.text : colors.window.inactive.text });
 		
-		if(this.icon)this.title_image = this.title_bar.append(new exports.image({
+		if(this.icon)this.title_image = this.title_bar.append(new ui.image({
 			path: this.icon,
 			width: 16,
 			height: 16,
 			x: 8,
-			y: exports.align.middle,
+			y: ui.align.middle,
 		}));
 		
-		this.content = this.append(new exports.rect({
+		this.content = this.append(new ui.rect({
 			y: 32,
 			color: '#fff',
 			width: '100%',
@@ -423,13 +424,13 @@ exports.window = class ui_window extends exports.rect {
 			},
 		}));
 		
-		if(opts.menu)this.content.offset.height -= 20, this.content.offset.y += 20, this.menu = this.append(new exports.menu({
+		if(opts.menu)this.content.offset.height -= 20, this.content.offset.y += 20, this.menu = this.append(new ui.menu({
 			width: '100%',
 			height: 20,
 			window: this,
 		}, opts.menu));
 		
-		this.border = this.append(new exports.border({
+		this.border = this.append(new ui.border({
 			size: 2,
 			width: '100%',
 			height: '100%',
@@ -442,7 +443,7 @@ exports.window = class ui_window extends exports.rect {
 	}
 }
 
-exports.button = class ui_button extends exports.rect {
+ui.button = class ui_button extends ui.rect {
 	constructor(opts){
 		super({
 			height: 22,
@@ -453,13 +454,13 @@ exports.button = class ui_button extends exports.rect {
 		
 		Object.assign(this, opts);
 		
-		this.border = this.append(new exports.border({
+		this.border = this.append(new ui.border({
 			size: 1,
 			width: '100%',
 			height: '100%',
 		}));
 		
-		this.text = this.append(new exports.text({
+		this.text = this.append(new ui.text({
 			x: this.icon ? 32 : 8,
 			y: '50%',
 			size: 14,
@@ -491,11 +492,11 @@ exports.button = class ui_button extends exports.rect {
 	draw(ctx, dims){
 		this.width = this.auto_width ? this.text.measure(ctx).width + 20 : this.width;
 		
-		return Reflect.apply(exports.rect.prototype.draw, this, [ ctx, dims ]);
+		return Reflect.apply(ui.rect.prototype.draw, this, [ ctx, dims ]);
 	}
 }
 
-exports.system_button = class ui_button extends exports.rect {
+ui.system_button = class ui_button extends ui.rect {
 	constructor(opts){
 		super({
 			height: 22,
@@ -511,13 +512,13 @@ exports.system_button = class ui_button extends exports.rect {
 			x: 1,
 		};
 		
-		this.border = this.append(new exports.border({
+		this.border = this.append(new ui.border({
 			size: 1,
 			width: '100%',
 			height: '100%',
 		}));
 		
-		this.text = this.append(new exports.text({
+		this.text = this.append(new ui.text({
 			x: this.icon ? 32 : 8,
 			y: '50%',
 			size: 14,
@@ -545,11 +546,11 @@ exports.system_button = class ui_button extends exports.rect {
 	draw(ctx, dims){
 		this.width = this.auto_width ? this.text.measure(ctx).width + 20 : this.width;
 		
-		return Reflect.apply(exports.rect.prototype.draw, this, [ ctx, dims ]);
+		return Reflect.apply(ui.rect.prototype.draw, this, [ ctx, dims ]);
 	}
 }
 
-exports.menu_button = class ui_button extends exports.rect {
+ui.menu_button = class ui_button extends ui.rect {
 	constructor(opts, items){
 		super({
 			height: 22,
@@ -565,13 +566,13 @@ exports.menu_button = class ui_button extends exports.rect {
 			x: 1,
 		};
 		
-		this.border = this.append(new exports.border({
+		this.border = this.append(new ui.border({
 			size: 1,
 			width: '100%',
 			height: '100%',
 		}));
 		
-		this.text = this.append(new exports.text({
+		this.text = this.append(new ui.text({
 			x: this.icon ? 32 : 8,
 			y: '50%',
 			size: 14,
@@ -602,7 +603,7 @@ exports.menu_button = class ui_button extends exports.rect {
 		
 		Object.entries(items).forEach(([ key, val]) => {
 			var preve = prev,
-				added = this.append(new exports.system_button({
+				added = this.append(new ui.system_button({
 					text: key,
 					x: 0,
 					y: 20,
@@ -641,11 +642,11 @@ exports.menu_button = class ui_button extends exports.rect {
 		
 		this.width = this.auto_width ? this.text.measure(ctx).width + 20 : this.width;
 		
-		return Reflect.apply(exports.rect.prototype.draw, this, [ ctx, dims ]);
+		return Reflect.apply(ui.rect.prototype.draw, this, [ ctx, dims ]);
 	}
 }
 
-exports.input = class ui_input extends exports.rect {
+ui.input = class ui_input extends ui.rect {
 	constructor(opts){
 		super(opts, {
 			width: 100,
@@ -659,13 +660,13 @@ exports.input = class ui_input extends exports.rect {
 		
 		this.cursor = 'text';
 		
-		this.border = this.append(new exports.border({
+		this.border = this.append(new ui.border({
 			size: 1,
 			width: '100%',
 			height: '100%',
 		}));
 		
-		this.text = this.append(new exports.text({
+		this.text = this.append(new ui.text({
 			text: 'xd',
 			width: '100%',
 			color: '#000',
@@ -703,11 +704,11 @@ exports.input = class ui_input extends exports.rect {
 		});
 	}
 	draw(ctx, dims){
-		Reflect.apply(exports.rect.prototype.draw, this, [ ctx, dims ]);
+		Reflect.apply(ui.rect.prototype.draw, this, [ ctx, dims ]);
 	}
 }
 
-exports.webview = class ui_webview extends exports.rect {
+ui.webview = class ui_webview extends ui.rect {
 	constructor(opts){
 		super(opts, {
 			width: 100,
@@ -730,6 +731,14 @@ exports.webview = class ui_webview extends exports.rect {
 		this.iframe.style.top = this.y;
 		this.iframe.style.left = this.x;
 		
-		Reflect.apply(exports.rect.prototype.draw, this, [ ctx, dims ]);
+		Reflect.apply(ui.rect.prototype.draw, this, [ ctx, dims ]);
 	}
 }
+
+ui.parse_xml = xml => {
+	var dom_parser = new DOMParser();
+	
+	console.log(dom_parser.parseFromString(xml, 'application/xml'));
+	
+	return new ui.window({});
+};
