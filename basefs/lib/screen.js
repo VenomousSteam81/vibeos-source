@@ -6,7 +6,7 @@ var dims = exports.dims = {
 	},
 	fs = require('fs'),
 	dom_utils = require('./dom-utils.js'),
-	ui = require('./ui-class.js'),
+	ui = require('./ui.js'),
 	request_frame = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || (func => setTimeout(func, 1000 / 60)),
 	canvas = exports.canvas = dom_utils.add_ele('canvas', document.body, {
 		className: 'webos',
