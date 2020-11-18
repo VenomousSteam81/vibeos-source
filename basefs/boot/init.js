@@ -29,9 +29,9 @@ var screen = require('/lib/screen.js'),
 	}));
 
 screen.render_layers.append(
+	background,
 	require('/var/demos/cats.js'),
 	ui.parse_xml(fs.readFileSync('/var/xml/license.xml', 'utf8')),
-	background,
 );
 
 // begin rendering
