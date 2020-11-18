@@ -765,31 +765,32 @@ ui.parse_xml = xml => {
 			width: size.width || 200,
 			width: size.height || 200,
 		}),
-		contents = parsed.querySelectorAll('content *');
+		contents = parsed.querySelectorAll('content > *'),
+		proc_node = (node, append_to) => {
+			var attr = Object.fromEntries([...node.attributes].map(attr => [ attr.nodeName, attr.nodeValue ]));
+			
+			attr.offset = {};
+			if(attr.offset_x)attr.offset.x = +attr.offset_x;
+			if(attr.offset_y)attr.offset.y = +attr.offset_y;
+			if(attr.offset_width)attr.offset.width = +attr.offset_width;
+			if(attr.offset_height)attr.offset.height = +attr.offset_height;
+			
+			var element = new ui[node.nodeName](attr);
+			
+			Object.entries(attr).filter(([ key, val ]) => key.startsWith('on')).forEach(([ key, val ]) => {
+				element.on(key.substr(2), event => eval(val));
+			});
+			
+			node.querySelectorAll('*').forEach(node => proc_node(node, element));
+			
+			append_to.append(element);
+		};
 	
 	parsed.querySelectorAll('script').forEach(node => {
 		new Function('window', node.innerHTML)(win);
 	});
 	
-	contents.forEach(node => {
-		var attr = Object.fromEntries([...node.attributes].map(attr => [ attr.nodeName, attr.nodeValue ]));
-		
-		attr.offset = {};
-		if(attr.offset_x)attr.offset.x = +attr.offset_x;
-		if(attr.offset_y)attr.offset.y = +attr.offset_y;
-		if(attr.offset_width)attr.offset.width = +attr.offset_width;
-		if(attr.offset_height)attr.offset.height = +attr.offset_height;
-		
-		var element = new ui[node.nodeName](attr);
-		
-		Object.entries(attr).filter(([ key, val ]) => key.startsWith('on')).forEach(([ key, val ]) => {
-			element.on(key.substr(2), event => {
-				eval(val);
-			});
-		});
-		
-		win.content.append(element);
-	});
+	contents.forEach(node => proc_node(node, win.content));
 	
 	
 	return win;
