@@ -2,6 +2,12 @@
 
 <app>
 	<meta>
-		<name>Welcome to vibeOS</name>
+		<title>Welcome to vibeOS</title>
+		<icon src='/usr/share/missing.png'></icon>
+		<position x='ui.align.middle' y='ui.align.middle'></position>
+		<size width='500px' height='500px'></size>
 	</meta>
+	<content>
+		<text text='Welcome to vibeOS!' color='#000' x='ui.align.middle' y='20' size='25'></text>
+	</content>
 </app>

@@ -102,6 +102,12 @@ ui.fixed_sp = (data, bounds) => {
 			return ret;
 		};
 	
+	Object.entries(ui.align).forEach(([ key, val ]) => {
+		if(data.x == 'ui.align.' + key)data.x = val;
+		if(data.y == 'ui.align.' + key)data.y = val;
+		
+	});
+	
 	correct.width = proc(data.width, bounds.width) + (data.offset.width || 0);
 	correct.height = proc(data.height, bounds.height) + (data.offset.height || 0);
 	
@@ -291,7 +297,7 @@ ui.image = class ui_image extends ui.element {
 ui.menu = class ui_menu extends ui.rect {
 	constructor(opts, menu){
 		super(opts, {
-			x: ui.align.center,
+			x: ui.align.middle,
 			width: '100%',
 			height: 20,
 			color: colors.menu.main,
@@ -736,9 +742,39 @@ ui.webview = class ui_webview extends ui.rect {
 }
 
 ui.parse_xml = xml => {
-	var dom_parser = new DOMParser();
+	var dom_parser = new DOMParser(),
+		parsed = dom_parser.parseFromString(xml, 'application/xml'),
+		position = parsed.querySelector('meta > position'),
+		size = parsed.querySelector('meta > size');
 	
-	console.log(dom_parser.parseFromString(xml, 'application/xml'));
+	if(position)position = {
+		x: position.getAttribute('x'),
+		y: position.getAttribute('y'),
+	};
 	
-	return new ui.window({});
+	if(size)size = {
+		width: size.getAttribute('width'),
+		height: size.getAttribute('height'),
+	}
+	
+	var win = new ui.window({
+			title: (parsed.querySelector('meta > title') || {}).textContent || 'Untitled app',
+			icon: (parsed.querySelector('meta > icon') || { getAttribute(){} }).getAttribute('src'),
+			x: position.x || ui.align.middle,
+			y: position.y || ui.align.middle,
+			width: size.width || 200,
+			width: size.height || 200,
+		}),
+		contents = parsed.querySelectorAll('content *');
+	
+	console.log(contents);
+	contents.forEach(node => {
+		var attributes = Object.fromEntries([...node.attributes].map(attr => [ attr.nodeName, attr.nodeValue ])),
+			element = new ui[node.nodeName](attributes);
+		
+		win.content.append(element);
+	});
+	
+	
+	return win;
 };
