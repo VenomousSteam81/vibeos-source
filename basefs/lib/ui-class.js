@@ -649,9 +649,12 @@ exports.input = class ui_input extends exports.rect {
 		super(opts, {
 			width: 100,
 			height: 20,
-			placeholder: 'h',
-			submit_on_enter: false,
+			placeholder: '',
 		});
+		
+		Object.assign(this, {
+			submit: true,
+		}, opts);
 		
 		this.cursor = 'text';
 		
@@ -682,13 +685,16 @@ exports.input = class ui_input extends exports.rect {
 		Object.defineProperty(this.border, 'color', { get: _ => this.focused ? '#0078D7' : '#000' });
 		
 		window.addEventListener('keydown', event => {
-			blinking[this.uuid] = '|';
-			
 			if(!this.focused)return;
+			
+			blinking[this.uuid] = '⎸';
 			
 			switch(event.code){
 				case'Backspace':
 					this.value = this.value.slice(0, -1);
+					break;
+				case'Enter':
+					if(this.submit)this.emit('submit', event), this.value = '';
 					break;
 				default:
 					if(event.key.length == 1)this.value += event.key;

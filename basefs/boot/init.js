@@ -81,6 +81,10 @@ var screen = require('/lib/screen.js'),
 		text: 'regen',
 	}));
 
+test_input.on('submit', event => {
+	alert(test_input.value);
+});
+
 cat_reload.on('mouseup', event => {
 	cat_image.path = 'https://cataas.com/cat?' + Date.now();
 	cat_image.gen();
