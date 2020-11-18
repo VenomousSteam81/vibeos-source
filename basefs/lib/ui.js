@@ -176,7 +176,9 @@ ui.element = class extends events {
 			height: 0,
 		};
 		
-		Object.assign(this, addon, opts);
+		Object.assign(this, addon);
+		
+		Object.defineProperties(this, Object.getOwnPropertyDescriptors(opts));
 		
 		return this;
 	}
@@ -501,7 +503,13 @@ ui.button = class ui_button extends ui.rect {
 	constructor(opts){
 		super({
 			height: 22,
-			color: '#E1E1E1',
+			get color(){
+				return this.mouse_pressed
+					? colors.button.active.main
+					: this.mouse_hover
+						? colors.button.hover.main
+						: colors.button.idle.main
+			},
 			auto_width: true, // determine width automatically
 			cursor: 'link',
 		});
@@ -512,6 +520,13 @@ ui.button = class ui_button extends ui.rect {
 			size: 1,
 			width: '100%',
 			height: '100%',
+			get color(){
+				return this.mouse_pressed
+					? colors.button.active.border
+					: this.mouse_hover
+						? colors.button.hover.border
+						: colors.button.idle.border;
+			},
 		}));
 		
 		this.text = this.append(new ui.text({
@@ -524,24 +539,12 @@ ui.button = class ui_button extends ui.rect {
 			height: '100%',
 			text: this.text,
 			interact: false,
+			offset: {
+				get x(){
+					return this.mouse_pressed ? 1 : 0 ;
+				},
+			},
 		}));
-		
-		Object.defineProperty(this.text.offset, 'x', { get: _ => this.mouse_pressed ? 1 : 0 });
-		
-		Object.defineProperty(this, 'color', { get: _ => 
-			this.mouse_pressed
-			? colors.button.active.main
-			: this.mouse_hover
-				? colors.button.hover.main
-				: colors.button.idle.main });
-		
-		Object.defineProperties(this.border, {
-			color: { get: _ => this.mouse_pressed
-				? colors.button.active.border
-				: this.mouse_hover
-					? colors.button.hover.border
-					: colors.button.idle.border },
-		});
 	}
 	draw(ctx, dims){
 		this.width = this.auto_width ? this.text.measure(ctx).width + 20 : this.width;
@@ -868,14 +871,18 @@ ui.bar = class extends ui.rect {
 		this.open = new Map();
 	}
 	draw(ctx, dims){
-		var prev = { x: 0, width: 0 };
-		
-		this.open.forEach((icon, element) => {
+		this.open.forEach((icon, element, map) => {
 			if(!element.show_in_bar)return;
 			
 			if(!icon){
 				icon = this.append(new ui.rect({
-					x: prev.x + prev.width,
+					get x(){
+						var vals = [...map.values()],
+							icon_ind = vals.findIndex(ele => ele.uuid == icon.uuid),
+							prev = vals.find((ele, ind) => ind == icon_ind - 1) || { x: 0, width: 0 };
+						
+						return prev.x + prev.width;
+					},
 					width: 40,
 					height: 40,
 					steal_focus: false,
@@ -908,8 +915,6 @@ ui.bar = class extends ui.rect {
 			
 			icon.color = element.active ? '#333333' : '#101010';
 			icon.bottom_thing.visible = element.active;
-			
-			prev = icon;
 			
 			if(element.deleted)return icon.deleted = true, this.open.delete(element);
 		});
