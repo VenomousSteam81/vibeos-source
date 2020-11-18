@@ -1,4 +1,5 @@
-var path = require('path');
+var path = require('path'),
+	os = {};
 
 exports.cache = {};
 

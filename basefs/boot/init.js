@@ -17,6 +17,16 @@ var screen = require('/lib/screen.js'),
 		size: 32,
 		weight: 'bold',
 	})),
+	test_input = demo_window.content.append(new ui.input({
+		x: ui.align.middle,
+		y: ui.align.bottom,
+		placeholder: 'enter text here',
+		width: 160,
+		height: 25,
+		offset: {
+			y: -75,
+		},
+	})),
 	cat_window = new ui.window({
 		title: 'CAT',
 		x: ui.align.middle, 
@@ -75,8 +85,8 @@ cat_reload.on('mouseup', event => {
 	cat_image.path = 'https://cataas.com/cat?' + Date.now();
 	cat_image.gen();
 });
-
-screen.render_layers.append(background, demo_window, cat_window);
+// cat_window
+screen.render_layers.append(background, demo_window);
 
 // begin rendering
 screen.render();

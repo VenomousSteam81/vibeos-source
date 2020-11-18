@@ -49,6 +49,16 @@ var fs = require('fs'),
 				main: '#CCE4F7',
 			},
 		},
+	},
+	blinking = {},
+	blink_string = uuid => {
+		if(blinking[uuid] != null)return blinking[uuid];
+		
+		blinking[uuid] = '|';
+		
+		setInterval(() => blinking[uuid] = blinking[uuid].length ? '' : '⎸', 1000);
+		
+		return blinking[uuid];
 	};
 
 exports.align = {
@@ -189,6 +199,7 @@ exports.text = class ui_text extends exports.element {
 			text: 'Placeholder',
 			align: 'start',
 			color: '#FFF',
+			baseline: 'middle',
 		});
 	}
 	measure(ctx){
@@ -630,5 +641,63 @@ exports.menu_button = class ui_button extends exports.rect {
 		this.width = this.auto_width ? this.text.measure(ctx).width + 20 : this.width;
 		
 		return Reflect.apply(exports.rect.prototype.draw, this, [ ctx, dims ]);
+	}
+}
+
+exports.input = class ui_input extends exports.rect {
+	constructor(opts){
+		super(opts, {
+			width: 100,
+			height: 20,
+			placeholder: 'h',
+			submit_on_enter: false,
+		});
+		
+		this.cursor = 'text';
+		
+		this.border = this.append(new exports.border({
+			size: 1,
+			width: '100%',
+			height: '100%',
+		}));
+		
+		this.text = this.append(new exports.text({
+			text: 'xd',
+			width: '100%',
+			color: '#000',
+			y: '50%',
+			interact: false,
+			offset: {
+				x: 7,
+			},
+		}));
+		
+		this.value = '';
+		
+		Object.defineProperties(this.text, {
+			text: { get: _ => this.focused ? (this.value || '') + blink_string(this.uuid) : this.value ? this.value : this.placeholder },
+			color: { get: _ => this.value ? '#000' : '#767676' },
+		});
+		
+		Object.defineProperty(this.border, 'color', { get: _ => this.focused ? '#0078D7' : '#000' });
+		
+		window.addEventListener('keydown', event => {
+			blinking[this.uuid] = '|';
+			
+			if(!this.focused)return;
+			
+			switch(event.code){
+				case'Backspace':
+					this.value = this.value.slice(0, -1);
+					break;
+				default:
+					if(event.key.length == 1)this.value += event.key;
+			}
+		});
+	}
+	draw(ctx, dims){
+		
+		
+		Reflect.apply(exports.rect.prototype.draw, this, [ ctx, dims ]);
 	}
 }

@@ -112,7 +112,7 @@ var dims = exports.dims = {
 			
 			var menu_toggles = all_elements.filter(element => element instanceof ui.menu_button);
 			
-			if(event.type == 'mousedown')menu_toggles.forEach(element => {
+			if(event.type == 'mousedown')all_elements.forEach(element => {
 				if(element.includes(target))element.focused = true;
 				else element.focused = false;
 			});
