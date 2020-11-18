@@ -90,7 +90,7 @@ cat_reload.on('mouseup', event => {
 	cat_image.gen();
 });
 // cat_window
-screen.render_layers.append(background, demo_window);
+screen.render_layers.append(background, cat_window, demo_window);
 
 // begin rendering
 screen.render();
