@@ -80,7 +80,7 @@ var screen = require('/lib/screen.js'),
 		},
 		text: 'regen',
 	})),
-	start_window = ui.parse_xml(fs.readFileSync('/opt/welcome.xml', 'utf8'));
+	start_window = ui.parse_xml(fs.readFileSync('/opt/license.xml', 'utf8'));
 
 test_input.on('submit', event => {
 	alert(test_input.value);
@@ -92,7 +92,8 @@ cat_reload.on('mouseup', event => {
 });
 
 // cat_window
-screen.render_layers.append(background, cat_window, demo_window, start_window);
+screen.render_layers.append(background, start_window);
+//cat_window, demo_window, 
 
 // begin rendering
 screen.render();
