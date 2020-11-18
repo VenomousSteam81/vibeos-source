@@ -106,14 +106,16 @@ var fs = require('fs'),
 			var wins = all_elements.filter(element => element instanceof ui.window).sort((ele, pele) => ele.layer - pele.layer),
 				target_win = wins.find(element => element.includes(target));
 			
-			if(target_win && event.type == 'mousedown'){
-				wins.forEach(element => {
-					element.active = false;
-					target_win.layer = element.layer + element.elements.length + 1;
-				});
-				
-				target_win.active = true;
-			}else if(event.type == 'mousedown')wins.forEach(element => element.active = false);
+			if(target.steal_focus && event.type == 'mousedown'){
+				if(target_win){
+					wins.forEach(element => {
+						element.active = false;
+						target_win.layer = element.layer + element.elements.length + 1;
+					});
+					
+					target_win.active = true;
+				}else wins.forEach(element => element.active = false);
+			}
 			
 			var menu_toggles = all_elements.filter(element => element instanceof ui.menu_button);
 			
@@ -135,20 +137,23 @@ document.body.style = 'margin: 0px; background: #000;';
 
 var ctx = screen.ctx = canvas.getContext('2d');
 
-screen.layers = Object.assign([], {
+screen.layers = Object.assign([
+	require('/opt/ui/bg'),
+	web.bar = new ui.bar({}),
+], {
 	append(...elements){
 		screen.layers.push(...elements);
 		
 		return elements[0];
 	}
-});;
+});
 
 screen.render = () => {
 	var render_through = (orig_elements, dims) => {
 		// keep original elements reference to delete any garbage
 		var elements = orig_elements.filter(element => element.visible);
 		
-		elements.sort((ele, pele) => ele.layer - pele.layer).forEach(element => {
+		elements.sort((ele, pele) => ele.layer - (pele.always_on_top ? ele.layer + pele.layer : pele.layer)).forEach(element => {
 			if(element.deleted){
 				var ind = orig_elements.findIndex(pele => pele.uuid == element.uuid);
 				
@@ -156,7 +161,7 @@ screen.render = () => {
 			}
 			
 			ctx.save();
-			element.draw(ctx, dims);
+			element.draw(screen.ctx, dims);
 			ctx.restore();
 			
 			render_through(element.elements, ui.fixed_sp(element, dims));

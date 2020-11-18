@@ -154,6 +154,9 @@ ui.element = class extends events {
 		
 		this.cursor = 'pointer';
 		
+		this.steal_focus = true;
+		this.always_on_top = false;
+		
 		this.uuid = ui.gen_uuid();
 		
 		this.elements = [];
@@ -196,6 +199,11 @@ ui.element = class extends events {
 			});
 			
 		return this.uuid == element.uuid || in_arr(this.elements);
+	}
+	delete_uuid(uuid){
+		var ind = this.elements.findIndex(ele => ele.uuid == uuid);
+		
+		if(ind)return this.elements.splice(ind, 1);
 	}
 };
 
@@ -349,6 +357,7 @@ ui.window = class ui_window extends ui.rect {
 			width: 200,
 			height: 200,
 			buttons: {},
+			show_in_bar: true,
 		}, opts);
 		
 		this.title_bar = this.append(new ui.rect({
@@ -443,6 +452,45 @@ ui.window = class ui_window extends ui.rect {
 		}));
 		
 		Object.defineProperty(this.border, 'color', { get: () => this.active ? colors.window.active.border : colors.window.inactive.border });
+		
+		web.bar.open.set(this, null);
+	}
+	bring_to_top(){
+		var all_elements = [],
+			add_elements = (arr, dims) => arr.filter(element => element.visible && element.interact).forEach(element => {
+				var fixed = ui.fixed_sp(element, dims);
+				
+				element.fixed = fixed;
+				
+				all_elements.push(element);
+				
+				add_elements(element.elements, fixed);
+			});
+		
+		add_elements(web.screen.layers, web.screen.dims);
+		
+		all_elements = all_elements.sort((ele, pele) => pele.layer - ele.layer);
+		
+		all_elements.filter(element => element instanceof ui.window && element.uuid != this.uuid).sort((ele, pele) => ele.layer - pele.layer).forEach(element => {
+			element.active = false;
+			this.layer = element.layer + element.elements.length + 1;
+		});
+		
+		this.show();
+		this.focus();
+	}
+	show(){
+		this.visible = true;
+	}
+	hide(){
+		this.visible = false;
+		this.active = false;
+	}
+	focus(){
+		this.active = true;
+	}
+	blur(){
+		this.active = false;
 	}
 	close(){
 		this.deleted = true;
@@ -803,4 +851,69 @@ ui.parse_xml = xml => {
 	
 	
 	return win;
+};
+
+ui.bar = class extends ui.rect {
+	constructor(opts){
+		super(opts);
+		
+		Object.assign(this, {
+			width: '100%',
+			height: 40,
+			color: '#101010',
+			y: ui.align.bottom,
+			always_on_top: true,
+		});
+		
+		this.open = new Map();
+	}
+	draw(ctx, dims){
+		var prev = { x: 0, width: 0 };
+		
+		this.open.forEach((icon, element) => {
+			if(!element.show_in_bar)return;
+			
+			if(!icon){
+				icon = this.append(new ui.rect({
+					x: prev.x + prev.width,
+					width: 40,
+					height: 40,
+					steal_focus: false,
+				}));
+				
+				icon.image = icon.append(new ui.image({
+					x: ui.align.middle,
+					y: ui.align.middle,
+					width: 30,
+					height: 30,
+					path: element.icon,
+					interact: false,
+				}));
+				
+				icon.on('click', event => {
+					element.active ? element.hide() : element.bring_to_top();
+				});
+				
+				icon.bottom_thing = icon.append(new ui.rect({
+					width: '100%',
+					height: 2,
+					y: ui.align.bottom,
+					color: '#60B0D5',
+					visible: false,
+					interact: false,
+				}));
+				
+				this.open.set(element, icon);
+			}
+			
+			icon.color = element.active ? '#333333' : '#101010';
+			icon.bottom_thing.visible = element.active;
+			
+			prev = icon;
+			
+			if(element.deleted)return icon.deleted = true, this.open.delete(element);
+		});
+		
+		Reflect.apply(ui.rect.prototype.draw, this, [ ctx, dims ]);
+	}
 };
