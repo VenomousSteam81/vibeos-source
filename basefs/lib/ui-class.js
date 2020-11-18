@@ -778,7 +778,9 @@ ui.parse_xml = xml => {
 			var element = new ui[node.nodeName](attr);
 			
 			Object.entries(attr).filter(([ key, val ]) => key.startsWith('on')).forEach(([ key, val ]) => {
-				element.on(key.substr(2), event => eval(val));
+				var func = new Function('window', val);
+				
+				element.on(key.substr(2), event => func.apply(element, [ win ]));
 			});
 			
 			node.querySelectorAll('*').forEach(node => proc_node(node, element));
@@ -786,9 +788,7 @@ ui.parse_xml = xml => {
 			append_to.append(element);
 		};
 	
-	parsed.querySelectorAll('script').forEach(node => {
-		new Function('window', node.innerHTML)(win);
-	});
+	parsed.querySelectorAll('script').forEach(node => new Function('window', node.innerHTML)(win));
 	
 	contents.forEach(node => proc_node(node, win.content));
 	

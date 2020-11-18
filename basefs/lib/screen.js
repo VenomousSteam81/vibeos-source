@@ -89,6 +89,8 @@ var dims = exports.dims = {
 			
 			target.emit(event.type, event);
 			
+			if(event.type == 'mouseup')target.emit('click', event);
+			
 			target.mouse_pressed = mouse.buttons.left;
 			
 			if(mouse.target)mouse.target.mouse_pressed = mouse.buttons.left ? true : false;
@@ -148,7 +150,7 @@ exports.render = () => {
 			if(element.deleted){
 				var ind = orig_elements.findIndex(pele => pele.uuid == element.uuid);
 				
-				if(ind)orig_elements.splice(ind, 1);
+				if(ind != null)orig_elements.splice(ind, 1);
 			}
 			
 			ctx.save();

@@ -80,7 +80,7 @@ var screen = require('/lib/screen.js'),
 		},
 		text: 'regen',
 	})),
-	start_window = ui.parse_xml(fs.readFileSync('/opt/license.xml', 'utf8'));
+	license = ui.parse_xml(fs.readFileSync('/opt/license.xml', 'utf8'));
 
 test_input.on('submit', event => {
 	alert(test_input.value);
@@ -91,9 +91,10 @@ cat_reload.on('mouseup', event => {
 	cat_image.gen();
 });
 
-// cat_window
-screen.render_layers.append(background, start_window);
-//cat_window, demo_window, 
+screen.render_layers.append(
+	license,
+	background,
+);
 
 // begin rendering
 screen.render();
