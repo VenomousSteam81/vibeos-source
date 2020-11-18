@@ -3,6 +3,6 @@
 	"version": "1.0.0",
 	"dependencies": {
 		"browserify": "^17.0.0",
-		"terser": "^5.3.8"
+		"terser": "^5.4.0"
 	}
 }
