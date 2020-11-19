@@ -138,7 +138,7 @@ ui.fixed_sp = (data, bounds) => {
 	correct.x = bounds.x + proc(data.x, bounds.width) + (data.offset.x || 0);
 	correct.y = bounds.y + proc(data.y, bounds.height) + (data.offset.y || 0);
 	
-	return correct;
+	return Object.assign(data, correct);
 }
 
 ui.last_layer = 0;
@@ -147,34 +147,39 @@ ui.element = class extends events {
 	constructor(opts, addon){
 		super();
 		
-		this.x = 0;
-		this.y = 0;
-		this.width = 0;
-		this.height = 0;
-		
-		this.cursor = 'pointer';
-		
-		this.steal_focus = true;
-		this.always_on_top = false;
-		
-		this.uuid = ui.gen_uuid();
-		
-		this.elements = [];
-		// layer out of parent elements
-		this.layer = ui.last_layer++;
-		
-		this.interact = true;
-		this.visible = true;
-		
-		this.deleted = false;
-		
-		// x-change, y-change are passed to rendering since cant add to any width or height properties if they are 50% or a symbol
-		this.offset = {
+		Object.assign(this, {
 			x: 0,
 			y: 0,
 			width: 0,
 			height: 0,
-		};
+			cursor: 'pointer',
+			apply_clip: true,
+			apply_translate: true,
+			steal_focus: true,
+			always_on_top: false,
+			scroll: false,
+			clip: false,
+			uuid: ui.gen_uuid(),
+			elements: [],
+			// layer out of parent elements
+			layer: ui.last_layer++,
+			interact: true,
+			visible: true,
+			deleted: false,
+			// x-change, y-change are passed to rendering since cant add to any width or height properties if they are 50% or a symbol
+			offset: {
+				x: 0,
+				y: 0,
+				width: 0,
+				height: 0,
+			},
+			translate: {
+				x: 0,
+				y: 0,
+			},
+		});
+		
+		this.setMaxListeners(50);
 		
 		Object.assign(this, addon);
 		
@@ -187,7 +192,7 @@ ui.element = class extends events {
 		
 		this.elements.push(element);
 		
-		Object.defineProperty(element, 'layer', { get: () => this.layer + layer });
+		Object.defineProperty(element, 'layer', { get: () => this.layer + layer, set: v => layer = v });
 		
 		return element;
 	}
@@ -207,6 +212,49 @@ ui.element = class extends events {
 		
 		if(ind)return this.elements.splice(ind, 1);
 	}
+	draw_scroll(ctx, dims){
+		if(!this.scroll_border){
+			this.scroll_border = this.append(new ui.border({
+				size: 2,
+				color: '#000',
+				width: '100%',
+				height: '100%',
+				offset: {
+				},
+				apply_clip: false,
+				apply_translate: false,
+			}));
+			
+			this.scroll_bar = this.append(new ui.rect({
+				size: 2,
+				color: '#000',
+				width: 15,
+				height: '100%',
+				x: ui.align.right,
+				y: 0,
+				apply_clip: false,
+				apply_translate: false,
+			}));
+			
+			this.scroll_button = this.append(new ui.rect({
+				color: '#FFF',
+				width: 15,
+				height: 15,
+				x: ui.align.right,
+				apply_translate: false,
+			}));
+			
+			console.log(this.layer, this.scroll_button.layer);
+			
+			this.scroll_button.on('drag', mouse => {
+				if(this.scroll_button.offset.y + mouse.movement.y < 0)return;
+				
+				this.translate.y -= mouse.movement.y;
+				
+				this.scroll_button.offset.y += mouse.movement.y;
+			});
+		}
+	}
 };
 
 ui.text = class ui_text extends ui.element {
@@ -218,6 +266,7 @@ ui.text = class ui_text extends ui.element {
 			align: 'start',
 			color: '#FFF',
 			baseline: 'middle',
+			auto_width: true,
 		});
 	}
 	measure(ctx){
@@ -229,6 +278,8 @@ ui.text = class ui_text extends ui.element {
 		
 		var ret = ctx.measureText(this.text);
 		
+		ret.height = ret.actualBoundingBoxAscent + ret.actualBoundingBoxDescent;
+		
 		ctx.restore();
 		
 		return ret;
@@ -239,14 +290,43 @@ ui.text = class ui_text extends ui.element {
 		ctx.textBaseline = this.baseline;
 		ctx.font = (this.weight ? this.weight + ' ' : '') + this.size + 'px ' + this.family;
 		
-		var measured = ctx.measureText(this.text);
+		var measured = this.measure(ctx);
 		
 		this.width = measured.width;
-		this.height = this.size;
+		this.height = measured.height;
 		
-		var fixed = ui.fixed_sp(this, dims);
+		var fixed = ui.fixed_sp(this, dims),
+			tmp_line = 0,
+			lines = this.text.split('\n').flatMap(line => {
+				var ret = [],
+					width = 0;
+				
+				line.split(' ').forEach(word => {
+					width = width + ctx.measureText(word + ' ').width;
+					
+					if(width * 1.4 >= dims.width){
+						width = 0;
+						word = '\n' + word;
+					}
+					
+					ret.push(word);
+				});
+				
+				return ret.join(' ').split('\n');
+			}),
+			bigg_width = 0;
 		
-		ctx.fillText(this.text, fixed.x, fixed.y);
+		lines.forEach(line => {
+			var measured = ctx.measureText(line);
+			
+			if(measured.width > bigg_width)bigg_width = measured.width;
+			
+			ctx.fillText(line, fixed.x, fixed.y + tmp_line);
+			
+			tmp_line = tmp_line + Number(this.size);
+		});
+		
+		if(this.auto_width)this.width = bigg_width;
 	}
 }
 
@@ -265,7 +345,7 @@ ui.rect = class ui_rect extends ui.element {
 	}
 }
 
-ui.border = class ui_rect extends ui.element {
+ui.border = class ui_border extends ui.element {
 	constructor(opts){
 		super(opts, {
 			color: '#FFF',
@@ -840,6 +920,17 @@ ui.parse_xml = xml => {
 		proc_node = (node, append_to) => {
 			var attr = Object.fromEntries([...node.attributes].map(attr => [ attr.nodeName, attr.nodeValue ]));
 			
+			Object.entries(attr).forEach(([ key, val ]) => {
+				switch(val){
+					case'true':
+						attr[key] = true;
+						break;
+					case'false':
+						attr[key] = false;
+						break;
+				}
+			});
+			
 			attr.offset = {};
 			if(attr.offset_x)attr.offset.x = +attr.offset_x;
 			if(attr.offset_y)attr.offset.y = +attr.offset_y;
@@ -906,6 +997,15 @@ ui.bar = class extends ui.rect {
 					width: 40,
 					height: 40,
 					steal_focus: false,
+					get color(){
+						return element.active
+							? this.mouse_hover
+								? '#474747'
+								: '#333333'
+							: this.mouse_hover
+								? '#272727'
+								: '#101010';
+					},
 				}));
 				
 				icon.image = icon.append(new ui.image({
@@ -933,7 +1033,6 @@ ui.bar = class extends ui.rect {
 				this.open.set(element, icon);
 			}
 			
-			icon.color = element.active ? '#333333' : '#101010';
 			icon.bottom_thing.visible = element.active;
 			
 			if(element.deleted)return icon.deleted = true, this.open.delete(element);

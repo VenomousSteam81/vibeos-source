@@ -12,7 +12,7 @@
 		<button text='OK' x='ui.align.middle' y='ui.align.bottom' offset_y='-10' onmouseup='win.close()'></button>
 		<image path='https://cdn.discordapp.com/emojis/608145920126746626.gif?v=1' width='50' height='50'></image>
 		<input placeholder='text here' y='ui.align.middle' offset_x='25' width='120' height='25' onsubmit='alert(element.value)'></input>
-		<rect x='ui.align.middle' y='50' width='50' height='50' color='#F00'>
+		<rect scroll='true' x='ui.align.middle' y='50' width='50' height='50' color='#F00'>
 			<rect width='25' height='25' color='#0F0'></rect>
 		</rect>
 	</content>

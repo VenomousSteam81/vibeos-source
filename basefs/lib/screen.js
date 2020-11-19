@@ -98,6 +98,10 @@ var fs = require('fs'),
 			
 			if(mouse.target)mouse.target.mouse_pressed = mouse.buttons.left ? true : false;
 			
+			// console.log(mouse.target, mouse.target?.mouse_pressed);
+			
+			if(mouse.target && mouse.target.mouse_pressed)mouse.target.emit('drag', mouse);
+			
 			if(mouse.target && mouse.target.mouse_pressed && mouse.target.drag){
 				mouse.target.drag.offset.x += mouse.movement.x;
 				mouse.target.drag.offset.y += mouse.movement.y;
@@ -161,8 +165,22 @@ screen.render = () => {
 			}
 			
 			ctx.save();
+			
+			if(dims.clip && element.apply_clip){
+				var region = new Path2D();
+				region.rect(dims.x, dims.y, dims.width, dims.height);
+				ctx.clip(region, 'evenodd');
+			}
+			
+			if(dims.translate && element.apply_translate)ctx.translate(dims.translate.x, dims.translate.y);
 			element.draw(screen.ctx, dims);
 			ctx.restore();
+			
+			if(element.scroll){
+				ctx.save();
+				element.draw_scroll(screen.ctx, dims);
+				ctx.restore();
+			}
 			
 			render_through(element.elements, ui.fixed_sp(element, dims));
 		});

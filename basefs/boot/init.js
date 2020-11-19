@@ -7,7 +7,7 @@ var screen = require('/lib/screen.js'),
 		height: '400px',
 		offset: { x: -25, y: -25 },
 		icon: '/usr/share/missing.png',
-		visible: false,
+		visible: true,
 	}),
 	test_text = demo_window.content.append(new ui.text({
 		x: ui.align.middle,
@@ -15,6 +15,7 @@ var screen = require('/lib/screen.js'),
 		text: 'small text',
 		color: '#000',
 		size: 24,
+		cursor: 'text',
 	})),
 	test_text_2 = demo_window.content.append(new ui.text({
 		x: ui.align.middle,
@@ -36,7 +37,7 @@ var screen = require('/lib/screen.js'),
 	}));
 
 screen.layers.append(
-	require('/var/demos/cats'),
+	// require('/var/demos/cats'),
 	demo_window,
 	ui.parse_xml(fs.readFileSync('/var/xml/license.xml', 'utf8')),
 );
