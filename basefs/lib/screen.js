@@ -143,7 +143,7 @@ var fs = require('fs'),
 	keyboard = screen.keyboard = {
 		handler(event){
 			event.preventDefault();
-			 
+			
 			if(!screen.mouse.target_hover)return;
 			
 			/*screen.mouse.all_elements.forEach(element => {
