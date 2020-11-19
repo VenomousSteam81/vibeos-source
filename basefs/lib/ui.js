@@ -187,6 +187,9 @@ ui.element = class extends events {
 		
 		return this;
 	}
+	not_visible(){
+		
+	}
 	draw(ctx, dims){
 		
 	}
@@ -908,8 +911,11 @@ ui.webview = class ui_webview extends ui.rect {
 		
 		this.iframe = dom_utils.add_ele('iframe', web.screen.container, {
 			src: this.src,
-			style: 'display: block; position: absolute; border: none;',
+			style: 'display: none; position: absolute; border: none;',
 		});
+	}
+	not_visible(){
+		this.iframe.style.display = (this.window.active && this.window.visible) ? 'block' : 'none';
 	}
 	draw(ctx, dims){
 		if(!this.window)return;
@@ -921,7 +927,7 @@ ui.webview = class ui_webview extends ui.rect {
 			return;
 		}
 		
-		this.iframe.style.display = this.window.active ? 'block' : 'none'
+		this.iframe.style.display = (this.window.active && this.window.visible) ? 'block' : 'none';
 		
 		// prevent dragging causing iframe to focus
 		this.iframe.style['pointer-events'] = this.window.title_bar.mouse_pressed ? 'none' : '';

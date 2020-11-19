@@ -161,40 +161,46 @@ screen.layers = Object.assign([
 });
 
 screen.render = () => {
-	var render_through = (orig_elements, dims) => {
-		// keep original elements reference to delete any garbage
-		var elements = orig_elements.filter(element => element.visible);
-		
-		elements.sort((ele, pele) => ele.layer - (pele.always_on_top ? ele.layer + pele.layer : pele.layer)).forEach(element => {
-			if(element.deleted){
-				var ind = orig_elements.findIndex(pele => pele.uuid == element.uuid);
-				
-				if(ind != null)orig_elements.splice(ind, 1);
-			}
-			
-			ctx.save();
-			
-			if(dims.clip && element.apply_clip){
-				var region = new Path2D();
-				region.rect(dims.x, dims.y, dims.width, dims.height);
-				ctx.clip(region, 'evenodd');
-			}
-			
-			if(dims.translate && element.apply_translate)ctx.translate(dims.translate.x, dims.translate.y);
-			element.draw(screen.ctx, dims);
-			ctx.restore();
-			
-			if(element.scroll){
-				ctx.save();
-				element.draw_scroll(screen.ctx, dims);
-				ctx.restore();
-			}
-			
-			render_through(element.elements, ui.fixed_sp(element, dims));
-		});
-	};
+	var render_through = (elements, dims, func) => func(elements.filter(ele => !ele.always_on_top).sort((ele, pele) => ele.layer -  pele.layer).concat(elements.filter(ele => ele.always_on_top)), dims, func);
 	
-	render_through(screen.layers, screen.dims);
+	render_through(screen.layers, screen.dims, (elements, dims, func) => (elements.append ? console.log(elements) : 1) + elements.forEach(element => {
+		
+		if(!element.visible){
+			element.not_visible();
+			
+			return render_through(element.elements, ui.fixed_sp(element, dims), (elements, dims, func) => elements.forEach(element => {
+				element.not_visible();
+				
+				render_through(element.elements, ui.fixed_sp(element, dims), func);
+			}));
+		}
+		
+		if(element.deleted){
+			var ind = elements.findIndex(pele => pele.uuid == element.uuid);
+			
+			if(ind != null)elements.splice(ind, 1);
+		}
+		
+		ctx.save();
+		
+		if(dims.clip && element.apply_clip){
+			var region = new Path2D();
+			region.rect(dims.x, dims.y, dims.width, dims.height);
+			ctx.clip(region, 'evenodd');
+		}
+		
+		if(dims.translate && element.apply_translate)ctx.translate(dims.translate.x, dims.translate.y);
+		element.draw(screen.ctx, dims);
+		ctx.restore();
+		
+		if(element.scroll){
+			ctx.save();
+			element.draw_scroll(screen.ctx, dims);
+			ctx.restore();
+		}
+		
+		render_through(element.elements, ui.fixed_sp(element, dims), func);
+	}));
 	
 	canvas.style.cursor = 'url("' + fs.data_uri('/usr/share/cursor/' + mouse.cursor + '.cur') + '"), none';
 	
