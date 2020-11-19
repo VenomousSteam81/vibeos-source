@@ -219,7 +219,46 @@ ui.element = class extends events {
 		if(ind)return this.elements.splice(ind, 1);
 	}
 	draw_scroll(ctx, dims){
+		var content_height = 0,
+			content_height_set = arr => arr.forEach(element => {
+				var val = (element.fixed?.y || element.y) + element.height;
+				
+				if(val > content_height)content_height = val;
+				
+				content_height_set(element.elements);
+			});
+		
+		content_height_set(this.elements);
+		
 		if(!this.scroll_box){
+			var drag_handler = mouse => {
+				var fixed = this.fixed || this,
+					soon_val = this.scroll_button.offset.y + mouse.movement.y,
+					full_y = fixed.y + mouse.movement.y,
+					full_ey = full_y + fixed.height,
+					full_y_height = soon_val + this.scroll_button.fixed?.height;
+				
+				
+				
+				if(soon_val <= 0){
+					this.translate.y = 0;
+					this.scroll_button.offset.y = 0;
+					
+					return;
+				}else if(full_y_height >= fixed.height){
+					this.translate.y = content_height - fixed.height;
+					this.scroll_button.offset.y = fixed.height - this.scroll_button.fixed?.height;
+					
+					return;
+				}
+				
+				if(full_y >= mouse.y || full_ey <= mouse.y)return;
+				
+				this.translate.y -= mouse.movement.y;
+				
+				this.scroll_button.offset.y += mouse.movement.y;
+			};
+			
 			this.scroll_box = this.append(new ui.element({
 				width: '100%',
 				height: '100%',
@@ -234,20 +273,11 @@ ui.element = class extends events {
 				interact: 'only_contents',
 			}));
 			
-			this.scroll_border = this.scroll_box.append(new ui.border({
-				size: 2,
-				color: '#000',
-				width: '100%',
-				height: '100%',
-				apply_clip: false,
-				apply_translate: false,
-			}));
-			
 			this.scroll_bar = this.scroll_box.append(new ui.rect({
 				size: 2,
-				color: '#000',
-				width: 15,
-				height: '100%',
+				color: '#F1F1F1',
+				width: 17,
+				height: this.height / content_height,
 				x: ui.align.right,
 				y: 0,
 				offset: {
@@ -258,31 +288,25 @@ ui.element = class extends events {
 				apply_translate: false,
 			}));
 			
-			this.scroll_button = this.scroll_bar.append(new ui.rect({
-				color: '#FFF',
-				width: 15,
-				height: 15,
-				x: ui.align.right,
-				y: 1,
-				offset: {
-					x: -2,
-					y: 0,
+				
+			this.on('wheel', event => drag_handler(Object.assign({}, web.screen.mouse, {
+				movement: {
+					x: event.deltaX / 10,
+					y: event.deltaY /  10,
 				},
+			})));
+			
+			this.scroll_button = this.scroll_bar.append(new ui.rect({
+				get color(){
+					return this.mouse_pressed ? '#787878' : this.mouse_hover ? '#A8A8A8' : '#C1C1C1';
+				},
+				width: 13,
+				height: 17,
+				x: ui.align.middle,
 				apply_translate: false,
 			}));
 			
-			this.scroll_button.on('drag', mouse => {
-				var soon_val = this.scroll_button.offset.y + mouse.movement.y,
-					full_y = this.fixed?.y + mouse.movement.y,
-					full_ey = full_y + this.fixed?.height,
-					full_y_height = soon_val + this.scroll_button.fixed?.height;
-				
-				if(full_y_height >= this.height || full_y >= mouse.y || full_ey <= mouse.y || soon_val <= 0)return;
-				
-				this.translate.y -= mouse.movement.y;
-				
-				this.scroll_button.offset.y += mouse.movement.y;
-			});
+			this.scroll_button.on('drag', drag_handler);
 		}
 	}
 };

@@ -80,7 +80,7 @@ var fs = require('fs'),
 			
 			add_elements(screen.layers, screen.dims);
 			
-			all_elements = all_elements.sort((ele, pele) => pele.layer - ele.layer);
+			all_elements = mouse.all_elements = all_elements.sort((ele, pele) => pele.layer - ele.layer);
 			
 			var target = all_elements.find(element => screen.element_in_mouse(element)) || { emit(){}, cursor: 'pointer', };
 			
@@ -90,6 +90,8 @@ var fs = require('fs'),
 			
 			if(event.type == 'mousedown' && mouse.buttons.left)mouse.target = target;
 			else if(event.type == 'mouseup')mouse.target = null;
+			
+			mouse.target_hover = target;
 			
 			if(event.type == 'mousedown' && mouse.buttons.left)target.mouse_left = true;
 			else if(event.type == 'mousedown' && mouse.buttons.right)target.mouse_right = true;
@@ -136,14 +138,30 @@ var fs = require('fs'),
 				else element.focused = false;
 			});
 		},
-	});
+	}),
+	keyboard = screen.keyboard = {
+		handler(event){
+			if(!screen.mouse.target_hover)return;
+			
+			/*screen.mouse.all_elements.forEach(element => {
+				if(element.includes(screen.mouse.target))element.focused = true;
+				else element.focused = false;
+			});
+			
+			// console.log(screen.mouse.target_hover, event.type);
+			.emit(event.type, event);*/
+		},
+	};
 
 canvas.addEventListener('mousemove', mouse.handler);
 canvas.addEventListener('mousedown', mouse.handler);
 canvas.addEventListener('mouseup', mouse.handler);
-canvas.addEventListener('mousescroll', mouse.handler);
+canvas.addEventListener('wheel', mouse.handler);
 canvas.addEventListener('contextmenu', event => (event.preventDefault(), mouse.handler(event)));
 canvas.addEventListener('mouseleave', () => mouse.buttons = {});
+
+window.addEventListener('keydown', keyboard.handler);
+window.addEventListener('keyup', keyboard.handler);
 
 document.body.style = 'margin: 0px; background: #000;';
 
