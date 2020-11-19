@@ -221,8 +221,8 @@ ui.element = class extends events {
 				width: '100%',
 				height: '100%',
 				offset: {
-					x: -3,
-					y: -3,
+					x: -4,
+					y: -4,
 					width: 15,
 					height: 2,
 				},
@@ -247,6 +247,10 @@ ui.element = class extends events {
 				height: '100%',
 				x: ui.align.right,
 				y: 0,
+				offset: {
+					x: 1,
+					width: 4,
+				},
 				apply_clip: false,
 				apply_translate: false,
 			}));
@@ -256,16 +260,21 @@ ui.element = class extends events {
 				width: 15,
 				height: 15,
 				x: ui.align.right,
+				y: 1,
+				offset: {
+					x: -2,
+					y: 0,
+				},
 				apply_translate: false,
 			}));
 			
-			// console.log(this.layer, this.scroll_button.layer);
-			
 			this.scroll_button.on('drag', mouse => {
 				var soon_val = this.scroll_button.offset.y + mouse.movement.y,
-					ae = this.fixed?.y + mouse.movement.y;
+					full_y = this.fixed?.y + mouse.movement.y,
+					full_ey = full_y + this.fixed?.height,
+					full_y_height = soon_val + this.scroll_button.fixed?.height;
 				
-				if(soon_val + this.scroll_button.fixed?.height >= this.height || soon_val <= 0 || ae >= mouse.y)return;
+				if(full_y_height >= this.height || full_y >= mouse.y || full_ey <= mouse.y || soon_val <= 0)return;
 				
 				this.translate.y -= mouse.movement.y;
 				

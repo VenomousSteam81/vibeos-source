@@ -83,8 +83,6 @@ var fs = require('fs'),
 			if(event.type == 'mousedown' && mouse.buttons.left)mouse.target = target;
 			else if(event.type == 'mouseup')mouse.target = null;
 			
-			if(event.type == 'mousedown')console.log(mouse.target);
-			
 			if(event.type == 'mousedown' && mouse.buttons.left)target.mouse_left = true;
 			else if(event.type == 'mousedown' && mouse.buttons.right)target.mouse_right = true;
 			else if(event.type == 'mousedown' && mouse.buttons.middle)target.mouse_middle = true;
@@ -101,8 +99,6 @@ var fs = require('fs'),
 			target.mouse_pressed = mouse.buttons.left;
 			
 			if(mouse.target)mouse.target.mouse_pressed = mouse.buttons.left ? true : false;
-			
-			// console.log(mouse.target, mouse.target?.mouse_pressed);
 			
 			if(mouse.target && mouse.target.mouse_pressed)mouse.target.emit('drag', mouse);
 			
