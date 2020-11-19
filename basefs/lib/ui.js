@@ -250,15 +250,13 @@ ui.element = class extends events {
 					
 					return;
 				}else if(full_y_height >= fixed.height){
-					this.translate.y = content_height() - fixed.height;
+					this.translate.y = 0 - fixed.height;
 					this.scroll_button.offset.y = fixed.height - this.scroll_button.fixed?.height;
 					
 					return;
 				}
 				
 				if(full_y >= mouse.y || full_ey <= mouse.y)return;
-				
-				console.log(this.height, content_height());
 				
 				this.translate.y -= mouse.movement.y;
 				
