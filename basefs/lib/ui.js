@@ -913,9 +913,8 @@ ui.webview = class ui_webview extends ui.rect {
 			src: this.src,
 			style: 'display: none; position: absolute; border: none;',
 		});
-	}
-	not_visible(){
-		this.iframe.style.display = (this.window.active && this.window.visible) ? 'block' : 'none';
+		
+		this.window.on('not_visible', () => this.iframe.style.display = (this.window.active && this.window.visible) ? 'block' : 'none');
 	}
 	draw(ctx, dims){
 		if(!this.window)return;
