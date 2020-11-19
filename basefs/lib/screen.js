@@ -162,11 +162,9 @@ screen.layers = Object.assign([
 
 screen.render = () => {
 	var render_through = (elements, dims) => {
-		// keep original elements reference to delete any garbage
+		elements.filter(ele => !ele.visible).forEach(element => element.emit('not_visible'));
 		
-		elements.sort((ele, pele) => ele.layer - (pele.always_on_top ? ele.layer + pele.layer : pele.layer)).forEach(element => {
-			if(!element.visible)return element.emit('not_visible');
-			
+		elements.filter(ele => ele.visible).sort((ele, pele) => ele.layer - (pele.always_on_top ? ele.layer + pele.layer : pele.layer)).forEach(element => {
 			if(element.deleted){
 				var ind = elements.findIndex(pele => pele.uuid == element.uuid);
 				
