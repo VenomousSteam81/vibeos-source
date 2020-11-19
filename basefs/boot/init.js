@@ -40,6 +40,7 @@ screen.layers.append(
 	// require('/var/demos/cats'),
 	demo_window,
 	ui.parse_xml(fs.readFileSync('/var/xml/license.xml', 'utf8')),
+	ui.parse_xml(fs.readFileSync('/var/xml/webview_demo.xml', 'utf8')),
 );
 
 // begin rendering

@@ -11,11 +11,11 @@ var fs = require('fs'),
 	dom_utils = require('./dom-utils.js'),
 	ui = require('./ui.js'),
 	request_frame = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || (func => setTimeout(func, 1000 / 60)),
-	canvas = screen.canvas = dom_utils.add_ele('canvas', document.body, {
-		className: 'webos',
+	container = screen.container = dom_utils.add_ele('div', document.body, {
 		width: screen.dims.width,
 		height: screen.dims.height,
 		style: `
+			overflow: hidden;
 			display: block;
 			position: absolute;
 			width: ${screen.dims.width}px;
@@ -25,6 +25,14 @@ var fs = require('fs'),
 			bottom: 0px;
 			left: 0px;
 			right: 0px;`,
+	}),
+	canvas = screen.canvas = dom_utils.add_ele('canvas', screen.container, {
+		className: 'webos',
+		width: screen.dims.width,
+		height: screen.dims.height,
+		style: `
+			width: ${screen.dims.width}px;
+			height: ${screen.dims.height}px;`,
 	}),
 	mouse = screen.mouse = Object.assign(new (require('events')), {
 		buttons: {},

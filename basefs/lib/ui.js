@@ -900,20 +900,38 @@ ui.webview = class ui_webview extends ui.rect {
 			placeholder: '',
 		});
 		
+		if(!opts.window)return console.warn('ui: webview created with no window!');
+		
 		Object.assign(this, {
-			url: 'about:blank',
+			src: 'about:blank',
 		}, opts);
 		
-		this.iframe = dom_utils.add_ele('iframe', document.body, {
-			src: this.url,
-			style: 'display: block; position: absolute;',
+		this.iframe = dom_utils.add_ele('iframe', web.screen.container, {
+			src: this.src,
+			style: 'display: block; position: absolute; border: none;',
 		});
 	}
 	draw(ctx, dims){
-		this.iframe.style.width = this.width;
-		this.iframe.style.height = this.height;
-		this.iframe.style.top = this.y;
-		this.iframe.style.left = this.x;
+		if(!this.window)return;
+		
+		if(this.window.deleted){
+			this.window = null;
+			this.iframe.remove();
+			
+			return;
+		}
+		
+		this.iframe.style.display = this.window.active ? 'block' : 'none'
+		
+		// prevent dragging causing iframe to focus
+		this.iframe.style['pointer-events'] = this.window.title_bar.mouse_pressed ? 'none' : '';
+		
+		var fixed = ui.fixed_sp(this, dims);
+		
+		this.iframe.style.width = fixed.width + 'px';
+		this.iframe.style.height = fixed.height + 'px';
+		this.iframe.style.top = fixed.y + 'px';
+		this.iframe.style.left = fixed.x + 'px';
 		
 		Reflect.apply(ui.rect.prototype.draw, this, [ ctx, dims ]);
 	}
@@ -941,7 +959,7 @@ ui.parse_xml = xml => {
 			x: position.x || ui.align.middle,
 			y: position.y || ui.align.middle,
 			width: size.width || 200,
-			width: size.height || 200,
+			height: size.height || 200,
 		}),
 		contents = parsed.querySelectorAll('content > *'),
 		proc_node = (node, append_to) => {
@@ -957,6 +975,8 @@ ui.parse_xml = xml => {
 						break;
 				}
 			});
+			
+			attr.window = win;
 			
 			attr.offset = {};
 			if(attr.offset_x)attr.offset.x = +attr.offset_x;
