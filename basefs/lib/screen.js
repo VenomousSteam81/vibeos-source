@@ -63,7 +63,9 @@ var fs = require('fs'),
 					
 					element.fixed = fixed;
 					
-					all_elements.push(element);
+					// only_contents flag exists for interact
+					
+					if(element.interact === true)all_elements.push(element);
 					
 					add_elements(element.elements, fixed);
 				});
@@ -80,6 +82,8 @@ var fs = require('fs'),
 			
 			if(event.type == 'mousedown' && mouse.buttons.left)mouse.target = target;
 			else if(event.type == 'mouseup')mouse.target = null;
+			
+			if(event.type == 'mousedown')console.log(mouse.target);
 			
 			if(event.type == 'mousedown' && mouse.buttons.left)target.mouse_left = true;
 			else if(event.type == 'mousedown' && mouse.buttons.right)target.mouse_right = true;

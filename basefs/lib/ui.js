@@ -187,6 +187,9 @@ ui.element = class extends events {
 		
 		return this;
 	}
+	draw(ctx, dims){
+		
+	}
 	append(element){
 		var layer = this.elements.length + 1;
 		
@@ -213,19 +216,31 @@ ui.element = class extends events {
 		if(ind)return this.elements.splice(ind, 1);
 	}
 	draw_scroll(ctx, dims){
-		if(!this.scroll_border){
-			this.scroll_border = this.append(new ui.border({
+		if(!this.scroll_box){
+			this.scroll_box = this.append(new ui.element({
+				width: '100%',
+				height: '100%',
+				offset: {
+					x: -3,
+					y: -3,
+					width: 15,
+					height: 2,
+				},
+				apply_clip: false,
+				apply_translate: false,
+				interact: 'only_contents',
+			}));
+			
+			this.scroll_border = this.scroll_box.append(new ui.border({
 				size: 2,
 				color: '#000',
 				width: '100%',
 				height: '100%',
-				offset: {
-				},
 				apply_clip: false,
 				apply_translate: false,
 			}));
 			
-			this.scroll_bar = this.append(new ui.rect({
+			this.scroll_bar = this.scroll_box.append(new ui.rect({
 				size: 2,
 				color: '#000',
 				width: 15,
@@ -236,7 +251,7 @@ ui.element = class extends events {
 				apply_translate: false,
 			}));
 			
-			this.scroll_button = this.append(new ui.rect({
+			this.scroll_button = this.scroll_bar.append(new ui.rect({
 				color: '#FFF',
 				width: 15,
 				height: 15,
@@ -244,7 +259,7 @@ ui.element = class extends events {
 				apply_translate: false,
 			}));
 			
-			console.log(this.layer, this.scroll_button.layer);
+			// console.log(this.layer, this.scroll_button.layer);
 			
 			this.scroll_button.on('drag', mouse => {
 				if(this.scroll_button.offset.y + mouse.movement.y < 0 || this.fixed?.y + mouse.movement.y > mouse.y)return;
