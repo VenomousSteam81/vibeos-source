@@ -247,7 +247,7 @@ ui.element = class extends events {
 			console.log(this.layer, this.scroll_button.layer);
 			
 			this.scroll_button.on('drag', mouse => {
-				if(this.scroll_button.offset.y + mouse.movement.y < 0)return;
+				if(this.scroll_button.offset.y + mouse.movement.y < 0 || this.fixed?.y + mouse.movement.y > mouse.y)return;
 				
 				this.translate.y -= mouse.movement.y;
 				
