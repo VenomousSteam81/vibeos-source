@@ -219,16 +219,20 @@ ui.element = class extends events {
 		if(ind)return this.elements.splice(ind, 1);
 	}
 	draw_scroll(ctx, dims){
-		var content_height = 0,
-			content_height_set = arr => arr.forEach(element => {
-				var val = (element.fixed?.y || element.y) + element.height;
-				
-				if(val > content_height)content_height = val;
-				
-				content_height_set(element.elements);
-			});
-		
-		content_height_set(this.elements);
+		var content_height = () => {
+			var tmp = 0,
+				content_height_set = arr => arr.filter(element => element.apply_clip).forEach(element => {
+					var val = (element.fixed?.y || element.y) + (element.fixed?.height || element.height);
+					
+					if(val > tmp)tmp = val;
+					
+					content_height_set(element.elements);
+				});
+			
+			content_height_set(this.elements);
+			
+			return tmp;
+		};
 		
 		if(!this.scroll_box){
 			var drag_handler = mouse => {
@@ -246,13 +250,15 @@ ui.element = class extends events {
 					
 					return;
 				}else if(full_y_height >= fixed.height){
-					this.translate.y = content_height - fixed.height;
+					this.translate.y = content_height() - fixed.height;
 					this.scroll_button.offset.y = fixed.height - this.scroll_button.fixed?.height;
 					
 					return;
 				}
 				
 				if(full_y >= mouse.y || full_ey <= mouse.y)return;
+				
+				console.log(this.height, content_height());
 				
 				this.translate.y -= mouse.movement.y;
 				

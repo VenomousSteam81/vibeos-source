@@ -27,6 +27,7 @@ var fs = require('fs'),
 			right: 0px;`,
 	}),
 	canvas = screen.canvas = dom_utils.add_ele('canvas', screen.container, {
+		// contentEditable: true,
 		className: 'webos',
 		width: screen.dims.width,
 		height: screen.dims.height,
@@ -141,6 +142,8 @@ var fs = require('fs'),
 	}),
 	keyboard = screen.keyboard = {
 		handler(event){
+			// event.preventDefault();
+			
 			if(!screen.mouse.target_hover)return;
 			
 			/*screen.mouse.all_elements.forEach(element => {
