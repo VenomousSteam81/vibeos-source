@@ -3,7 +3,7 @@
 <app>
 	<meta>
 		<title>Webview test</title>
-		<icon src='/usr/share/missing.png'></icon>
+		<icon src='https://github.com/vibeOS/vibeos-legacy/blob/master/tango/apps/32/internet-web-browser.png?raw=true'></icon>
 		<position x='ui.align.middle' y='ui.align.middle'></position>
 		<size width='300px' height='200px'></size>
 	</meta>
