@@ -7,6 +7,7 @@ var screen = require('/lib/screen.js'),
 		height: '400px',
 		offset: { x: -25, y: -25 },
 		icon: '/usr/share/missing.png',
+		title: 'cool test',
 		visible: true,
 	}),
 	test_text = demo_window.content.append(new ui.text({
@@ -40,16 +41,15 @@ screen.layers.append(
 	// require('/var/demos/cats'),
 	demo_window,
 	ui.parse_xml(fs.readFileSync('/var/xml/license.xml', 'utf8')),
-	ui.parse_xml(fs.readFileSync('/var/xml/webview_demo.xml', 'utf8')),
 );
 
 // begin rendering
 screen.render();
 
 web.bar.open.push({
-	icon_path: '/usr/share/missing.png',
+	icon_path: 'https://github.com/vibeOS/vibeos-legacy/blob/master/tango/apps/32/internet-web-browser.png?raw=true',
 	type: 'xml', // xml, programmic
-	xml: '/var/xml/test.xml',
+	xml: '/var/xml/webview_demo.xml',
 	pinned: true,
 });
 
