@@ -108,8 +108,8 @@ ui.fixed_sp = (data, bounds) => {
 		
 	});
 	
-	correct.width = proc(data.width, bounds.width) + (data.offset.width || 0);
-	correct.height = proc(data.height, bounds.height) + (data.offset.height || 0);
+	correct.width = proc(data.width, bounds.width);
+	correct.height = proc(data.height, bounds.height);
 	
 	switch(data.x){
 		case ui.align.middle:
@@ -137,6 +137,10 @@ ui.fixed_sp = (data, bounds) => {
 	
 	correct.x = bounds.x + proc(data.x, bounds.width) + (data.offset.x || 0);
 	correct.y = bounds.y + proc(data.y, bounds.height) + (data.offset.y || 0);
+	
+	correct.width +=  data.offset.width || 0;
+	correct.height +=  data.offset.height || 0;
+	
 	
 	return Object.assign(data, correct);
 }
@@ -166,6 +170,7 @@ ui.element = class extends events {
 			interact: true,
 			visible: true,
 			deleted: false,
+			resizable: false,
 			// x-change, y-change are passed to rendering since cant add to any width or height properties if they are 50% or a symbol
 			offset: {
 				x: 0,
@@ -613,6 +618,25 @@ ui.window = class ui_window extends ui.rect {
 			element: this,
 			icon_path: this.icon,
 		});
+		
+		if(this.resizable){
+			this.resize_element = this.append(new ui.rect({
+				width: 10,
+				height: 10,
+				color: '#CCC',
+				x: ui.align.right,
+				y: ui.align.bottom,
+			}));
+			
+			this.resize_element.on('drag', mouse => {
+				
+				
+				this.offset.width += mouse.movement.x;
+				this.offset.height += mouse.movement.y;
+				
+				
+			});
+		}
 	}
 	bring_to_top(){
 		var all_elements = [],
@@ -959,8 +983,13 @@ ui.webview = class ui_webview extends ui.rect {
 		
 		this.iframe.style.display = (this.window.active && this.window.visible) ? 'block' : 'none';
 		
+		this.iframe.style['border-bottom-right-radius'] = this.window.resize_element ? '25px' : '0px';
+		
 		// prevent dragging causing iframe to focus
-		this.iframe.style['pointer-events'] = this.window.title_bar.mouse_pressed ? 'none' : '';
+		this.iframe.style['pointer-events'] = 
+			(this.window.resize_element
+				? this.window.resize_element.mouse_pressed 
+				: false || this.window.title_bar.mouse_pressed) ? 'none' : '';
 		
 		var fixed = ui.fixed_sp(this, dims);
 		
@@ -990,6 +1019,7 @@ ui.parse_xml = (xml, show_in_bar = true) => {
 	}
 	
 	var win = new ui.window({
+			resizable: !!parsed.querySelector('content[resizable]'),
 			show_in_bar: show_in_bar,
 			title: (parsed.querySelector('meta > title') || {}).textContent || 'Untitled app',
 			icon: (parsed.querySelector('meta > icon') || { getAttribute(){} }).getAttribute('src'),
