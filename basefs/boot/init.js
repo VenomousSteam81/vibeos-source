@@ -45,3 +45,10 @@ screen.layers.append(
 
 // begin rendering
 screen.render();
+
+web.bar.open.set({
+	icon_path: '/usr/share/missing.png',
+	create_window(){
+		console.log('h');
+	},
+}, null);

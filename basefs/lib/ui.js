@@ -609,7 +609,10 @@ ui.window = class ui_window extends ui.rect {
 		
 		Object.defineProperty(this.border, 'color', { get: () => this.active ? colors.window.active.border : colors.window.inactive.border });
 		
-		web.bar.open.set(this, null);
+		web.bar.open.set(this, {
+			icon_path: this.icon,
+			create_window(){},
+		});
 	}
 	bring_to_top(){
 		var all_elements = [],
@@ -1062,17 +1065,20 @@ ui.bar = class extends ui.rect {
 		this.open = new Map();
 	}
 	draw(ctx, dims){
-		this.open.forEach((icon, element, map) => {
-			if(!element.show_in_bar)return;
+		this.open.forEach((data, element, map) => {
+			if(!data)data = {};
+			this.open.set(element, data);
 			
-			if(!icon){
-				icon = this.append(new ui.rect({
+			if(element && !element.show_in_bar)return;
+			
+			if(!data.icon){
+				data.icon = this.append(new ui.rect({
 					get x(){
 						var vals = [...map.values()],
-							icon_ind = vals.findIndex(ele => ele.uuid == icon.uuid),
-							prev = vals.find((ele, ind) => ind == icon_ind - 1) || { x: 0, width: 0 };
+							icon_ind = vals.findIndex(ele => ele.icon.uuid == data.icon.uuid),
+							prev = vals.find((ele, ind) => ind == icon_ind - 1) || { icon: { x: 0, width: 0 } };
 						
-						return prev.x + prev.width;
+						return prev.icon.x + prev.icon.width;
 					},
 					width: 40,
 					height: 40,
@@ -1088,34 +1094,32 @@ ui.bar = class extends ui.rect {
 					},
 				}));
 				
-				icon.image = icon.append(new ui.image({
+				data.icon.image = data.icon.append(new ui.image({
 					x: ui.align.middle,
 					y: ui.align.middle,
 					width: 30,
 					height: 30,
-					path: element.icon,
+					path: data.icon_path,
 					interact: false,
 				}));
 				
-				icon.on('click', event => {
-					element.active ? element.hide() : element.bring_to_top();
+				data.icon.on('click', event => {
+					element ? element.active ? element.hide() : element.bring_to_top() : data.create_window();
 				});
 				
-				icon.bottom_thing = icon.append(new ui.rect({
+				data.icon.bottom_thing = data.icon.append(new ui.rect({
 					width: '100%',
 					height: 2,
 					y: ui.align.bottom,
 					color: '#60B0D5',
-					visible: false,
+					get visible(){
+						return data.icon.open;
+					},
 					interact: false,
 				}));
-				
-				this.open.set(element, icon);
 			}
 			
-			icon.bottom_thing.visible = element.active;
-			
-			if(element.deleted)return icon.deleted = true, this.open.delete(element);
+			if(element && element.deleted)return data.icon.deleted = true, this.open.delete(element);
 		});
 		
 		Reflect.apply(ui.rect.prototype.draw, this, [ ctx, dims ]);

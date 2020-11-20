@@ -24,7 +24,8 @@ var fs = require('fs'),
 			top: 0px;
 			bottom: 0px;
 			left: 0px;
-			right: 0px;`,
+			right: 0px;
+			outline: none;`,
 	}),
 	canvas = screen.canvas = dom_utils.add_ele('canvas', screen.container, {
 		contentEditable: true,
@@ -33,7 +34,8 @@ var fs = require('fs'),
 		height: screen.dims.height,
 		style: `
 			width: ${screen.dims.width}px;
-			height: ${screen.dims.height}px;`,
+			height: ${screen.dims.height}px;
+			outline: none;`,
 	}),
 	mouse = screen.mouse = Object.assign(new (require('events')), {
 		buttons: {},
@@ -142,7 +144,7 @@ var fs = require('fs'),
 	}),
 	keyboard = screen.keyboard = {
 		handler(event){
-			event.preventDefault();
+			// event.preventDefault();
 			
 			if(!screen.mouse.target_hover)return;
 			
