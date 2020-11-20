@@ -7,44 +7,54 @@ var fs = require('fs'),
 	base_fs = path.join(__dirname, 'basefs'),
 	app_dir = path.join(__dirname, 'app'),
 	dist = path.join(__dirname, 'dist.html'),
-	bundle = path.join(app_dir, 'bundled.json'),
 	pack_fs = require(path.join(app_dir, 'pack-fs.js')),
 	terser = require('terser'),
-	terser_config = {
-		compress: {},
-		format: {
-			comments: false,
-		},
+	files = {
+		build: path.join(__dirname, 'build.json'),
+		modules: path.join(app_dir, 'bundled.json'),
 	},
-	build = () => {
+	build = async () => {
 		console.log('building..');
 		
-		var br = browserify(),
-			chunks = [];
+		var build_opts = JSON.parse(fs.readFileSync(files.build)),
+			br = browserify(),
+			chunks = [],
+			terser_opts = {
+				compress: build_opts.fast ? false : true,
+				mangle: true,
+				format: {
+					comments: false,
+					quote_style: 1,
+				},
+			};
 		
-		JSON.parse(fs.readFileSync(bundle)).forEach(data => br.require(
+		JSON.parse(fs.readFileSync(files.modules)).forEach(data => br.require(
 			data.mod.constructor == Array ? path.resolve(__dirname, ...data.mod) : data.mod,
 			data.options,
 		));
 		
-		br.bundle().pipe(Object.assign(new stream(), {
-			write: chunk => chunks.push(chunk),
-			end: async () => {
-				var buf = Buffer.concat(chunks),
-					bundle = await new Promise(resolve => terser.minify(
-						buf.toString('utf8')
-					, terser_config).then(data => resolve(data.code)));
+		var browserify_start = Date.now(),
+			chunks = [],
+			bundle = await new Promise(resolve => br.bundle().pipe(Object.assign(new stream(), {
+				write: chunk => chunks.push(chunk),
+				end: () => resolve(Buffer.concat(chunks)),
+			})));
+		
+		console.log('took ' + (Date.now() - browserify_start) + 'ms for browserify');
+		
+		var terser_start = Date.now();
+		
+		if(build_opts.minify.enabled)bundle = await new Promise(resolve => terser.minify(bundle.toString('utf8'), terser_opts).then(data => resolve(data.code)));
+		
+		console.log('took ' + (Date.now() - terser_start) + 'ms for terser');
 				
-				console.log('packing fs..');
-				
-				var fs_string = JSON.stringify(pack_fs(base_fs));
-				
-				fs.writeFileSync(dist, `<!DOCTYPE HTML><html><head><meta charset='utf8'></head><body><script>\n/*  == WEBOS ==\n// BUILT ON ${new Date().toUTCString()}\n// DO NOT DISTRIBUTE!\n*/\n\nvar require,base_fs_data=${fs_string};${bundle};require('./start.js')</script></body></html>`);
-				
-				console.log('build finished, output found at ' + dist);
-				
-			}
-		}));
+		console.log('packing fs..');
+		
+		var fs_string = JSON.stringify(pack_fs(base_fs));
+		
+		fs.writeFileSync(dist, `<!DOCTYPE HTML><html><head><meta charset='utf8'></head><body><script>\n/*  == WEBOS ==\n// BUILT ON ${new Date().toUTCString()}\n// DO NOT DISTRIBUTE!\n*/\n\nvar require,base_fs_data=${fs_string},__webos_version='${build_opts.webos.ver}';${bundle.toString('utf8')};require('./start.js')</script></body></html>`);
+		
+		console.log('build finished, output found at ' + dist);
 	};
 
 build();

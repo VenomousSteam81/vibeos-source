@@ -182,6 +182,12 @@ ui.element = class extends events {
 				x: 0,
 				y: 0,
 			},
+			resizing: {
+				min_width: 200,
+				min_height: 200,
+				max_width: 600,
+				max_height: 600,
+			},
 		});
 		
 		this.setMaxListeners(50);
@@ -634,7 +640,11 @@ ui.window = class ui_window extends ui.rect {
 				this.offset.width += mouse.movement.x;
 				this.offset.height += mouse.movement.y;
 				
+				if(this.offset.width < this.resizing.min_width)this.offset.width = this.resizing.min_width;
+				else if(this.offset.height < this.resizing.min_height)this.offset.height = this.resizing.min_height;
 				
+				if(this.offset.width > this.resizing.max_width)this.offset.width = this.resizing.max_width;
+				else if(this.offset.height > this.resizing.max_height)this.offset.height = this.resizing.max_height;
 			});
 		}
 	}
