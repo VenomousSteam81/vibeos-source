@@ -2,9 +2,9 @@
 
 <app>
 	<meta>
-		<title>Webview test</title>
+		<title>TEST FROM BAR</title>
 		<icon src='https://github.com/vibeOS/vibeos-legacy/blob/master/tango/apps/32/internet-web-browser.png?raw=true'></icon>
-		<position x='12' y='ui.align.middle'></position>
+		<position x='ui.align.middle' y='ui.align.middle'></position>
 		<size width='400px' height='400px'></size>
 	</meta>
 	<content>

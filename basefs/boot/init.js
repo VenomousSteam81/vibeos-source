@@ -46,9 +46,23 @@ screen.layers.append(
 // begin rendering
 screen.render();
 
-web.bar.open.set({
+web.bar.open.push({
 	icon_path: '/usr/share/missing.png',
-	create_window(){
-		console.log('h');
+	type: 'xml', // xml, programmic
+	xml: '/var/xml/test.xml',
+	pinned: true,
+});
+
+web.bar.open.push({
+	icon_path: '/usr/share/missing.png',
+	type: 'programmic', // xml, programmic
+	create(){
+		console.log('CREATE WINDOW');
+		
+		return new ui.window({
+			show_in_bar: false,
+			
+		});
 	},
-}, null);
+	pinned: true,
+});

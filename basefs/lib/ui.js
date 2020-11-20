@@ -609,9 +609,9 @@ ui.window = class ui_window extends ui.rect {
 		
 		Object.defineProperty(this.border, 'color', { get: () => this.active ? colors.window.active.border : colors.window.inactive.border });
 		
-		web.bar.open.set(this, {
+		if(this.show_in_bar)web.bar.open.push({
+			element: this,
 			icon_path: this.icon,
-			create_window(){},
 		});
 	}
 	bring_to_top(){
@@ -973,7 +973,7 @@ ui.webview = class ui_webview extends ui.rect {
 	}
 }
 
-ui.parse_xml = xml => {
+ui.parse_xml = (xml, show_in_bar = true) => {
 	var dom_parser = new DOMParser(),
 		parsed = dom_parser.parseFromString(xml, 'application/xml'),
 		position = parsed.querySelector('meta > position'),
@@ -990,6 +990,7 @@ ui.parse_xml = xml => {
 	}
 	
 	var win = new ui.window({
+			show_in_bar: show_in_bar,
 			title: (parsed.querySelector('meta > title') || {}).textContent || 'Untitled app',
 			icon: (parsed.querySelector('meta > icon') || { getAttribute(){} }).getAttribute('src'),
 			x: position.x || ui.align.middle,
@@ -1062,21 +1063,15 @@ ui.bar = class extends ui.rect {
 			always_on_top: true,
 		});
 		
-		this.open = new Map();
+		this.open = [];
 	}
 	draw(ctx, dims){
-		this.open.forEach((data, element, map) => {
-			if(!data)data = {};
-			this.open.set(element, data);
-			
-			if(element && !element.show_in_bar)return;
-			
+		this.open.forEach((data, ind, arr) => {
 			if(!data.icon){
 				data.icon = this.append(new ui.rect({
 					get x(){
-						var vals = [...map.values()],
-							icon_ind = vals.findIndex(ele => ele.icon.uuid == data.icon.uuid),
-							prev = vals.find((ele, ind) => ind == icon_ind - 1) || { icon: { x: 0, width: 0 } };
+						var icon_ind = arr.findIndex(ele => ele.icon.uuid == data.icon.uuid),
+							prev = arr.find((ele, ind) => ind == icon_ind - 1) || { icon: { x: 0, width: 0 } };
 						
 						return prev.icon.x + prev.icon.width;
 					},
@@ -1084,7 +1079,7 @@ ui.bar = class extends ui.rect {
 					height: 40,
 					steal_focus: false,
 					get color(){
-						return element.active
+						return (data.element && data.element.active)
 							? this.mouse_hover
 								? '#474747'
 								: '#333333'
@@ -1099,12 +1094,23 @@ ui.bar = class extends ui.rect {
 					y: ui.align.middle,
 					width: 30,
 					height: 30,
-					path: data.icon_path,
+					path: data.icon_path || '/usr/share/missing.png',
 					interact: false,
 				}));
 				
 				data.icon.on('click', event => {
-					element ? element.active ? element.hide() : element.bring_to_top() : data.create_window();
+					if(data.element)data.element.active ? data.element.hide() : data.element.bring_to_top();
+					else {
+						switch(data.type){
+							case'xml':
+								data.element = web.screen.layers.append(ui.parse_xml(fs.readFileSync(data.xml, 'utf8'), false));
+								console.log(data.element);
+								break;
+							case'programmic':
+								data.element = web.screen.layers.append(data.create());
+								break;
+						}
+					};
 				});
 				
 				data.icon.bottom_thing = data.icon.append(new ui.rect({
@@ -1113,13 +1119,16 @@ ui.bar = class extends ui.rect {
 					y: ui.align.bottom,
 					color: '#60B0D5',
 					get visible(){
-						return data.icon.open;
+						return !!data.element;
 					},
 					interact: false,
 				}));
 			}
 			
-			if(element && element.deleted)return data.icon.deleted = true, this.open.delete(element);
+			if(data.element && data.element.deleted){
+				if(!data.pinned)return data.icon.deleted = true, this.open.splice(ind, 1);
+				else data.element = null;
+			}
 		});
 		
 		Reflect.apply(ui.rect.prototype.draw, this, [ ctx, dims ]);
