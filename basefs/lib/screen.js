@@ -83,7 +83,11 @@ var fs = require('fs'),
 			
 			add_elements(screen.layers, screen.dims);
 			
-			all_elements = mouse.all_elements = all_elements.sort((ele, pele) => pele.layer - ele.layer);
+			/*
+			// fix always_on_top elements not recieving cursor events as if they are on top
+			*/
+			
+			all_elements = mouse.all_elements = all_elements.sort((ele, pele) => pele.layer - (pele.always_on_top ? ele.layer - pele.layer : ele.layer));
 			
 			var target = all_elements.find(element => screen.element_in_mouse(element)) || { emit(){}, cursor: 'pointer', };
 			

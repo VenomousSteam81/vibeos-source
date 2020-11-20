@@ -57,8 +57,6 @@ web.bar.open.push({
 	icon_path: '/usr/share/missing.png',
 	type: 'programmic', // xml, programmic
 	create(){
-		console.log('CREATE WINDOW');
-		
 		return new ui.window({
 			show_in_bar: false,
 			

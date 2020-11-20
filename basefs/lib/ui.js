@@ -1104,7 +1104,6 @@ ui.bar = class extends ui.rect {
 						switch(data.type){
 							case'xml':
 								data.element = web.screen.layers.append(ui.parse_xml(fs.readFileSync(data.xml, 'utf8'), false));
-								console.log(data.element);
 								break;
 							case'programmic':
 								data.element = web.screen.layers.append(data.create());
