@@ -74,5 +74,4 @@ var node = web.node = {
 		ADDRGETNETWORKPARAMS: 'EADDRGETNETWORKPARAMS',
 		CANCELLED: 'ECANCELLED',
 	},
-	
-}
+};
