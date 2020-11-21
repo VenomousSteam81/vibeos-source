@@ -4,8 +4,8 @@ var path = require('path'),
 
 exports.cache = {};
 
-exports.init = (fs, base_dir, stack = 'main') => {
-	var require = dire => {
+exports.init = (fs, base_dir, user, stack = 'main') => {
+	var require = (dire, options) => {
 		var file = path.resolve(dire);
 		
 		if(/^[^\.\/\\]/g.test(dire) && exports.cache[dire])return exports.cache[dire];
@@ -19,10 +19,12 @@ exports.init = (fs, base_dir, stack = 'main') => {
 		
 		if(exports.cache[file])return exports.cache[file];
 		
-		return require.exec(fs.readFileSync(file), file);
+		return require.exec(fs.readFileSync(file), file, options);
 	};
 	
-	require.exec = (script, file) => {
+	require.user = { name: '', home: '' };
+	
+	require.exec = (script, file, options = { cache: true }) => {
 		if(mime.getType(file) == 'application/json')return JSON.parse(file);
 		
 		var _exports = {},
@@ -38,16 +40,19 @@ exports.init = (fs, base_dir, stack = 'main') => {
 			args = {
 				module: _module,
 				exports: _exports,
-				require: exports.init(fs, path.dirname(file), file),
+				require: exports.init(fs, path.dirname(file), require.user, file),
 				Buffer: Buffer,
 				__filename: file,
 				__dirname: path.dirname(file),
 				web: web,
 			};
 		
+		console.log(require.user);
+		args.require.user = require.user;
+		
 		new Function(Object.keys(args), script)(...Object.values(args));
 		
-		return exports.cache[file] = _exports;
+		return options.cache ? exports.cache[file] = _exports : _exports;
 	};
 	
 	return require;

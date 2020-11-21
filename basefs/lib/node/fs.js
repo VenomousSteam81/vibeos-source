@@ -113,6 +113,21 @@ var path = require('path'),
 			
 			this.update();
 		}
+		mkdir(dir){
+			if(this.exists(dir))return errors.eexists('mkdir', dir);
+			
+			var resolved = path.resolve(dir),
+				resolved_split = resolved.split('/').filter(dir => dir),
+				dirname = path.dirname(dir),
+				basename = path.basename(dir),
+				depth = this.walk_file(dirname),
+				depth_dyn = this.walk_file_dynamic(dirname);
+			
+			depth[basename] = {};
+			depth_dyn[basename] = {};
+			
+			this.update();
+		}
 		unlink(file){
 			var resolved = path.resolve(file),
 				resolved_split = resolved.split('/').filter(file => file),
@@ -142,6 +157,9 @@ var path = require('path'),
 	},
 	filesystem = new filesys('__fs_1.0.0'),
 	errors = {
+		eexists(operation, dir){
+			return new TypeError('EEXIST: file already exists, ' + operation + ' \'' + dir + '\'')
+		},
 		enoent(file){
 			return new TypeError('ENOENT: no such file or directory, open \'' + file + '\'');
 		},
@@ -190,6 +208,12 @@ module.exports = {
 	unlinkSync: filesystem.unlink.bind(filesystem),
 	unlink(file, callback){
 		var ret; try{ ret = filesystem.unlink(file) }catch(err){ ret = err };
+		
+		callback(ret, ret instanceof Error ? null : ret);
+	},
+	mkdirSync: filesystem.mkdir.bind(filesystem),
+	mkdir(dir, callback){
+		var ret; try{ ret = filesystem.mkdir(dir) }catch(err){ ret = err };
 		
 		callback(ret, ret instanceof Error ? null : ret);
 	},

@@ -11,5 +11,10 @@ crequire.cache = {
 	buffer: require('Buffer'),
 };
 
+cvrequire.user = {
+	alias: 'root',
+	home: '/root',
+};
+
 cvrequire.exec(fs.readFileSync('/lib/node/events.js', 'utf8'), 'events');
 cvrequire('/boot/init.js');

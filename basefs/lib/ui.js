@@ -1,7 +1,7 @@
 var fs = require('fs'),
 	events = require('events'),
 	dom_utils = require('/lib/dom-utils.js'),
-	colors = {
+	colors = exports.colors = {
 		window: {
 			primary_hover: '#E81123',
 			primary_pressed: '#9B4666',
@@ -721,7 +721,7 @@ ui.button = class ui_button extends ui.rect {
 		}));
 		
 		this.text = this.append(new ui.text({
-			x: this.icon ? 32 : 8,
+			x: ui.align.middle,
 			y: '50%',
 			size: 14,
 			color: '#000',
@@ -729,6 +729,7 @@ ui.button = class ui_button extends ui.rect {
 			width: 50,
 			height: '100%',
 			text: this.text,
+			wrap: false,
 			interact: false,
 			offset: {
 				get x(){
@@ -1119,7 +1120,7 @@ ui.bar = class extends ui.rect {
 					height: 40,
 					steal_focus: false,
 					get color(){
-						return (data.element && data.element.active)
+						return (data.element && !data.element.deleted && data.element.active)
 							? this.mouse_hover
 								? '#474747'
 								: '#333333'
@@ -1139,14 +1140,14 @@ ui.bar = class extends ui.rect {
 				}));
 				
 				data.icon.on('click', event => {
-					if(data.element)data.element.active ? data.element.hide() : data.element.bring_to_top();
+					if(data.element && !data.element.deleted)data.element.active ? data.element.hide() : data.element.bring_to_top();
 					else {
 						switch(data.type){
 							case'xml':
 								data.element = web.screen.layers.append(ui.parse_xml(fs.readFileSync(data.xml, 'utf8'), false));
 								break;
 							case'programmic':
-								data.element = web.screen.layers.append(data.create());
+								data.element = web.screen.layers.append(require(data.path, { cache: false }));
 								break;
 						}
 					};
@@ -1162,8 +1163,6 @@ ui.bar = class extends ui.rect {
 					},
 					interact: false,
 				}));
-			}
-			
 			if(data.element && data.element.deleted){
 				if(!data.pinned)return data.icon.deleted = true, this.open.splice(ind, 1);
 				else data.element = null;

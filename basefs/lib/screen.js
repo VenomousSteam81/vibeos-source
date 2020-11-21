@@ -70,15 +70,11 @@ var fs = require('fs'),
 			
 			var all_elements = [],
 				add_elements = (arr, dims) => arr.filter(element => element.visible && element.interact).forEach(element => {
-					var fixed = ui.fixed_sp(element, dims);
-					
-					element.fixed = fixed;
-					
 					// only_contents flag exists for interact
 					
 					if(element.interact === true)all_elements.push(element);
 					
-					add_elements(element.elements, fixed);
+					add_elements(element.elements, element.fixed);
 				});
 			
 			add_elements(screen.layers, screen.dims);
@@ -200,6 +196,8 @@ screen.render = () => {
 			
 			ctx.save();
 			
+			element.fixed = ui.fixed_sp(element, dims);
+			
 			if(dims.clip && element.apply_clip){
 				var region = new Path2D();
 				region.rect(dims.x, dims.y, dims.width, dims.height);
@@ -207,6 +205,36 @@ screen.render = () => {
 			}
 			
 			if(dims.translate && element.apply_translate)ctx.translate(dims.translate.x, dims.translate.y);
+			
+			if(element.radius){
+				var region = new Path2D(),
+					half_rad = (2 * Math.PI) / 2,
+					quat_rad = (2 * Math.PI) / 4;
+				
+				region.arc(element.radius + element.fixed.x, element.radius + element.fixed.y, element.radius, -quat_rad, half_rad, true);
+
+				// line from top left to bottom left
+				region.lineTo(element.fixed.x, element.fixed.y + element.fixed.height - element.radius);
+
+				// bottom left arc  
+				region.arc(element.radius + element.fixed.x, element.fixed.height - element.radius + element.fixed.y, element.radius, half_rad, quat_rad, true);
+
+				// line from bottom left to bottom right
+				region.lineTo(element.fixed.x + element.fixed.width - element.radius, element.fixed.y + element.fixed.height);
+
+				// bottom right arc
+				region.arc(element.fixed.x + element.fixed.width - element.radius, element.fixed.y + element.fixed.height - element.radius, element.radius, quat_rad, 0, true);
+
+				// line from bottom right to top right
+				region.lineTo(element.fixed.x + element.fixed.width, element.fixed.y + element.radius);
+				
+				// top right arc
+				region.arc(element.fixed.x + element.fixed.width - element.radius, element.fixed.y + element.radius, element.radius, 0, -quat_rad, true);
+				region.lineTo(element.fixed.x + element.radius, element.fixed.y);
+				
+				ctx.clip(region, 'evenodd');
+			}
+			
 			element.draw(screen.ctx, dims);
 			ctx.restore();
 			
@@ -228,6 +256,8 @@ screen.render = () => {
 };
 
 screen.element_in_mouse = element => {
+	if(!element.fixed)return;
+	
 	var region = {
 			sx: element.fixed.x,
 			sy: element.fixed.y,
