@@ -25,7 +25,7 @@ var ui = require('/lib/ui.js'),
 		},
 		render: async () => {
 			var vurl = browser.add_proto(browser.nav.url),
-				data = await fetch('https://ldm.sys32.dev/' + vurl).then(res => res.text()),
+				data = await fetch('https://ldm.sys32.dev/' + vurl).then(res => res.text()).catch(err => '<h3>' + err.toString() + '</h3>'),
 				buf = dom_utils.add_ele('canvas', document.body, { style: 'display: none' });
 			
 			// https://cburgmer.github.io/rasterizeHTML.js/
@@ -33,6 +33,7 @@ var ui = require('/lib/ui.js'),
 			rasterize_html.drawHTML(data, buf, {
 				width: browser.win.fixed.width,
 				width: browser.win.fixed.height,
+				baseUrl: vurl,
 			}).then(result => {
 				console.log(result.image);
 				browser.rendering.image = result.image;
