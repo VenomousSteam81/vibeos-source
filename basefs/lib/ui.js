@@ -906,6 +906,7 @@ ui.input = class ui_input extends ui.rect {
 			width: 100,
 			height: 20,
 			placeholder: '',
+			value: '',
 		});
 		
 		Object.assign(this, {
@@ -930,8 +931,6 @@ ui.input = class ui_input extends ui.rect {
 				x: 7,
 			},
 		}));
-		
-		this.value = '';
 		
 		Object.defineProperties(this.text, {
 			text: { get: _ => this.focused ? (this.value || '') + blink_string(this.uuid) : this.value ? this.value : this.placeholder },

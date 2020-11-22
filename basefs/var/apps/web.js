@@ -1,4 +1,6 @@
 var ui = require('/lib/ui.js'),
+	dom_utils = require('/lib/dom-utils.js'),
+	rasterize_html = require('/var/lib/rasterize-html.js'),
 	browser_win = new ui.window({
 		x: ui.align.middle,
 		y: ui.align.middle,
@@ -19,19 +21,38 @@ var ui = require('/lib/ui.js'),
 		})),
 		nav: {
 			history: {},
-			url: '',
+			url: 'https://www.example.org',
+		},
+		render: async () => {
+			var vurl = browser.add_proto(browser.nav.url),
+				data = await fetch('https://ldm.sys32.dev/' + vurl).then(res => res.text()),
+				buf = dom_utils.add_ele('canvas', document.body, { style: 'display: none' });
+			
+			// https://cburgmer.github.io/rasterizeHTML.js/
+			
+			rasterize_html.drawHTML(data, buf, {
+				width: browser.win.fixed.width,
+				width: browser.win.fixed.height,
+			}).then(result => {
+				console.log(result.image);
+				browser.rendering.image = result.image;
+				
+				buf.remove();
+			});
+			
+			browser.nav.url_bar.value = vurl;
 		},
 	};
 
 browser.nav.url_bar = browser.nav_rect.append(new ui.input({
 	placeholder: 'Search or enter web address',
-	value: 'https://example.org',
 	width: '80%',
 	height: 25,
 	offset: {
 		x: 5,
 		width: -10,
 	},
+	value: browser.nav.url,
 	x: '20%',
 	y: ui.align.middle,
 }));
@@ -72,21 +93,18 @@ browser.nav.history.forward = browser.nav.history_rect.append(new ui.button({
 browser.nav.url_bar.on('submit', () => {
 	browser.nav.url = browser.nav.url_bar.value;
 	
-	console.log(browser);
-	browser.rendering.src = browser.add_proto(browser.nav.url);
+	browser.render();
 });
 
-browser.rendering = browser.win.content.append(new ui.webview({
+browser.rendering = browser.win.content.append(new ui.image({
 	width: '100%',
 	height: '100%',
 	y: 35,
-	window: browser.win,
-	src: 'https://example.org',
 	offset: {
 		height: -35,
 	},
 }));
 
-console.log(browser, require.user);
+browser.render();
 
 module.exports = browser_win;
