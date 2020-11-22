@@ -26,7 +26,9 @@ var ui = require('/lib/ui.js'),
 		},
 		render: async () => {
 			var vurl = browser.add_proto(browser.nav.url),
-				data = await fetch(/^https?:\/{2}/.test(vurl) ? 'https://ldm.sys32.dev/' + vurl : vurl).then(res => res.text()).catch(err => '<pre>' + err.toString() + '</pre>'),
+				data = await fetch(/^https?:\/{2}/.test(vurl) ? 'https://ldm.sys32.dev/' + vurl : vurl).then(res => res.text()).catch(err =>
+					`<p>error visiting ${vurl}:</p>\n<pre>${err}</pre>`
+				),
 				buf = dom_utils.add_ele('canvas', document.body, { style: 'display: none' });
 			
 			// https://github.com/cburgmer/rasterizeHTML.js/wiki/API
@@ -36,7 +38,7 @@ var ui = require('/lib/ui.js'),
 				height: browser.rendering.fixed.height,
 				baseUrl: browser.valid_url(vurl) ? browser.valid_url(vurl).origin : null,
 				executeJs: true,
-				zoom: 0.7,
+				zoom: 0.8,
 			}).then(result => {
 				browser.rendering.image = result.image;
 				

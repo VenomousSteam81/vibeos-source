@@ -920,16 +920,14 @@ ui.menu_button = class ui_button extends ui.rect {
 
 ui.input = class ui_input extends ui.rect {
 	constructor(opts){
-		super(opts, {
+		var thise = super(opts, {
 			width: 100,
 			height: 20,
 			placeholder: '',
 			value: '',
 		});
 		
-		Object.assign(this, {
-			submit: true,
-		}, opts);
+		this.submit = opts.submit == null ? true : opts.submit;
 		
 		this.cursor = 'text';
 		
@@ -939,10 +937,18 @@ ui.input = class ui_input extends ui.rect {
 			size: 1,
 			width: '100%',
 			height: '100%',
+			get color(){
+				return thise.focused ? '#0078D7' : '#000';
+			},
 		}));
 		
 		this.text = this.append(new ui.text({
-			text: '',
+			get text(){
+				return thise.value || '';
+			},
+			get color(){
+				return thise.value ? '#000' : '#767676';
+			},
 			width: '100%',
 			color: '#000',
 			y: '50%',
@@ -951,13 +957,6 @@ ui.input = class ui_input extends ui.rect {
 				x: 7,
 			},
 		}));
-		
-		Object.defineProperties(this.text, {
-			text: { get: _ => this.value || '' },
-			color: { get: _ => this.value ? '#000' : '#767676' },
-		});
-		
-		Object.defineProperty(this.border, 'color', { get: _ => this.focused ? '#0078D7' : '#000' });
 		
 		this.on('click', () => {
 			this.cursor_pos = this.value.length;
@@ -971,6 +970,14 @@ ui.input = class ui_input extends ui.rect {
 			ctx.fillStyle = '#000';
 			ctx.fillRect(this.text.fixed.x + ctx.measureText(this.text.text.slice(0, this.cursor_pos)).width, this.text.fixed.y - (this.fixed.height / 4), 2, 16);
 		}
+		
+		this.on('paste', data => {
+			data.event.preventDefault();
+			
+			this.value = this.value.slice(0, this.cursor_pos) + data.text + this.value.slice(this.cursor_pos);
+			
+			this.cursor_pos += data.text.length;
+		});
 		
 		web.keyboard.on('keydown', event => {
 			if(!this.focused)return;
@@ -988,7 +995,11 @@ ui.input = class ui_input extends ui.rect {
 					
 					break;
 				case'Enter':
-					if(this.submit)this.emit('submit', event), this.value = '';
+					if(this.submit){
+						this.emit('submit', event);
+						this.value = '';
+						this.focused = false;
+					}
 					break;
 				case'ArrowLeft':
 					if(this.cursor_pos - 1 >= 0)this.cursor_pos -= 1;
@@ -997,17 +1008,7 @@ ui.input = class ui_input extends ui.rect {
 					if(this.cursor_pos + 1 <= this.value.length)this.cursor_pos += 1;
 					break;
 				default:
-					if(event.ctrlKey)switch(event.code){
-						case'KeyA':
-							console.log('poaste');
-							navigator.clipboard.read().then(data => console.log(data)).catch(err => {
-								console.log(err);
-							});
-							break;
-						default:
-							console.log(event.code);
-							break;
-					}
+					if(event.ctrlKey && event.code == 'KeyA')return;
 					
 					if(event.key.length == 1){
 						var val = (this.value || ''), ins = event.key;

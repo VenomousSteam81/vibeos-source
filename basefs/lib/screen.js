@@ -41,6 +41,7 @@ var fs = require('fs'),
 	mouse = web.mouse = Object.assign(new events(), {
 		buttons: {},
 		previous: {},
+		focused: [],
 		cursor: 'pointer',
 		handler(event){
 			mouse.previous.x = mouse.x || 0;
@@ -137,10 +138,15 @@ var fs = require('fs'),
 			
 			var menu_toggles = all_elements.filter(element => element instanceof ui.menu_button);
 			
-			if(event.type == 'mousedown')all_elements.forEach(element => {
-				if(element.includes(target))element.focused = true;
-				else element.focused = false;
-			});
+			if(event.type == 'mousedown'){
+				mouse.focused = [];
+				all_elements.forEach(element => {
+					if(element.includes(target)){
+						mouse.focused.push(element);
+						element.focused = true;
+					}else element.focused = false;
+				});
+			}
 		},
 	}),
 	keyboard = web.keyboard = Object.assign(new events(), {
@@ -159,6 +165,11 @@ var fs = require('fs'),
 			// console.log(screen.mouse.target_hover, event.type);
 			.emit(event.type, event);*/
 		},
+		paste(event){
+			var data = (event.clipboardData || window.clipboardData).getData('text');
+			
+			mouse.focused.forEach(ele => ele.emit('paste', { text: data, event: event }));
+		},
 	});
 
 canvas.addEventListener('mousemove', mouse.handler);
@@ -168,6 +179,7 @@ canvas.addEventListener('wheel', mouse.handler);
 canvas.addEventListener('contextmenu', event => (event.preventDefault(), mouse.handler(event)));
 canvas.addEventListener('mouseleave', () => mouse.buttons = {});
 
+window.addEventListener('paste', keyboard.paste);
 window.addEventListener('keydown', keyboard.handler);
 window.addEventListener('keyup', keyboard.handler);
 

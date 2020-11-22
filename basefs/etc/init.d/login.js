@@ -5,9 +5,7 @@ var screen = require('/lib/screen.js'),
 		time: login_rect.append(new ui.text({
 			x: 20,
 			y: ui.align.bottom,
-			offset: {
-				y: -20,
-			},
+			offset: { y: -20 },
 			size: 45,
 			family: 'Verdana',
 			get text(){
