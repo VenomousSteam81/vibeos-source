@@ -38,7 +38,7 @@ var fs = require('fs'),
 			height: ${screen.dims.height}px;
 			outline: none;`,
 	}),
-	mouse = screen.mouse = Object.assign(new events(), {
+	mouse = web.mouse = Object.assign(new events(), {
 		buttons: {},
 		previous: {},
 		cursor: 'pointer',
@@ -143,11 +143,11 @@ var fs = require('fs'),
 			});
 		},
 	}),
-	keyboard = screen.keyboard = Object.assign(new events(), {
+	keyboard = web.keyboard = Object.assign(new events(), {
 		handler(event){
 			// event.preventDefault();
 			
-			keyboard.emit(event.code, event);
+			keyboard.emit(event.type, event);
 			
 			// if(!screen.mouse.target_hover)return;
 			

@@ -323,7 +323,7 @@ ui.element = class extends events {
 			}));
 			
 				
-			this.on('wheel', event => drag_handler(Object.assign({}, web.screen.mouse, {
+			this.on('wheel', event => drag_handler(Object.assign({}, web.mouse, {
 				movement: {
 					x: event.deltaX / 10,
 					y: event.deltaY /  10,
@@ -972,7 +972,7 @@ ui.input = class ui_input extends ui.rect {
 			ctx.fillRect(this.text.fixed.x + ctx.measureText(this.text.text.slice(0, this.cursor_pos)).width, this.text.fixed.y - (this.fixed.height / 4), 2, 16);
 		}
 		
-		window.addEventListener('keydown', event => {
+		web.keyboard.on('keydown', event => {
 			if(!this.focused)return;
 			
 			blink_bool(this.uuid, 1000, true);
