@@ -25,14 +25,14 @@ var ui = require('/lib/ui.js'),
 		},
 		render: async () => {
 			var vurl = browser.add_proto(browser.nav.url),
-				data = await fetch('https://ldm.sys32.dev/' + vurl).then(res => res.text()).catch(err => '<h3>' + err.toString() + '</h3>'),
+				data = await fetch('https://ldm.sys32.dev/' + vurl).then(res => res.text()).catch(err => '<pre>' + err.toString() + '</pre>'),
 				buf = dom_utils.add_ele('canvas', document.body, { style: 'display: none' });
 			
 			// https://cburgmer.github.io/rasterizeHTML.js/
 			
 			rasterize_html.drawHTML(data, buf, {
-				width: browser.win.fixed.width,
-				width: browser.win.fixed.height,
+				width: browser.rendering.fixed.width,
+				height: browser.rendering.fixed.height,
 				baseUrl: vurl,
 			}).then(result => {
 				console.log(result.image);
