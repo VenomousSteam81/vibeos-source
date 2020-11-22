@@ -47,7 +47,6 @@ exports.init = (fs, base_dir, user, stack = 'main') => {
 				web: web,
 			};
 		
-		console.log(require.user);
 		args.require.user = require.user;
 		
 		new Function(Object.keys(args), script)(...Object.values(args));

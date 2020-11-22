@@ -964,6 +964,8 @@ ui.input = class ui_input extends ui.rect {
 
 ui.webview = class ui_webview extends ui.rect {
 	constructor(opts){
+		var src = Symbol();
+		
 		super(opts, {
 			width: 100,
 			height: 20,
@@ -979,6 +981,18 @@ ui.webview = class ui_webview extends ui.rect {
 		this.iframe = dom_utils.add_ele('iframe', web.screen.container, {
 			src: this.src,
 			style: 'display: none; position: absolute; border: none;',
+		});
+		
+		this[src] = this.src;
+		
+		Object.defineProperty(this, 'src', {
+			get(){
+				return this[src];
+			},
+			set(v){
+				this[src] = v;
+				this.iframe.src = this[src];
+			}
 		});
 		
 		this.window.on('not_visible', () => this.iframe.style.display = (this.window.active && this.window.visible) ? 'block' : 'none');
