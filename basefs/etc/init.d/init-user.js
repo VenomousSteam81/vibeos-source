@@ -8,13 +8,10 @@ if(!fs.existsSync(require.user.home))fs.mkdirSync(require.user.home);
 if(!fs.existsSync(bar_data_path))fs.writeFileSync(bar_data_path, '[]');
 
 [{
-	icon_path: 'https://github.com/vibeOS/vibeos-legacy/blob/master/tango/apps/32/internet-web-browser.png?raw=true',
-	type: 'programmic', // xml, programmic
-	path: '/var/apps/web.js',
+	path: '/var/xml/license.xml',
 	pinned: true,
 },{
-	icon_path: 'https://github.com/vibeOS/vibeos-legacy/blob/master/tango/apps/32/internet-web-browser.png?raw=true',
-	type: 'programmic', // xml, programmic
+	icon_path: 'https://raw.githubusercontent.com/vibeOS/vibeos-legacy/master/tango/apps/32/internet-web-browser.png',
 	path: '/var/apps/web.js',
 	pinned: true,
 }].concat(JSON.parse(fs.readFileSync(bar_data_path, 'utf8'))).forEach(entry => web.bar.open.push(entry));

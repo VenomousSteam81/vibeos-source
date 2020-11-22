@@ -1,4 +1,5 @@
 var fs = require('fs'),
+	path = require('path'),
 	events = require('events'),
 	dom_utils = require('/lib/dom-utils.js'),
 	colors = exports.colors = {
@@ -1101,8 +1102,9 @@ ui.bar = class extends ui.rect {
 			height: 40,
 			color: '#101010',
 			y: ui.align.bottom,
-			always_on_top: true,
 		});
+		
+		this.layer = 1e10;
 		
 		this.open = [];
 	}
@@ -1142,11 +1144,11 @@ ui.bar = class extends ui.rect {
 				data.icon.on('click', event => {
 					if(data.element && !data.element.deleted)data.element.active ? data.element.hide() : data.element.bring_to_top();
 					else {
-						switch(data.type){
-							case'xml':
-								data.element = web.screen.layers.append(ui.parse_xml(fs.readFileSync(data.xml, 'utf8'), false));
+						switch(path.extname(data.path)){
+							case'.xml':
+								data.element = web.screen.layers.append(ui.parse_xml(fs.readFileSync(data.path, 'utf8'), false));
 								break;
-							case'programmic':
+							case'.js':
 								data.element = web.screen.layers.append(require(data.path, { cache: false }));
 								break;
 						}
