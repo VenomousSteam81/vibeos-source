@@ -950,7 +950,7 @@ ui.input = class ui_input extends ui.rect {
 			Reflect.apply(ui.text.prototype.draw, this.text, [ ctx, dims ]);
 			
 			ctx.fillStyle = '#000';
-			ctx.fillRect(this.text.fixed.x + ctx.measureText(this.text.text.slice(0, this.cursor_pos)).width, this.text.fixed.y - (this.text.fixed.height / 2), 2, 16);
+			ctx.fillRect(this.text.fixed.x + ctx.measureText(this.text.text.slice(0, this.cursor_pos)).width, this.text.fixed.y - (this.fixed.height / 4), 2, 16);
 		}
 		
 		window.addEventListener('keydown', event => {
@@ -978,6 +978,11 @@ ui.input = class ui_input extends ui.rect {
 					if(this.cursor_pos + 1 <= this.value.length)this.cursor_pos += 1;
 					break;
 				default:
+					/*if(event.ctrlKey)switch(event.code){
+						case'a':
+							
+					}*/
+					
 					if(event.key.length == 1){
 						var val = (this.value || ''), ins = event.key;
 					
