@@ -4,13 +4,14 @@ var ui = require('/lib/ui.js'),
 	browser_win = new ui.window({
 		x: ui.align.middle,
 		y: ui.align.middle,
-		width: 400,
-		height: 300,
+		width: 600,
+		height: 400,
 		show_in_bar: false,
 		title: 'Web Browser',
 	}),
 	browser = {
-		add_proto: url => (!/^(?:f|ht)tps?\:\/\//.test(url)) ? 'https://' + url : url,
+		add_proto: url => (!/^.*?:/.test(url)) ? 'https://' + url : url,
+		valid_url: url => { try{ return new URL(url) }catch(err){ return null }},
 		win: browser_win,
 		nav_rect: browser_win.content.append(new ui.rect({
 			width: '100%',
@@ -25,7 +26,7 @@ var ui = require('/lib/ui.js'),
 		},
 		render: async () => {
 			var vurl = browser.add_proto(browser.nav.url),
-				data = await fetch('https://ldm.sys32.dev/' + vurl).then(res => res.text()).catch(err => '<pre>' + err.toString() + '</pre>'),
+				data = await fetch(/^https?:\/{2}/.test(vurl) ? 'https://ldm.sys32.dev/' + vurl : vurl).then(res => res.text()).catch(err => '<pre>' + err.toString() + '</pre>'),
 				buf = dom_utils.add_ele('canvas', document.body, { style: 'display: none' });
 			
 			// https://github.com/cburgmer/rasterizeHTML.js/wiki/API
@@ -33,7 +34,7 @@ var ui = require('/lib/ui.js'),
 			rasterize_html.drawHTML(data, buf, {
 				width: browser.rendering.fixed.width,
 				height: browser.rendering.fixed.height,
-				baseUrl: vurl,
+				baseUrl: browser.valid_url(vurl) ? browser.valid_url(vurl).origin : null,
 				executeJs: true,
 				zoom: 0.7,
 			}).then(result => {

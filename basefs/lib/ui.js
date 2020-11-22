@@ -56,7 +56,7 @@ var fs = require('fs'),
 	blink_string = uuid => {
 		if(blinking[uuid] != null)return blinking[uuid];
 		
-		blinking[uuid] = '|';
+		blinking[uuid] = '⎸';
 		
 		setInterval(() => blinking[uuid] = blinking[uuid].length ? '' : '⎸', 1000);
 		
