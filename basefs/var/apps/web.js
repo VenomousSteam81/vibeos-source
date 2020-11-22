@@ -5,6 +5,7 @@ var ui = require('/lib/ui.js'),
 		width: 400,
 		height: 300,
 		show_in_bar: false,
+		title: 'Web Browser',
 	}),
 	browser = {
 		add_proto: url => (!/^(?:f|ht)tps?\:\/\//.test(url)) ? 'https://' + url : url,
