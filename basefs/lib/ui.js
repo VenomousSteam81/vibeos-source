@@ -1163,12 +1163,14 @@ ui.bar = class extends ui.rect {
 					},
 					interact: false,
 				}));
+			}
+			
 			if(data.element && data.element.deleted){
 				if(!data.pinned)return data.icon.deleted = true, this.open.splice(ind, 1);
 				else data.element = null;
 			}
-		});
 		
-		Reflect.apply(ui.rect.prototype.draw, this, [ ctx, dims ]);
+			Reflect.apply(ui.rect.prototype.draw, this, [ ctx, dims ]);
+		});
 	}
 };
