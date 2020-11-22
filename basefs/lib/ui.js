@@ -53,12 +53,13 @@ var fs = require('fs'),
 		},
 	},
 	blinking = {},
+	blink_char = '|', // '⎸'
 	blink_string = uuid => {
 		if(blinking[uuid] != null)return blinking[uuid];
 		
-		blinking[uuid] = '⎸';
+		blinking[uuid] = blink_char;
 		
-		setInterval(() => blinking[uuid] = blinking[uuid].length ? '' : '⎸', 1000);
+		setInterval(() => blinking[uuid] = blinking[uuid].length ? '' : blink_char, 1000);
 		
 		return blinking[uuid];
 	},
@@ -915,6 +916,8 @@ ui.input = class ui_input extends ui.rect {
 		
 		this.cursor = 'text';
 		
+		this.cursor_pos = this.value.length;
+		
 		this.border = this.append(new ui.border({
 			size: 1,
 			width: '100%',
@@ -922,7 +925,7 @@ ui.input = class ui_input extends ui.rect {
 		}));
 		
 		this.text = this.append(new ui.text({
-			text: 'xd',
+			text: '',
 			width: '100%',
 			color: '#000',
 			y: '50%',
@@ -933,26 +936,55 @@ ui.input = class ui_input extends ui.rect {
 		}));
 		
 		Object.defineProperties(this.text, {
-			text: { get: _ => this.focused ? (this.value || '') + blink_string(this.uuid) : this.value ? this.value : this.placeholder },
+			text: { get: _ => this.value || '' },
 			color: { get: _ => this.value ? '#000' : '#767676' },
 		});
 		
 		Object.defineProperty(this.border, 'color', { get: _ => this.focused ? '#0078D7' : '#000' });
 		
+		this.on('click', () => {
+			this.cursor_pos = this.value.length;
+		});
+		
+		this.text.draw = (ctx, dims) => {
+			Reflect.apply(ui.text.prototype.draw, this.text, [ ctx, dims ]);
+			
+			ctx.fillStyle = '#000';
+			ctx.fillRect(this.text.fixed.x + ctx.measureText(this.text.text.slice(0, this.cursor_pos)).width, this.text.fixed.y - (this.text.fixed.height / 2), 2, 16);
+		}
+		
 		window.addEventListener('keydown', event => {
 			if(!this.focused)return;
 			
-			blinking[this.uuid] = '⎸';
+			blinking[this.uuid] = blink_char;
 			
 			switch(event.code){
 				case'Backspace':
-					this.value = this.value.slice(0, -1);
+					var val = (this.value || '');
+					
+					if(this.cursor_pos - 1 >= 0){
+						this.value = val.slice(0, this.cursor_pos - 1) + val.slice(this.cursor_pos);
+						this.cursor_pos -= 1;
+					}
+					
 					break;
 				case'Enter':
 					if(this.submit)this.emit('submit', event), this.value = '';
 					break;
+				case'ArrowLeft':
+					if(this.cursor_pos - 1 >= 0)this.cursor_pos -= 1;
+					break;
+				case'ArrowRight':
+					if(this.cursor_pos + 1 <= this.value.length)this.cursor_pos += 1;
+					break;
 				default:
-					if(event.key.length == 1)this.value += event.key;
+					if(event.key.length == 1){
+						var val = (this.value || ''), ins = event.key;
+					
+						this.value = val.slice(0, this.cursor_pos) + ins + val.slice(this.cursor_pos);
+						
+						this.cursor_pos++;
+					}
 			}
 		});
 	}
