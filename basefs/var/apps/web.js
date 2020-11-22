@@ -28,14 +28,15 @@ var ui = require('/lib/ui.js'),
 				data = await fetch('https://ldm.sys32.dev/' + vurl).then(res => res.text()).catch(err => '<pre>' + err.toString() + '</pre>'),
 				buf = dom_utils.add_ele('canvas', document.body, { style: 'display: none' });
 			
-			// https://cburgmer.github.io/rasterizeHTML.js/
+			// https://github.com/cburgmer/rasterizeHTML.js/wiki/API
 			
 			rasterize_html.drawHTML(data, buf, {
 				width: browser.rendering.fixed.width,
 				height: browser.rendering.fixed.height,
 				baseUrl: vurl,
+				executeJs: true,
+				zoom: 0.7,
 			}).then(result => {
-				console.log(result.image);
 				browser.rendering.image = result.image;
 				
 				buf.remove();
