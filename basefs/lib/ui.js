@@ -978,10 +978,17 @@ ui.input = class ui_input extends ui.rect {
 					if(this.cursor_pos + 1 <= this.value.length)this.cursor_pos += 1;
 					break;
 				default:
-					/*if(event.ctrlKey)switch(event.code){
-						case'a':
-							
-					}*/
+					if(event.ctrlKey)switch(event.code){
+						case'KeyA':
+							console.log('poaste');
+							navigator.clipboard.read().then(data => console.log(data)).catch(err => {
+								console.log(err);
+							});
+							break;
+						default:
+							console.log(event.code);
+							break;
+					}
 					
 					if(event.key.length == 1){
 						var val = (this.value || ''), ins = event.key;

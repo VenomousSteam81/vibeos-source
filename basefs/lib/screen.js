@@ -10,6 +10,7 @@ screen.dims = {
 var fs = require('fs'),
 	dom_utils = require('./dom-utils.js'),
 	ui = require('./ui.js'),
+	events = require('events'),
 	request_frame = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || (func => setTimeout(func, 1000 / 60)),
 	container = screen.container = dom_utils.add_ele('div', document.body, {
 		width: screen.dims.width,
@@ -37,7 +38,7 @@ var fs = require('fs'),
 			height: ${screen.dims.height}px;
 			outline: none;`,
 	}),
-	mouse = screen.mouse = Object.assign(new (require('events')), {
+	mouse = screen.mouse = Object.assign(new events(), {
 		buttons: {},
 		previous: {},
 		cursor: 'pointer',
@@ -142,11 +143,13 @@ var fs = require('fs'),
 			});
 		},
 	}),
-	keyboard = screen.keyboard = {
+	keyboard = screen.keyboard = Object.assign(new events(), {
 		handler(event){
 			// event.preventDefault();
 			
-			if(!screen.mouse.target_hover)return;
+			keyboard.emit(event.code, event);
+			
+			// if(!screen.mouse.target_hover)return;
 			
 			/*screen.mouse.all_elements.forEach(element => {
 				if(element.includes(screen.mouse.target))element.focused = true;
@@ -156,7 +159,7 @@ var fs = require('fs'),
 			// console.log(screen.mouse.target_hover, event.type);
 			.emit(event.type, event);*/
 		},
-	};
+	});
 
 canvas.addEventListener('mousemove', mouse.handler);
 canvas.addEventListener('mousedown', mouse.handler);

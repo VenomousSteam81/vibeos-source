@@ -1,8 +1,23 @@
 var screen = require('/lib/screen.js'),
 	ui = require('/lib/ui.js'),
+	login_rect = screen.layers.append(new ui.rect({ width: '100%', height: '100%', color: ui.colors.window.active.main })),
 	login = {
-		rect: new ui.rect({ width: '100%', height: '100%', color: ui.colors.window.active.main }),
-		pfp: new ui.image({
+		time: login_rect.append(new ui.text({
+			x: 20,
+			y: ui.align.bottom,
+			offset: {
+				y: -20,
+			},
+			size: 45,
+			family: 'Verdana',
+			get text(){
+				var now = new Date(),
+					hour = (now.getHours() + '');
+				
+				return (hour % 12) + ':' + (now.getMinutes() + '').padStart(2, 0) + ' ' + (hour > 12 ? 'PM' : 'AM');
+			},
+		})),
+		pfp: login_rect.append(new ui.image({
 			path: '/usr/share/logo.png',
 			width: 150,
 			height: 150,
@@ -12,8 +27,8 @@ var screen = require('/lib/screen.js'),
 				y: -75,
 			},
 			radius: 10,
-		}),
-		user_label: new ui.text({
+		})),
+		user_label: login_rect.append(new ui.text({
 			x: ui.align.middle,
 			y: ui.align.middle,
 			text: 'vibeOS',
@@ -22,8 +37,8 @@ var screen = require('/lib/screen.js'),
 			offset: {
 				y: 25,
 			},
-		}),
-		login_button: new ui.button({
+		})),
+		login_button: login_rect.append(new ui.button({
 			x: ui.align.middle,
 			y: ui.align.middle,
 			height: 25,
@@ -33,16 +48,12 @@ var screen = require('/lib/screen.js'),
 			offset: {
 				y: 50,
 			},
-		}),
+		})),
 	};
 
-login.rect.append(login.pfp);
-login.rect.append(login.user_label);
-login.rect.append(login.login_button);
-
 login.login_button.on('click', event => {
-	login.rect.deleted = true;
-	login.rect.interact = false,
+	login_rect.deleted = true;
+	login_rect.interact = false,
 	web.bar.visible = true;
 	// change this to be dynamic soon
 	require.user.alias = 'vibeOS';
@@ -51,39 +62,7 @@ login.login_button.on('click', event => {
 	require('./init-user.js');
 });
 
-screen.layers.append(
-	login.rect,
-);
-
 web.bar.visible = false;
 
 // begin rendering
 screen.render();
-
-/*
-web.bar.open.push({
-	icon_path: 'https://github.com/vibeOS/vibeos-legacy/blob/master/tango/apps/32/internet-web-browser.png?raw=true',
-	type: 'xml', // xml, programmic
-	xml: '/var/xml/webview_demo.xml',
-	pinned: true,
-});
-
-web.bar.open.push({
-	icon_path: 'https://c.sys32.dev/app/assets/favicon.ico',
-	type: 'xml', // xml, programmic
-	xml: '/var/xml/chatbox.xml',
-	pinned: true,
-});
-
-web.bar.open.push({
-	icon_path: '/usr/share/missing.png',
-	type: 'programmic', // xml, programmic
-	create(){
-		return new ui.window({
-			show_in_bar: false,
-			
-		});
-	},
-	pinned: true,
-});
-*/
