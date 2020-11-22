@@ -53,13 +53,30 @@ var fs = require('fs'),
 		},
 	},
 	blinking = {},
-	blink_char = '|', // '⎸'
-	blink_string = uuid => {
-		if(blinking[uuid] != null)return blinking[uuid];
+	blink_bool = (uuid, speed = 1000, set_val) => {
+		if(set_val){
+			if(!blinking[uuid])blinking[uuid] = {};
+			
+			blinking[uuid].val = set_val;
+			
+			if(blinking[uuid].interval)clearInterval(blinking[uuid].interval);
+			
+			blinking[uuid].start_interval();
+		};
 		
-		blinking[uuid] = blink_char;
+		if(blinking[uuid] != null)return blinking[uuid].val;
 		
-		setInterval(() => blinking[uuid] = blinking[uuid].length ? '' : blink_char, 1000);
+		if(!blinking[uuid])blinking[uuid] = {};
+		
+		blinking[uuid].val = 1;
+		
+		blinking[uuid].start_interval = () => {
+			if(blinking[uuid].interval)clearInterval(blinking[uuid].interval);
+			
+			blinking[uuid].interval = setInterval(() => blinking[uuid].val ^= 1, 1000);
+		}
+		
+		if(!blinking[uuid].interval)blinking[uuid].start_interval();
 		
 		return blinking[uuid];
 	},
@@ -949,6 +966,8 @@ ui.input = class ui_input extends ui.rect {
 		this.text.draw = (ctx, dims) => {
 			Reflect.apply(ui.text.prototype.draw, this.text, [ ctx, dims ]);
 			
+			if(!this.focused || !blink_bool(this.uuid))return;
+			
 			ctx.fillStyle = '#000';
 			ctx.fillRect(this.text.fixed.x + ctx.measureText(this.text.text.slice(0, this.cursor_pos)).width, this.text.fixed.y - (this.fixed.height / 4), 2, 16);
 		}
@@ -956,7 +975,7 @@ ui.input = class ui_input extends ui.rect {
 		window.addEventListener('keydown', event => {
 			if(!this.focused)return;
 			
-			blinking[this.uuid] = blink_char;
+			blink_bool(this.uuid, 1000, true);
 			
 			switch(event.code){
 				case'Backspace':
