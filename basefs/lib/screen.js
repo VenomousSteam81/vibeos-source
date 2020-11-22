@@ -224,28 +224,43 @@ screen.render = () => {
 			if(element.radius){
 				var region = new Path2D(),
 					half_rad = (2 * Math.PI) / 2,
-					quat_rad = (2 * Math.PI) / 4;
+					quat_rad = (2 * Math.PI) / 4,
+					radius = typeof element.radius == 'number' ? {
+						t: { // top
+							l: element.radius,
+							r: element.radius,
+						},
+						b: { // bottom
+							l: element.radius,
+							r: element.radius,
+						},
+					} : {
+						t: typeof element.radius.t == 'number' ? {
+							l: element.radius.t,
+							r: element.radius.t,
+						} : element.radius.t,
+						b: typeof element.radius.b == 'number' ? {
+							l: element.radius.b,
+							r: element.radius.b,
+						} : element.radius.b,
+					},
+					fixed = element.fixed;
 				
-				region.arc(element.radius + element.fixed.x, element.radius + element.fixed.y, element.radius, -quat_rad, half_rad, true);
+				// top left
+				region.arc(radius.t.l + fixed.x, radius.t.l + fixed.y, radius.t.l, -quat_rad, half_rad, true);
+				region.lineTo(fixed.x, fixed.y + fixed.height - radius.t.l);
 
-				// line from top left to bottom left
-				region.lineTo(element.fixed.x, element.fixed.y + element.fixed.height - element.radius);
+				// bottom left
+				region.arc(radius.b.l + fixed.x, fixed.height - radius.b.l + fixed.y, radius.b.l, half_rad, quat_rad, true);
+				region.lineTo(fixed.x + fixed.width - radius.b.l, fixed.y + fixed.height);
 
-				// bottom left arc  
-				region.arc(element.radius + element.fixed.x, element.fixed.height - element.radius + element.fixed.y, element.radius, half_rad, quat_rad, true);
-
-				// line from bottom left to bottom right
-				region.lineTo(element.fixed.x + element.fixed.width - element.radius, element.fixed.y + element.fixed.height);
-
-				// bottom right arc
-				region.arc(element.fixed.x + element.fixed.width - element.radius, element.fixed.y + element.fixed.height - element.radius, element.radius, quat_rad, 0, true);
-
-				// line from bottom right to top right
-				region.lineTo(element.fixed.x + element.fixed.width, element.fixed.y + element.radius);
+				// bottom right
+				region.arc(fixed.x + fixed.width - radius.b.r, fixed.y + fixed.height - radius.b.r, radius.b.r, quat_rad, 0, true);
+				region.lineTo(fixed.x + fixed.width, fixed.y + radius.b.r);
 				
-				// top right arc
-				region.arc(element.fixed.x + element.fixed.width - element.radius, element.fixed.y + element.radius, element.radius, 0, -quat_rad, true);
-				region.lineTo(element.fixed.x + element.radius, element.fixed.y);
+				// top right
+				region.arc(fixed.x + fixed.width - radius.t.r, fixed.y + radius.t.r, radius.t.r, 0, -quat_rad, true);
+				region.lineTo(fixed.x + radius.t.r, fixed.y);
 				
 				ctx.clip(region, 'evenodd');
 			}

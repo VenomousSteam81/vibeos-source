@@ -179,7 +179,6 @@ ui.element = class extends events {
 			apply_clip: true,
 			apply_translate: true,
 			steal_focus: true,
-			always_on_top: false,
 			scroll: false,
 			clip: false,
 			uuid: ui.gen_uuid(),
@@ -1205,7 +1204,7 @@ ui.bar = class extends ui.rect {
 								: '#333333'
 							: this.mouse_hover
 								? '#272727'
-								: '#101010';
+								: 'transparent';
 					},
 				}));
 				
