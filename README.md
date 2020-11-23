@@ -18,4 +18,4 @@ Run
 
 ```node docs```
 
-Check ``./basefs/var/docs/``
+Check ```./basefs/var/docs/```
