@@ -873,8 +873,9 @@ ui.button = class ui_button extends ui.rect {
 			},
 			auto_width: true, // determine width automatically
 			cursor: 'link',
-			text: '',
-		}, opts);
+		});
+		
+		Object.assign(this, opts);
 		
 		this.border = this.append(new ui.border({
 			size: 1,
