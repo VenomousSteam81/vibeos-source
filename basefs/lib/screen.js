@@ -3,8 +3,8 @@ var screen = web.screen = exports;
 screen.dims = {
 	x: 0,
 	y: 0,
-	width: 854,
-	height: 480,
+	width: 1000,
+	height: 600,
 };
 
 var fs = require('fs'),

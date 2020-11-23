@@ -13,8 +13,12 @@ var fs = require('fs'),
 		build: path.join(__dirname, 'build.json'),
 		modules: path.join(app_dir, 'bundled.json'),
 	},
+	building = false,
 	build = async () => {
+		if(building)return;
+		
 		console.log('building..');
+		building = true;
 		
 		var build_opts = JSON.parse(fs.readFileSync(files.build)),
 			br = browserify(),
@@ -54,6 +58,7 @@ var fs = require('fs'),
 		
 		fs.writeFileSync(dist, `<!DOCTYPE HTML><html><head><meta charset='utf8'></head><body><script>\n/*  == WEBOS ==\n// BUILT ON ${new Date().toUTCString()}\n// DO NOT DISTRIBUTE!\n*/\n\nvar require,base_fs_data=${fs_string},__webos_version='${build_opts.webos.ver}';${bundle.toString('utf8')};require('./start.js')</script></body></html>`);
 		
+		building = false;
 		console.log('build finished, output found at ' + dist);
 	};
 

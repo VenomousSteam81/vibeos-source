@@ -587,22 +587,6 @@ ui.menu = class ui_menu extends ui.rect {
 		
 		var prev;
 		
-		/*Object.entries(menu).forEach(([ key, val ]) => {
-			var preve = prev,
-				added = this.append(new ui.menu_button({
-					text: key,
-					x: 0,
-					y: 0,
-					height: this.height,
-				}, val));
-			
-			this.buttons.push(added);
-			
-			if(preve)Object.defineProperty(added, 'x', { get: _ => preve.width + preve.x });
-			
-			prev = added;
-		});*/
-		
 		Object.entries(menu).forEach(([ key, val ], ind) => {
 			var preev = prev, // assign as variable gets changed
 				added = this.append(new ui.menu_button({
@@ -1123,7 +1107,9 @@ ui.input = class ui_input extends ui.rect {
 			placeholder: '',
 			value: '',
 			submit: true,
-			cursor: 'text',
+			get cursor(){
+				return thise.disabled ? 'unavailable' : 'text';
+			}
 		});
 		
 		this.cursor_pos = this.value.length;
