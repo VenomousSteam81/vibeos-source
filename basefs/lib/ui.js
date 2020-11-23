@@ -1093,6 +1093,19 @@ ui.menu_button = class ui_button extends ui.rect {
 * @param {string} opts.value value to show on button, gets set dynamically
 * @param {string} opts.submit if the enter key should submit and clear this input
 * @property {object} submit (EVENT) when enter is pressed and inputs submit value is true
+* @example
+* // returns class ui_bar with submit listener
+* var url_bar = screen.layers.append(new ui.input({
+* 	placeholder: 'Input here',
+* 	width: 100,
+* 	height: 25,
+* 	x: ui.align.middle,
+* 	y: ui.align.middle,
+* }));
+* 
+* url_bar.on('submit', event => {
+* 	alert(url_bar.value + ' was recieved');
+* });
 * @return {ui_input} input element
 */
 
