@@ -11,6 +11,14 @@ exports.cache = {};
 * @param {object} stack module that is initating
 * @property {object} user user account data
 * @property {function} exec execute scripts
+* @example
+* // returns ƒ require(){...}
+* 
+* var fs = require('fs').mount('/', 'object', base_fs_data),
+* 	crequire = require('require'),
+* 	cvrequire = crequire.init(fs, '/');
+* 
+* console.log(cvrequire);
 * @return {function} require
 */
 

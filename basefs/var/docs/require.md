@@ -5,35 +5,48 @@
 -   [init][1]
     -   [Parameters][2]
     -   [Properties][3]
--   [exec][4]
-    -   [Parameters][5]
+    -   [Examples][4]
+-   [exec][5]
+    -   [Parameters][6]
 
 ## init
 
 ### Parameters
 
--   `fs` **[object][6]** filesystem to read and search from
--   `base_dir` **[object][6]** directory that non-absolute paths are resolved from
--   `user` **[object][6]** user account to assign to output
--   `stack` **[object][6]** module that is initating (optional, default `'main'`)
+-   `fs` **[object][7]** filesystem to read and search from
+-   `base_dir` **[object][7]** directory that non-absolute paths are resolved from
+-   `user` **[object][7]** user account to assign to output
+-   `stack` **[object][7]** module that is initating (optional, default `'main'`)
 
 ### Properties
 
--   `user` **[object][6]** user account data
--   `exec` **[function][7]** execute scripts
+-   `user` **[object][7]** user account data
+-   `exec` **[function][8]** execute scripts
 
-Returns **[function][7]** require
+### Examples
+
+```javascript
+// returns ƒ require(){...}
+
+var fs = require('fs').mount('/', 'object', base_fs_data),
+	crequire = require('require'),
+	cvrequire = crequire.init(fs, '/');
+
+console.log(cvrequire);
+```
+
+Returns **[function][8]** require
 
 ## exec
 
 ### Parameters
 
--   `script` **[string][8]** text content of script to execute
--   `file` **[string][8]** filename of script being executed (for adding to cache)
--   `options` **[object][6]** options when processing (optional, default `{cache:true}`)
-    -   `options.cache` **[object][6]** if the output should be added to cache
+-   `script` **[string][9]** text content of script to execute
+-   `file` **[string][9]** filename of script being executed (for adding to cache)
+-   `options` **[object][7]** options when processing (optional, default `{cache:true}`)
+    -   `options.cache` **[object][7]** if the output should be added to cache
 
-Returns **[function][7]** exec
+Returns **[function][8]** exec
 
 [1]: #init
 
@@ -41,12 +54,14 @@ Returns **[function][7]** exec
 
 [3]: #properties
 
-[4]: #exec
+[4]: #examples
 
-[5]: #parameters-1
+[5]: #exec
 
-[6]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object
+[6]: #parameters-1
 
-[7]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/function
+[7]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object
 
-[8]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String
+[8]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/function
+
+[9]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String
