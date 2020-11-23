@@ -166,6 +166,50 @@ ui.fixed_sp = (data, bounds) => {
 
 ui.last_layer = 0;
 
+/**
+* @class
+* @param {object} addon Addon options to override options (lazy).
+* @param {object} opts Options to override defaults.
+* @param {number|string} opts.x x pos on screen (if value is a unit of %, it is relative to its parent) (example: 50%)
+* @param {number|string} opts.y y pos on screen (if value is a unit of %, it is relative to its parent) (example: 50%)
+* @param {number|string} opts.width width size on screen (if value is a unit of %, it is relative to its parent) (example: 50%)
+* @param {number|string} opts.height height size on screen (if value is a unit of %, it is relative to its parent) (example: 50%)
+* @param {string} opts.cursor cursor when mouse hovers over element
+* @param {boolean} opts.apply_clip if the renderer should apply a parent elements clip (keep in bounds)
+* @param {boolean} opts.apply_translate if the renderer should translate the position on screen (offset but multiple)
+* @param {boolean} opts.steal_focus if clicking on the element should take the current focus
+* @param {boolean} opts.scroll show a scroll bar and clip (wip)
+* @param {array} opts.elements an array of appended elements (see element.append)
+* @param {number} opts.layer automatically set, layer to render an element
+* @param {boolean} opts.interact if an element should recieve pointer events
+* @param {boolean} opts.visible if the element is visible on screen
+* @param {boolean} opts.deleted if the element is deleted and should be destroyed by the renderer
+* @param {boolean} opts.resizable if the element can be resized
+* @param {object} opts.offset element offsets if the width and height are not numbers
+* @param {number} opts.offset.x offset x
+* @param {number} opts.offset.y offset y
+* @param {number} opts.offset.width offset width
+* @param {number} opts.offset.height offset height
+* @param {object} opts.translate translate for all the appended elements
+* @param {number} opts.translate.x translate x
+* @param {number} opts.translate.y translate y
+* @param {object} opts.resizing resize space for element
+* @param {number} opts.resizing.min_width mininum resizable width
+* @param {number} opts.resizing.min_height mininum resizable height
+* @param {number} opts.resizing.max_width maximum resizable width
+* @param {number} opts.resizing.max_height maximum resizable height
+* @property {function} on event emitter on event, varies from: keydown, keyup, click, drag, mousedown, mouseup, scroll
+* @property {function} once event emitter on event
+* @property {function} draw event emitter on event
+* @property {function} append add an element to this element, assigns layer to it
+* @property {function} draw draws the element, called by renderer
+* @property {function} delete_uuid deletes an elements sub elements with specific uuid
+* @property {function} draw_scroll draws/creates the scroll bar stuff, called by renderer
+* @property {function} not_visible runs when element.visible is false, called by renderer
+* @property {string} uuid  unique identifier assigned to element
+* @return {element} Base UI Element.
+*/
+
 ui.element = class extends events {
 	constructor(opts, addon){
 		super();
@@ -183,7 +227,6 @@ ui.element = class extends events {
 			clip: false,
 			uuid: ui.gen_uuid(),
 			elements: [],
-			// layer out of parent elements
 			layer: ui.last_layer++,
 			interact: true,
 			visible: true,
@@ -343,6 +386,21 @@ ui.element = class extends events {
 		}
 	}
 };
+
+/**
+* @class
+* @param {object} opts options to override defaults
+* @param {string} opts.text text to display
+* @param {number} opts.size font size
+* @param {string} opts.family font family
+* @param {string} opts.family font family
+* @param {string} opts.align font alignment (start, end)
+* @param {string} opts.color font hex color
+* @param {string} opts.baseline font baseline (top, bottom, middle, alphabetic, hanging)
+* @param {string} opts.auto_width if the elements width should be set automatically
+* @property {function} measure gives canvas font measurements
+* @return {ui_text} Text element.
+*/
 
 ui.text = class ui_text extends ui.element {
 	constructor(opts){
