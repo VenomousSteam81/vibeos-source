@@ -19,3 +19,8 @@ Run
 ```node docs```
 
 Check ```./basefs/var/docs/```
+
+## Making docs
+
+See https://devdocs.io/jsdoc/tags-example for format
+Add path to file in docs.js

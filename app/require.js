@@ -4,6 +4,16 @@ var path = require('path'),
 
 exports.cache = {};
 
+/**
+* @param {object} fs filesystem to read and search from
+* @param {object} base_dir directory that non-absolute paths are resolved from
+* @param {object} user user account to assign to output
+* @param {object} stack module that is initating
+* @property {object} user user account data
+* @property {function} exec execute scripts
+* @return {function} require
+*/
+
 exports.init = (fs, base_dir, user, stack = 'main') => {
 	var require = (dire, options) => {
 		var file = path.resolve(dire);
@@ -23,6 +33,14 @@ exports.init = (fs, base_dir, user, stack = 'main') => {
 	};
 	
 	require.user = { name: '', home: '' };
+	
+	/**
+	* @param {string} script text content of script to execute
+	* @param {string} file filename of script being executed (for adding to cache)
+	* @param {object} options options when processing
+	* @param {object} options.cache if the output should be added to cache
+	* @return {function} exec
+	*/
 	
 	require.exec = (script, file, options = { cache: true }) => {
 		if(mime.getType(file) == 'application/json')return JSON.parse(file);
