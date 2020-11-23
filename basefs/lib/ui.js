@@ -557,7 +557,7 @@ ui.image = class ui_image extends ui.element {
 }
 
 /**
-* menu, append to window
+* menu, appended to window automatically
 * @class
 * @param {object} opts options to override defaults
 * @param {string} opts.color color of the bar
@@ -633,6 +633,34 @@ ui.menu = class ui_menu extends ui.rect {
 * @param {string} opts.show_in_bar determines to show this window in the bar
 * @param {string} opts.title title of the window
 * @param {string} opts.icon https link or path to window icon
+* @param {object} opts.menu an object containing sub objects with functions
+* @example
+* // returns ui_window with menu
+* var window = screen.layers.append(new ui.window({
+* 	title: 'test',
+* 	x: ui.align.middle,
+* 	y: ui.align.middle,
+* 	width: 300,
+* 	height: 300,
+* 	menu: {
+* 		File: {
+* 			Exit(){
+* 				window.close();
+* 			},
+* 		},
+* 		Edit: {
+* 			ok(){
+* 				alert('ok pressed');
+* 			},
+* 			ok1(){
+* 				alert();
+* 			},
+* 			ok2(){
+* 				alert();
+* 			},
+* 		},
+* 	},
+* }));
 * @property {function} show changes visibility of the window
 * @property {function} hide changes visibility of the window
 * @property {function} bring_to_top brings the window to the top
