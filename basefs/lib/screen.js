@@ -64,10 +64,10 @@ var fs = require('fs'),
 			
 			if(event.type == 'mousedown'){
 				mouse.buttons[which] = true;
-				mouse.emit('mousedown');
+				mouse.emit('mousedown', event, mouse);
 			}else if(event.type == 'mouseup'){
 				mouse.buttons[which] = false;
-				mouse.emit('mouseup');
+				mouse.emit('mouseup', event, mouse);
 			}
 			
 			var all_elements = [],
@@ -107,7 +107,7 @@ var fs = require('fs'),
 				element.mouse_left = element.mouse_right = element.mouse_middle = element.mouse_hover = element.mouse_pressed = false;
 			});
 			
-			target.emit(event.type, event);
+			target.emit(event.type, event, mouse);
 			
 			if(event.type == 'mouseup')target.emit('click', event);
 			

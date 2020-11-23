@@ -249,11 +249,9 @@ ui.element = class extends events {
 				max_width: 600,
 				max_height: 600,
 			},
-		});
+		}, addon);
 		
 		this.setMaxListeners(50);
-		
-		Object.assign(this, addon);
 		
 		Object.defineProperties(this, Object.getOwnPropertyDescriptors(opts));
 		
@@ -538,15 +536,19 @@ ui.border = class ui_border extends ui.element {
 
 ui.image = class ui_image extends ui.element {
 	constructor(opts){
+		var pathe = Symbol();
+		
 		super(opts, {
 			path: '/usr/share/missing.png',
 		});
 		
 		this.gen();
+		
+		Object.defineProperty(this, 'path', { set: v => this[pathe] = v, get: () => this[pathe] });
 	}
 	gen(){
 		this.image = Object.assign(new Image(), {
-			src: /^\w+:\/{2}/.test(this.path) ? this.path : fs.data_uri(this.path),
+			src: /^\w+:/.test(this.path) ? this.path : fs.data_uri(this.path),
 		});
 	}
 	draw(ctx, dims){
@@ -1468,3 +1470,55 @@ ui.bar = class ui_bar extends ui.rect {
 		});
 	}
 };
+
+/**
+* @description canvas for additional drawing where ui elements are not applicable
+* @class
+* @param {object} opts options
+* @param {string} opts.context context to grab from canvas when created
+* @property {HTMLCanvasElement} canvas canvas containing raw functions
+*/
+
+ui.canvas = class ui_canvas extends ui.element {
+	constructor(opts){
+		super(opts, {
+			context: '2d',
+			context_opts: [],
+		});
+		
+		this.canvas = dom_utils.add_ele('canvas', web.screen.container, {});
+		
+		if(opts.context != 'skip')this.ctx = canvas.getContext(opts.context);
+	 	
+		this.canvas.getContext = new Proxy(this.canvas.getContext, {
+			apply: (target, thisArg, argArray) => {
+				var ret = Reflect.apply(target, thisArg, argArray);
+				
+				this.ctx = ret;
+				// this.ctx.preserveDrawingBuffer = true;
+				
+				return ret;
+			}
+		});
+	}
+	draw(ctx, dims){
+		/*if(+this.canvas.width != +this.fixed.width)console.log('setting size') + Object.assign(this.canvas, {
+			width: this.fixed.width,
+			height: this.fixed.height,
+		});*/
+		
+		//console.log(this.fixed, this.ctx.canvas.width, this.ctx.canvas.height);*/
+		
+		this.emit('draw');
+		
+		var image = new Image();
+		image.src = this.canvas.toDataURL('image/jpeg', 0.95);
+		
+		image.addEventListener('load', () => this.image = image);
+		
+		
+		if(this.image)ctx.drawImage(this.image, this.fixed.x, this.fixed.y, this.fixed.width, this.fixed.height);
+		
+		// if(this.ctx)ctx.putImageData(this.ctx.getImageData(0, 0, this.fixed.width, this.fixed.height), this.fixed.x, this.fixed.y);
+	}
+}
