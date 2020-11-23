@@ -71,6 +71,8 @@ var conf = {
 
 camera.position.z = conf.cameraZ;
 
+updateSize();
+
 canvas.on('mousemove', e => {
 	const v = new three.Vector3();
 	camera.getWorldDirection(v);
@@ -144,20 +146,22 @@ canvas.on('draw', (ctx, dims) => {
 	renderer.render(scene, camera);
 });
 
-width = window.innerWidth;
-cx = width / 2;
-height = window.innerHeight;
-cy = height / 2;
-
-if(renderer && camera){
-	var cam = new three.PerspectiveCamera(camera.fov, camera.aspect), vFOV = cam.fov * Math.PI / 180;
+function updateSize() {
+	width = window.innerWidth;
+	cx = width / 2;
+	height = window.innerHeight;
+	cy = height / 2;
 	
-	renderer.setSize(width, height);
-	camera.aspect = width / height;
-	camera.updateProjectionMatrix();
-	
-	wHeight = 2 * Math.tan(vFOV / 2) * Math.abs(conf.cameraZ);
-	wWidth = wHeight * cam.aspect;
+	if(renderer && camera){
+		var cam = new three.PerspectiveCamera(camera.fov, camera.aspect), vFOV = cam.fov * Math.PI / 180;
+		
+		renderer.setSize(width, height);
+		camera.aspect = width / height;
+		camera.updateProjectionMatrix();
+		
+		wHeight = 2 * Math.tan(vFOV / 2) * Math.abs(conf.cameraZ);
+		wWidth = wHeight * cam.aspect;
+	}
 }
 
 module.exports = paint_window;
