@@ -15,5 +15,3 @@ if(!fs.existsSync(bar_data_path))fs.writeFileSync(bar_data_path, '[]');
 	path: '/var/apps/web.js',
 	pinned: true,
 }].concat(JSON.parse(fs.readFileSync(bar_data_path, 'utf8'))).forEach(entry => web.bar.open.push(entry));
-
-window.web = web;
