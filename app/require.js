@@ -47,6 +47,10 @@ exports.init = (fs, base_dir, user, stack = 'main') => {
 	* @param {string} file filename of script being executed (for adding to cache)
 	* @param {object} options options when processing
 	* @param {object} options.cache if the output should be added to cache
+	* @example
+	* // returns object
+	* console.log(cvrequire.exec(fs.readFileSync('/lib/node/events.js', 'utf8'), 'events'));
+	* console.log(crequire.cache); // added to cache
 	* @return {function} exec
 	*/
 	

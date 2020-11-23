@@ -8,20 +8,21 @@
     -   [Examples][4]
 -   [exec][5]
     -   [Parameters][6]
+    -   [Examples][7]
 
 ## init
 
 ### Parameters
 
--   `fs` **[object][7]** filesystem to read and search from
--   `base_dir` **[object][7]** directory that non-absolute paths are resolved from
--   `user` **[object][7]** user account to assign to output
--   `stack` **[object][7]** module that is initating (optional, default `'main'`)
+-   `fs` **[object][8]** filesystem to read and search from
+-   `base_dir` **[object][8]** directory that non-absolute paths are resolved from
+-   `user` **[object][8]** user account to assign to output
+-   `stack` **[object][8]** module that is initating (optional, default `'main'`)
 
 ### Properties
 
--   `user` **[object][7]** user account data
--   `exec` **[function][8]** execute scripts
+-   `user` **[object][8]** user account data
+-   `exec` **[function][9]** execute scripts
 
 ### Examples
 
@@ -35,18 +36,26 @@ var fs = require('fs').mount('/', 'object', base_fs_data),
 console.log(cvrequire);
 ```
 
-Returns **[function][8]** require
+Returns **[function][9]** require
 
 ## exec
 
 ### Parameters
 
--   `script` **[string][9]** text content of script to execute
--   `file` **[string][9]** filename of script being executed (for adding to cache)
--   `options` **[object][7]** options when processing (optional, default `{cache:true}`)
-    -   `options.cache` **[object][7]** if the output should be added to cache
+-   `script` **[string][10]** text content of script to execute
+-   `file` **[string][10]** filename of script being executed (for adding to cache)
+-   `options` **[object][8]** options when processing (optional, default `{cache:true}`)
+    -   `options.cache` **[object][8]** if the output should be added to cache
 
-Returns **[function][8]** exec
+### Examples
+
+```javascript
+// returns object
+console.log(cvrequire.exec(fs.readFileSync('/lib/node/events.js', 'utf8'), 'events'));
+console.log(crequire.cache); // added to cache
+```
+
+Returns **[function][9]** exec
 
 [1]: #init
 
@@ -60,8 +69,10 @@ Returns **[function][8]** exec
 
 [6]: #parameters-1
 
-[7]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object
+[7]: #examples-1
 
-[8]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/function
+[8]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object
 
-[9]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String
+[9]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/function
+
+[10]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String
