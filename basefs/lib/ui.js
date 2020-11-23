@@ -198,6 +198,7 @@ ui.last_layer = 0;
 * @param {number} opts.resizing.min_height mininum resizable height
 * @param {number} opts.resizing.max_width maximum resizable width
 * @param {number} opts.resizing.max_height maximum resizable height
+* @param {boolean} opts.toggle_focus if when the element is focused and clicked again, it should get toggled and not set to true
 * @property {function} on event emitter on event, varies from: keydown, keyup, click, drag, mousedown, mouseup, scroll
 * @property {function} once event emitter on event
 * @property {function} draw event emitter on event
@@ -232,6 +233,7 @@ ui.element = class extends events {
 			visible: true,
 			deleted: false,
 			resizable: false,
+			toggle_focus: false,
 			// x-change, y-change are passed to rendering since cant add to any width or height properties if they are 50% or a symbol
 			offset: {
 				x: 0,
@@ -504,6 +506,7 @@ ui.rect = class ui_rect extends ui.element {
 * @param {object} opts options to override defaults
 * @param {string} opts.color rectangle hex color
 * @param {string} opts.size size of border
+* @param {string} opts.type either inset, outset, determines if the border is inside a region or outside of it
 * @return {ui_border} border element
 */
 
@@ -520,9 +523,10 @@ ui.border = class ui_border extends ui.element {
 		ctx.strokeStyle = this.color;
 		ctx.lineWidth = this.size;
 		
-		var fixed = ui.fixed_sp(this, dims);
+		var fixed = ui.fixed_sp(this, dims),
+			off = this.type == 'inset' ? this.size : 0;
 		
-		ctx.strokeRect(fixed.x, fixed.y, fixed.width, fixed.height);
+		ctx.strokeRect(fixed.x + (off / 2), fixed.y + (off / 2), fixed.width - off, fixed.height - off);
 	}
 }
 
@@ -1375,20 +1379,84 @@ ui.parse_xml = (xml, show_in_bar = true) => {
 
 ui.bar = class ui_bar extends ui.rect {
 	constructor(opts){
-		super(opts);
+		var thise = super(opts);
 		
 		Object.assign(this, {
 			width: '100%',
-			height: 40,
+			height: 30,
 			color: '#101010',
-			y: ui.align.bottom,
 		});
+		
+		this.menu = this.append(new ui.rect({
+			width: 102,
+			height: 30,
+			size: 1,
+			toggle_focus: true,
+			get color(){
+				return this.focused ? '#494949' : this.mouse_hover ? '#287CD5' : 'transparent';
+			},
+		}));
+		
+		this.menu.icon = this.menu.append(new ui.image({
+			path: '/usr/share/applications.png',
+			x: 10,
+			y: ui.align.middle,
+			width: 16,
+			height: 16,
+		}));
+		
+		this.menu.text = this.menu.append(new ui.text({
+			text: 'Applications',
+			x: '50%',
+			y: ui.align.middle,
+			height: '50%',
+			auto_width: false,
+			size: 13,
+			align: 'center',
+			baseline: 'hanging',
+			interact: false,
+			offset: {
+				x: 10,
+			},
+		}));
+		
+		this.menu.border = this.menu.append(new ui.border({
+			width: '100%',
+			height: '100%',
+			type: 'inset',
+			size: 2,
+			get color(){
+				return thise.menu.focused ? '#3E3E3E' : thise.menu.mouse_hover ? '#4890DA' : 'transparent';
+			},
+		}));
+		
+		this.menu.border_last = this.menu.append(new ui.border({
+			width: '100%',
+			height: '100%',
+			type: 'inset',
+			size: 1,
+			get color(){
+				return thise.menu.focused ? '#3E3E3E' : thise.menu.mouse_hover ? '#2D557F' : 'transparent';
+			},
+		}));
+		
+		this.menu.items = this.menu.append(new ui.rect({
+			width: 200,
+			height: 300,
+			y: '100%', // hanging menu
+			color: '#FFF',
+			get visible(){
+				return thise.menu.focused;
+			},
+		}));
 		
 		this.layer = 1e10;
 		
 		this.open = [];
 	}
 	draw(ctx, dims){
+		var thise = this;
+		
 		this.open.forEach((data, ind, arr) => {
 			if(!data.icon){
 				data.icon = this.append(new ui.rect({
@@ -1398,8 +1466,13 @@ ui.bar = class ui_bar extends ui.rect {
 						
 						return prev.icon.x + prev.icon.width;
 					},
-					width: 40,
-					height: 40,
+					width: 30,
+					height: '100%',
+					offset: {
+						get x(){
+							return (thise.menu.fixed || { width: 0 }).width;
+						},
+					},
 					steal_focus: false,
 					get color(){
 						return (data.element && !data.element.deleted && data.element.active)
@@ -1415,8 +1488,8 @@ ui.bar = class ui_bar extends ui.rect {
 				data.icon.image = data.icon.append(new ui.image({
 					x: ui.align.middle,
 					y: ui.align.middle,
-					width: 30,
-					height: 30,
+					width: '75%',
+					height: '75%',
 					path: data.icon_path || '/usr/share/missing.png',
 					interact: false,
 				}));
@@ -1435,10 +1508,9 @@ ui.bar = class ui_bar extends ui.rect {
 					};
 				});
 				
-				data.icon.bottom_thing = data.icon.append(new ui.rect({
+				data.icon.open_indicator = data.icon.append(new ui.rect({
 					width: '100%',
 					height: 2,
-					y: ui.align.bottom,
 					color: '#60B0D5',
 					get visible(){
 						return !!data.element;

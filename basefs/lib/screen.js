@@ -143,7 +143,7 @@ var fs = require('fs'),
 				all_elements.forEach(element => {
 					if(element.includes(target)){
 						mouse.focused.push(element);
-						element.focused = true;
+						element.focused = element.toggle_focus ? !element.focused : true;
 					}else element.focused = false;
 				});
 			}
@@ -199,6 +199,13 @@ screen.layers = Object.assign([
 });
 
 screen.render = () => {
+	container.style.width = screen.dims.width + 'px';
+	container.style.height = screen.dims.height + 'px';
+	
+	canvas.width = screen.dims.width;
+	canvas.height = screen.dims.height;
+	
+	
 	var render_through = (elements, dims) => {
 		elements.filter(ele => !ele.visible).forEach(element => element.emit('not_visible'));
 		
