@@ -10,9 +10,9 @@ var screen = require('/lib/screen.js'),
 			family: 'Verdana',
 			get text(){
 				var now = new Date(),
-					hour = (now.getHours() + '');
+					hour = (now.getHours() + '') % 12;
 				
-				return (hour % 12) + ':' + (now.getMinutes() + '').padStart(2, 0) + ' ' + (hour > 12 ? 'PM' : 'AM');
+				return (hour == 0 ? 12 : hour) + ':' + (now.getMinutes() + '').padStart(2, 0) + ' ' + (hour > 12 ? 'PM' : 'AM');
 			},
 		})),
 		pfp: login_rect.append(new ui.image({

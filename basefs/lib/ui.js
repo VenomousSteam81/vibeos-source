@@ -1509,16 +1509,19 @@ ui.canvas = class ui_canvas extends ui.element {
 		
 		//console.log(this.fixed, this.ctx.canvas.width, this.ctx.canvas.height);*/
 		
-		this.emit('draw');
+		this.emit('draw', ctx, dims);
 		
-		var image = new Image();
-		image.src = this.canvas.toDataURL('image/jpeg', 0.95);
+		if(this.ctx.fillRect){ // 2D context
+			if(this.ctx)ctx.putImageData(this.ctx.getImageData(0, 0, this.fixed.width, this.fixed.height), this.fixed.x, this.fixed.y);
+		}else{ // webGL
+			var image = new Image();
+			image.src = this.canvas.toDataURL('image/jpeg', 0.95);
+			image.addEventListener('load', () => this.image = image);
+			
+			
+			if(this.image)ctx.drawImage(this.image, this.fixed.x, this.fixed.y, this.fixed.width, this.fixed.height);
+		}
 		
-		image.addEventListener('load', () => this.image = image);
-		
-		
-		if(this.image)ctx.drawImage(this.image, this.fixed.x, this.fixed.y, this.fixed.width, this.fixed.height);
-		
-		// if(this.ctx)ctx.putImageData(this.ctx.getImageData(0, 0, this.fixed.width, this.fixed.height), this.fixed.x, this.fixed.y);
+		// 
 	}
 }
