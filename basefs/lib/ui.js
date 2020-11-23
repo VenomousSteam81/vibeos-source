@@ -1475,7 +1475,28 @@ ui.bar = class ui_bar extends ui.rect {
 * @description canvas for additional drawing where ui elements are not applicable
 * @class
 * @param {object} opts options
-* @param {string} opts.context context to grab from canvas when created
+* @param {string} opts.context context to grab from canvas when created, setting to skip will allow you to call getContext manually
+* @param {array} opts.context_opts additional arguments if opts.content is valid when calling getcontext
+* @property {CanvasRenderingContext2D} ctx the rendering context made automatically
+* @property {HTMLCanvasElement} canavs the canvas created to render on
+* @property {event} draw frame to draw stuff on before an image is captured
+* @example
+* // creates window that draws rectangle relative to cursor
+* var window = screen.layers.append(new ui.window({
+* 		title: 'canvs demo',
+* 		x: ui.align.middle,
+* 		y: ui.align.middle,
+* 	})),
+* 	canvas = window.content.append(new ui.canvas({
+* 		width: '100%',
+* 		height: '100%',
+* 	}));
+* 
+* canvas.on('draw', () => {
+* 	console.log('drawing');
+* 	canvas.ctx.fillStyle = 'white';
+* 	canvas.ctx.fillRect(web.mouse.x - canvas.fixed.x, web.mouse.y - canvas.fixed.y, 10, 10);
+* });
 * @property {HTMLCanvasElement} canvas canvas containing raw functions
 */
 
@@ -1488,7 +1509,7 @@ ui.canvas = class ui_canvas extends ui.element {
 		
 		this.canvas = dom_utils.add_ele('canvas', web.screen.container, {});
 		
-		if(opts.context != 'skip')this.ctx = canvas.getContext(opts.context);
+		if(this.context != 'skip')this.ctx = this.canvas.getContext(this.context);
 	 	
 		this.canvas.getContext = new Proxy(this.canvas.getContext, {
 			apply: (target, thisArg, argArray) => {
