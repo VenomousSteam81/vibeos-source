@@ -34,8 +34,9 @@
     -   [Parameters][30]
 -   [parse_xml][31]
     -   [Parameters][32]
--   [bar][33]
-    -   [Parameters][34]
+    -   [Examples][33]
+-   [bar][34]
+    -   [Parameters][35]
 
 ## element
 
@@ -43,50 +44,50 @@
 
 ### Parameters
 
--   `addon` **[object][35]** Addon options to override options (lazy).
--   `opts` **[object][35]** Options to override defaults.
-    -   `opts.x` **([number][36] \| [string][37])** x pos on screen (if value is a unit of %, it is relative to its parent) (example: 50%)
-    -   `opts.y` **([number][36] \| [string][37])** y pos on screen (if value is a unit of %, it is relative to its parent) (example: 50%)
-    -   `opts.width` **([number][36] \| [string][37])** width size on screen (if value is a unit of %, it is relative to its parent) (example: 50%)
-    -   `opts.height` **([number][36] \| [string][37])** height size on screen (if value is a unit of %, it is relative to its parent) (example: 50%)
-    -   `opts.cursor` **[string][37]** cursor when mouse hovers over element
-    -   `opts.apply_clip` **[boolean][38]** if the renderer should apply a parent elements clip (keep in bounds)
-    -   `opts.apply_translate` **[boolean][38]** if the renderer should translate the position on screen (offset but multiple)
-    -   `opts.steal_focus` **[boolean][38]** if clicking on the element should take the current focus
-    -   `opts.scroll` **[boolean][38]** show a scroll bar and clip (wip)
-    -   `opts.elements` **[array][39]** an array of appended elements (see element.append)
-    -   `opts.layer` **[number][36]** automatically set, layer to render an element
-    -   `opts.interact` **[boolean][38]** if an element should recieve pointer events
-    -   `opts.visible` **[boolean][38]** if the element is visible on screen
-    -   `opts.deleted` **[boolean][38]** if the element is deleted and should be destroyed by the renderer
-    -   `opts.resizable` **[boolean][38]** if the element can be resized
-    -   `opts.offset` **[object][35]** element offsets if the width and height are not numbers
-        -   `opts.offset.x` **[number][36]** offset x
-        -   `opts.offset.y` **[number][36]** offset y
-        -   `opts.offset.width` **[number][36]** offset width
-        -   `opts.offset.height` **[number][36]** offset height
-    -   `opts.translate` **[object][35]** translate for all the appended elements
-        -   `opts.translate.x` **[number][36]** translate x
-        -   `opts.translate.y` **[number][36]** translate y
-    -   `opts.resizing` **[object][35]** resize space for element
-        -   `opts.resizing.min_width` **[number][36]** mininum resizable width
-        -   `opts.resizing.min_height` **[number][36]** mininum resizable height
-        -   `opts.resizing.max_width` **[number][36]** maximum resizable width
-        -   `opts.resizing.max_height` **[number][36]** maximum resizable height
+-   `addon` **[object][36]** Addon options to override options (lazy).
+-   `opts` **[object][36]** Options to override defaults.
+    -   `opts.x` **([number][37] \| [string][38])** x pos on screen (if value is a unit of %, it is relative to its parent) (example: 50%)
+    -   `opts.y` **([number][37] \| [string][38])** y pos on screen (if value is a unit of %, it is relative to its parent) (example: 50%)
+    -   `opts.width` **([number][37] \| [string][38])** width size on screen (if value is a unit of %, it is relative to its parent) (example: 50%)
+    -   `opts.height` **([number][37] \| [string][38])** height size on screen (if value is a unit of %, it is relative to its parent) (example: 50%)
+    -   `opts.cursor` **[string][38]** cursor when mouse hovers over element
+    -   `opts.apply_clip` **[boolean][39]** if the renderer should apply a parent elements clip (keep in bounds)
+    -   `opts.apply_translate` **[boolean][39]** if the renderer should translate the position on screen (offset but multiple)
+    -   `opts.steal_focus` **[boolean][39]** if clicking on the element should take the current focus
+    -   `opts.scroll` **[boolean][39]** show a scroll bar and clip (wip)
+    -   `opts.elements` **[array][40]** an array of appended elements (see element.append)
+    -   `opts.layer` **[number][37]** automatically set, layer to render an element
+    -   `opts.interact` **[boolean][39]** if an element should recieve pointer events
+    -   `opts.visible` **[boolean][39]** if the element is visible on screen
+    -   `opts.deleted` **[boolean][39]** if the element is deleted and should be destroyed by the renderer
+    -   `opts.resizable` **[boolean][39]** if the element can be resized
+    -   `opts.offset` **[object][36]** element offsets if the width and height are not numbers
+        -   `opts.offset.x` **[number][37]** offset x
+        -   `opts.offset.y` **[number][37]** offset y
+        -   `opts.offset.width` **[number][37]** offset width
+        -   `opts.offset.height` **[number][37]** offset height
+    -   `opts.translate` **[object][36]** translate for all the appended elements
+        -   `opts.translate.x` **[number][37]** translate x
+        -   `opts.translate.y` **[number][37]** translate y
+    -   `opts.resizing` **[object][36]** resize space for element
+        -   `opts.resizing.min_width` **[number][37]** mininum resizable width
+        -   `opts.resizing.min_height` **[number][37]** mininum resizable height
+        -   `opts.resizing.max_width` **[number][37]** maximum resizable width
+        -   `opts.resizing.max_height` **[number][37]** maximum resizable height
 
 ### Properties
 
--   `on` **[function][40]** event emitter on event, varies from: keydown, keyup, click, drag, mousedown, mouseup, scroll
--   `once` **[function][40]** event emitter on event
--   `draw` **[function][40]** event emitter on event
--   `append` **[function][40]** add an element to this element, assigns layer to it
--   `draw` **[function][40]** draws the element, called by renderer
--   `delete_uuid` **[function][40]** deletes an elements sub elements with specific uuid
--   `draw_scroll` **[function][40]** draws/creates the scroll bar stuff, called by renderer
--   `not_visible` **[function][40]** runs when element.visible is false, called by renderer
--   `uuid` **[string][37]** unique identifier assigned to element
+-   `on` **[function][41]** event emitter on event, varies from: keydown, keyup, click, drag, mousedown, mouseup, scroll
+-   `once` **[function][41]** event emitter on event
+-   `draw` **[function][41]** event emitter on event
+-   `append` **[function][41]** add an element to this element, assigns layer to it
+-   `draw` **[function][41]** draws the element, called by renderer
+-   `delete_uuid` **[function][41]** deletes an elements sub elements with specific uuid
+-   `draw_scroll` **[function][41]** draws/creates the scroll bar stuff, called by renderer
+-   `not_visible` **[function][41]** runs when element.visible is false, called by renderer
+-   `uuid` **[string][38]** unique identifier assigned to element
 
-Returns **[element][41]** Base UI Element.
+Returns **[element][42]** base ui element
 
 ## text
 
@@ -96,20 +97,20 @@ text element
 
 ### Parameters
 
--   `opts` **[object][35]** options to override defaults
-    -   `opts.text` **[string][37]** text to display
-    -   `opts.size` **[number][36]** font size
-    -   `opts.family` **[string][37]** font family
-    -   `opts.family` **[string][37]** font family
-    -   `opts.align` **[string][37]** font alignment (start, end)
-    -   `opts.color` **[string][37]** font hex color
-    -   `opts.baseline` **[string][37]** font baseline (top, bottom, middle, alphabetic, hanging)
-    -   `opts.auto_width` **[string][37]** if the elements width should be set automatically
-    -   `opts.wrap` **[string][37]** if the element should be wrapped by width (buggy)
+-   `opts` **[object][36]** options to override defaults
+    -   `opts.text` **[string][38]** text to display
+    -   `opts.size` **[number][37]** font size
+    -   `opts.family` **[string][38]** font family
+    -   `opts.family` **[string][38]** font family
+    -   `opts.align` **[string][38]** font alignment (start, end)
+    -   `opts.color` **[string][38]** font hex color
+    -   `opts.baseline` **[string][38]** font baseline (top, bottom, middle, alphabetic, hanging)
+    -   `opts.auto_width` **[string][38]** if the elements width should be set automatically
+    -   `opts.wrap` **[string][38]** if the element should be wrapped by width (buggy)
 
 ### Properties
 
--   `measure` **[function][40]** gives canvas font measurements
+-   `measure` **[function][41]** gives canvas font measurements
 
 Returns **ui_text** text element
 
@@ -121,8 +122,8 @@ rectangle to meet all your desires
 
 ### Parameters
 
--   `opts` **[object][35]** options to override defaults
-    -   `opts.color` **[string][37]** rectangle hex color
+-   `opts` **[object][36]** options to override defaults
+    -   `opts.color` **[string][38]** rectangle hex color
 
 Returns **ui_rect** rectangle element
 
@@ -134,9 +135,9 @@ border outline
 
 ### Parameters
 
--   `opts` **[object][35]** options to override defaults
-    -   `opts.color` **[string][37]** rectangle hex color
-    -   `opts.size` **[string][37]** size of border
+-   `opts` **[object][36]** options to override defaults
+    -   `opts.color` **[string][38]** rectangle hex color
+    -   `opts.size` **[string][38]** size of border
 
 Returns **ui_border** border element
 
@@ -148,8 +149,8 @@ image
 
 ### Parameters
 
--   `opts` **[object][35]** options to override defaults
-    -   `opts.path` **[string][37]** path to image, can be https or absolute path
+-   `opts` **[object][36]** options to override defaults
+    -   `opts.path` **[string][38]** path to image, can be https or absolute path
 
 Returns **ui_image** image element
 
@@ -161,8 +162,8 @@ menu, appended to window automatically
 
 ### Parameters
 
--   `opts` **[object][35]** options to override defaults
-    -   `opts.color` **[string][37]** color of the bar
+-   `opts` **[object][36]** options to override defaults
+    -   `opts.color` **[string][38]** color of the bar
 
 Returns **ui_image** image element
 
@@ -174,20 +175,21 @@ window
 
 ### Parameters
 
--   `opts` **[object][35]** options to override defaults
-    -   `opts.show_in_bar` **[string][37]** determines to show this window in the bar
-    -   `opts.title` **[string][37]** title of the window
-    -   `opts.icon` **[string][37]** https link or path to window icon
-    -   `opts.menu` **[object][35]** an object containing sub objects with functions
+-   `opts` **[object][36]** options to override defaults
+    -   `opts.show_in_bar` **[string][38]** determines to show this window in the bar
+    -   `opts.title` **[string][38]** title of the window
+    -   `opts.icon` **[string][38]** https link or path to window icon
+    -   `opts.menu` **[object][36]** an object containing sub objects with functions
 
 ### Properties
 
--   `show` **[function][40]** changes visibility of the window
--   `hide` **[function][40]** changes visibility of the window
--   `bring_to_top` **[function][40]** brings the window to the top
--   `focus` **[function][40]** makes the window gain focus
--   `blur` **[function][40]** makes the window lose focus
--   `close` **[function][40]** sets window.deleted to true, closing the window
+-   `show` **[function][41]** changes visibility of the window
+-   `hide` **[function][41]** changes visibility of the window
+-   `bring_to_top` **[function][41]** brings the window to the top
+-   `focus` **[function][41]** makes the window gain focus
+-   `blur` **[function][41]** makes the window lose focus
+-   `close` **[function][41]** sets window.deleted to true, closing the window
+-   `content` **[object][36]** ui_rect that all contents should be appended to
 
 ### Examples
 
@@ -217,7 +219,7 @@ var window = screen.layers.append(new ui.window({
 			},
 		},
 	},
-}));
+}))
 ```
 
 Returns **ui_window** window element
@@ -230,9 +232,9 @@ button
 
 ### Parameters
 
--   `opts` **[object][35]** options to override defaults
-    -   `opts.text` **[string][37]** text to display on button
-    -   `opts.auto_width` **[string][37]** if the button should have its width automatically set
+-   `opts` **[object][36]** options to override defaults
+    -   `opts.text` **[string][38]** text to display on button
+    -   `opts.auto_width` **[string][38]** if the button should have its width automatically set
 
 Returns **ui_button** button element
 
@@ -244,9 +246,9 @@ system button
 
 ### Parameters
 
--   `opts` **[object][35]** options to override defaults
-    -   `opts.text` **[string][37]** text to display on button
-    -   `opts.auto_width` **[string][37]** if the button should have its width automatically set
+-   `opts` **[object][36]** options to override defaults
+    -   `opts.text` **[string][38]** text to display on button
+    -   `opts.auto_width` **[string][38]** if the button should have its width automatically set
 
 Returns **system_button** system button element
 
@@ -258,9 +260,9 @@ menu button, meant to be used with menu element
 
 ### Parameters
 
--   `opts` **[object][35]** options to override defaults
-    -   `opts.text` **[string][37]** text to display on button
-    -   `opts.auto_width` **[string][37]** if the button should have its width automatically set
+-   `opts` **[object][36]** options to override defaults
+    -   `opts.text` **[string][38]** text to display on button
+    -   `opts.auto_width` **[string][38]** if the button should have its width automatically set
 
 Returns **system_button** system button element
 
@@ -272,14 +274,14 @@ input
 
 ### Parameters
 
--   `opts` **[object][35]** options to override defaults
-    -   `opts.placeholder` **[string][37]** placeholder to show on input bar
-    -   `opts.value` **[string][37]** value to show on button, gets set dynamically
-    -   `opts.submit` **[string][37]** if the enter key should submit and clear this input
+-   `opts` **[object][36]** options to override defaults
+    -   `opts.placeholder` **[string][38]** placeholder to show on input bar
+    -   `opts.value` **[string][38]** value to show on button, gets set dynamically
+    -   `opts.submit` **[string][38]** if the enter key should submit and clear this input
 
 ### Properties
 
--   `submit` **[object][35]** (EVENT) when enter is pressed and inputs submit value is true
+-   `submit` **[object][36]** (EVENT) when enter is pressed and inputs submit value is true
 
 ### Examples
 
@@ -308,9 +310,9 @@ webview
 
 ### Parameters
 
--   `opts` **[object][35]** options to override defaults
-    -   `opts.src` **[string][37]** current page to display, changable
-    -   `opts.window` **[string][37]** REQUIRED, parent window element that this goes in
+-   `opts` **[object][36]** options to override defaults
+    -   `opts.src` **[string][38]** current page to display, changable
+    -   `opts.window` **[string][38]** REQUIRED, parent window element that this goes in
 
 Returns **ui_webview** webview element
 
@@ -318,9 +320,19 @@ Returns **ui_webview** webview element
 
 ### Parameters
 
--   `xml` **[string][37]** xml data to parse, needs to be valid and a string
+-   `xml` **[string][38]** xml data to parse, needs to be valid and a string
 -   `show_in_bar`   (optional, default `true`)
--   `show-in-bar` **[string][37]** if the xml data should show in a bar
+-   `show-in-bar` **[string][38]** if the xml data should show in a bar
+
+### Examples
+
+```javascript
+// returns ui_window from xml data
+var xml_data = fs.readFileSync('/var/xml/test.xml', 'utf8'),
+	parsed = ui.parse_xml(xml_data);
+
+console.log(parsed);
+```
 
 Returns **ui_window** window element
 
@@ -330,7 +342,7 @@ Returns **ui_window** window element
 
 ### Parameters
 
--   `color` **[string][37]** hex color
+-   `color` **[string][38]** hex color
 
 Returns **ui_bar** system bar
 
@@ -398,20 +410,22 @@ Returns **ui_bar** system bar
 
 [32]: #parameters-12
 
-[33]: #bar
+[33]: #examples-2
 
-[34]: #parameters-13
+[34]: #bar
 
-[35]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object
+[35]: #parameters-13
 
-[36]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number
+[36]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object
 
-[37]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String
+[37]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number
 
-[38]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean
+[38]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String
 
-[39]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array
+[39]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean
 
-[40]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/function
+[40]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array
 
-[41]: https://developer.mozilla.org/docs/Web/API/Element
+[41]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/function
+
+[42]: https://developer.mozilla.org/docs/Web/API/Element

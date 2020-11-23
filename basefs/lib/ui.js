@@ -207,7 +207,7 @@ ui.last_layer = 0;
 * @property {function} draw_scroll draws/creates the scroll bar stuff, called by renderer
 * @property {function} not_visible runs when element.visible is false, called by renderer
 * @property {string} uuid  unique identifier assigned to element
-* @return {element} Base UI Element.
+* @return {element} base ui element
 */
 
 ui.element = class extends events {
@@ -634,6 +634,13 @@ ui.menu = class ui_menu extends ui.rect {
 * @param {string} opts.title title of the window
 * @param {string} opts.icon https link or path to window icon
 * @param {object} opts.menu an object containing sub objects with functions
+* @property {function} show changes visibility of the window
+* @property {function} hide changes visibility of the window
+* @property {function} bring_to_top brings the window to the top
+* @property {function} focus makes the window gain focus
+* @property {function} blur makes the window lose focus
+* @property {function} close sets window.deleted to true, closing the window
+* @property {object} content ui_rect that all contents should be appended to
 * @example
 * // returns ui_window with menu
 * var window = screen.layers.append(new ui.window({
@@ -660,13 +667,7 @@ ui.menu = class ui_menu extends ui.rect {
 * 			},
 * 		},
 * 	},
-* }));
-* @property {function} show changes visibility of the window
-* @property {function} hide changes visibility of the window
-* @property {function} bring_to_top brings the window to the top
-* @property {function} focus makes the window gain focus
-* @property {function} blur makes the window lose focus
-* @property {function} close sets window.deleted to true, closing the window
+* }))
 * @return {ui_window} window element
 */
 
@@ -1290,6 +1291,12 @@ ui.webview = class ui_webview extends ui.rect {
 /**
 * @param {string} xml xml data to parse, needs to be valid and a string
 * @param {string} show-in-bar if the xml data should show in a bar
+* @example
+* // returns ui_window from xml data
+* var xml_data = fs.readFileSync('/var/xml/test.xml', 'utf8'),
+* 	parsed = ui.parse_xml(xml_data);
+* 
+* console.log(parsed);
 * @return {ui_window} window element
 */
 
