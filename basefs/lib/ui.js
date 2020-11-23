@@ -388,6 +388,7 @@ ui.element = class extends events {
 };
 
 /**
+* text element
 * @class
 * @param {object} opts options to override defaults
 * @param {string} opts.text text to display
@@ -398,8 +399,9 @@ ui.element = class extends events {
 * @param {string} opts.color font hex color
 * @param {string} opts.baseline font baseline (top, bottom, middle, alphabetic, hanging)
 * @param {string} opts.auto_width if the elements width should be set automatically
+* @param {string} opts.wrap if the element should be wrapped by width (buggy)
 * @property {function} measure gives canvas font measurements
-* @return {ui_text} Text element.
+* @return {ui_text} text element
 */
 
 ui.text = class ui_text extends ui.element {
@@ -475,6 +477,14 @@ ui.text = class ui_text extends ui.element {
 	}
 }
 
+/**
+* rectangle to meet all your desires
+* @class
+* @param {object} opts options to override defaults
+* @param {string} opts.color rectangle hex color
+* @return {ui_rect} rectangle element
+*/
+
 ui.rect = class ui_rect extends ui.element {
 	constructor(opts){
 		super(opts, {
@@ -489,6 +499,15 @@ ui.rect = class ui_rect extends ui.element {
 		ctx.fillRect(fixed.x, fixed.y, fixed.width, fixed.height);
 	}
 }
+
+/**
+* border outline
+* @class
+* @param {object} opts options to override defaults
+* @param {string} opts.color rectangle hex color
+* @param {string} opts.size size of border
+* @return {ui_border} border element
+*/
 
 ui.border = class ui_border extends ui.element {
 	constructor(opts){
@@ -509,6 +528,14 @@ ui.border = class ui_border extends ui.element {
 	}
 }
 
+/**
+* image
+* @class
+* @param {object} opts options to override defaults
+* @param {string} opts.path path to image, can be https or absolute path
+* @return {ui_image} image element
+*/
+
 ui.image = class ui_image extends ui.element {
 	constructor(opts){
 		super(opts, {
@@ -528,6 +555,14 @@ ui.image = class ui_image extends ui.element {
 		ctx.drawImage(this.image, fixed.x, fixed.y, fixed.width, fixed.height);
 	}
 }
+
+/**
+* menu, append to window
+* @class
+* @param {object} opts options to override defaults
+* @param {string} opts.color color of the bar
+* @return {ui_image} image element
+*/
 
 ui.menu = class ui_menu extends ui.rect {
 	constructor(opts, menu){
@@ -591,6 +626,22 @@ ui.menu = class ui_menu extends ui.rect {
 	}
 }
 
+/**
+* window
+* @class
+* @param {object} opts options to override defaults
+* @param {string} opts.show_in_bar determines to show this window in the bar
+* @param {string} opts.title title of the window
+* @param {string} opts.icon https link or path to window icon
+* @property {function} show changes visibility of the window
+* @property {function} hide changes visibility of the window
+* @property {function} bring_to_top brings the window to the top
+* @property {function} focus makes the window gain focus
+* @property {function} blur makes the window lose focus
+* @property {function} close sets window.deleted to true, closing the window
+* @return {ui_window} window element
+*/
+
 ui.window = class ui_window extends ui.rect {
 	constructor(opts){
 		var othis = super(opts);
@@ -601,12 +652,16 @@ ui.window = class ui_window extends ui.rect {
 			height: 200,
 			buttons: {},
 			show_in_bar: true,
+			icon: null,
 		}, opts);
 		
 		this.title_bar = this.append(new ui.rect({
 			width: '100%',
 			height: 32,
 			drag: this,
+			get color(){
+				return othis.active ? colors.window.active.main : colors.window.inactive.main;
+			}
 		}));
 		
 		this.title_text = this.title_bar.append(new ui.text({
@@ -617,6 +672,9 @@ ui.window = class ui_window extends ui.rect {
 			height: '100%',
 			text: this.title,
 			interact: false,
+			get color(){
+				return othis.active ? colors.window.active.text : colors.window.inactive.text;
+			},
 		}));
 		
 		this.buttons.close = this.title_bar.append(new ui.rect({
@@ -627,6 +685,15 @@ ui.window = class ui_window extends ui.rect {
 			offset: {
 				x: -1,
 				y: 1,
+			},
+			get color(){
+				return othis.buttons.close.mouse_pressed
+					? colors.window.primary_pressed
+					: othis.buttons.close.mouse_hover
+						? colors.window.primary_hover
+						: othis.active
+							? colors.window.active.main
+							: colors.window.inactive.main
 			},
 		}));
 		
@@ -639,27 +706,15 @@ ui.window = class ui_window extends ui.rect {
 			height: '100%',
 			text: '✕',
 			interact: false,
+			get color(){
+				return (othis.buttons.close.mouse_pressed || othis.buttons.close.mouse_hover) ? '#FFF' : '#000';
+			},
 		}));
 		
 		this.buttons.close.on('mouseup', event => {
 			this.deleted = true;
 			// setting deleted to true will allow element to be picked up by renderer for deletion
 		});
-		
-		Object.defineProperty(this.buttons.close, 'color', { get: () => this.buttons.close.mouse_pressed
-			? colors.window.primary_pressed
-			: this.buttons.close.mouse_hover
-				? colors.window.primary_hover
-				: this.active
-					? colors.window.active.main
-					: colors.window.inactive.main
-		});
-		
-		Object.defineProperty(this.buttons.close.text, 'color', { get: _ => (this.buttons.close.mouse_pressed || this.buttons.close.mouse_hover) ? '#FFF' : '#000' });
-		
-		Object.defineProperty(this.title_bar, 'color', { get: () => this.active ? colors.window.active.main : colors.window.inactive.main });
-		
-		Object.defineProperty(this.title_text, 'color', { get: () => this.active ? colors.window.active.text : colors.window.inactive.text });
 		
 		if(this.icon)this.title_image = this.title_bar.append(new ui.image({
 			path: this.icon,
@@ -692,9 +747,10 @@ ui.window = class ui_window extends ui.rect {
 			size: 2,
 			width: '100%',
 			height: '100%',
+			get color(){
+				return othis.active ? colors.window.active.border : colors.window.inactive.border;
+			},
 		}));
-		
-		Object.defineProperty(this.border, 'color', { get: () => this.active ? colors.window.active.border : colors.window.inactive.border });
 		
 		if(this.show_in_bar)web.bar.open.push({
 			element: this,
@@ -766,6 +822,15 @@ ui.window = class ui_window extends ui.rect {
 	}
 }
 
+/**
+* button
+* @class
+* @param {object} opts options to override defaults
+* @param {string} opts.text text to display on button
+* @param {string} opts.auto_width if the button should have its width automatically set
+* @return {ui_button} button element
+*/
+
 ui.button = class ui_button extends ui.rect {
 	constructor(opts){
 		super({
@@ -779,9 +844,8 @@ ui.button = class ui_button extends ui.rect {
 			},
 			auto_width: true, // determine width automatically
 			cursor: 'link',
-		});
-		
-		Object.assign(this, opts);
+			text: '',
+		}, opts);
 		
 		this.border = this.append(new ui.border({
 			size: 1,
@@ -822,6 +886,15 @@ ui.button = class ui_button extends ui.rect {
 		return Reflect.apply(ui.rect.prototype.draw, this, [ ctx, dims ]);
 	}
 }
+
+/**
+* system button
+* @class
+* @param {object} opts options to override defaults
+* @param {string} opts.text text to display on button
+* @param {string} opts.auto_width if the button should have its width automatically set
+* @return {system_button} system button element
+*/
 
 ui.system_button = class ui_button extends ui.rect {
 	constructor(opts){
@@ -877,6 +950,15 @@ ui.system_button = class ui_button extends ui.rect {
 		return Reflect.apply(ui.rect.prototype.draw, this, [ ctx, dims ]);
 	}
 }
+
+/**
+* menu button, meant to be used with menu element
+* @class
+* @param {object} opts options to override defaults
+* @param {string} opts.text text to display on button
+* @param {string} opts.auto_width if the button should have its width automatically set
+* @return {system_button} system button element
+*/
 
 ui.menu_button = class ui_button extends ui.rect {
 	constructor(opts, items){
@@ -975,6 +1057,19 @@ ui.menu_button = class ui_button extends ui.rect {
 	}
 }
 
+/**
+* input
+* @class
+* @param {object} opts options to override defaults
+* @param {string} opts.placeholder placeholder to show on input bar
+* @param {string} opts.value value to show on button, gets set dynamically
+* @param {string} opts.submit if the enter key should submit and clear this input
+* @property {object} submit (EVENT) when enter is pressed and inputs submit value is true
+* @return {ui_input} input element
+*/
+
+// TODO: add disabled property on bar
+
 ui.input = class ui_input extends ui.rect {
 	constructor(opts){
 		var thise = super(opts, {
@@ -982,11 +1077,9 @@ ui.input = class ui_input extends ui.rect {
 			height: 20,
 			placeholder: '',
 			value: '',
+			submit: true,
+			cursor: 'text',
 		});
-		
-		this.submit = opts.submit == null ? true : opts.submit;
-		
-		this.cursor = 'text';
 		
 		this.cursor_pos = this.value.length;
 		
@@ -1082,6 +1175,15 @@ ui.input = class ui_input extends ui.rect {
 	}
 }
 
+/**
+* webview
+* @class
+* @param {object} opts options to override defaults
+* @param {string} opts.src current page to display, changable
+* @param {string} opts.window REQUIRED, parent window element that this goes in
+* @return {ui_webview} webview element
+*/
+
 ui.webview = class ui_webview extends ui.rect {
 	constructor(opts){
 		var src = Symbol();
@@ -1089,14 +1191,10 @@ ui.webview = class ui_webview extends ui.rect {
 		super(opts, {
 			width: 100,
 			height: 20,
-			placeholder: '',
+			src: 'about:blank',
 		});
 		
 		if(!opts.window)return console.warn('ui: webview created with no window!');
-		
-		Object.assign(this, {
-			src: 'about:blank',
-		}, opts);
 		
 		this.iframe = dom_utils.add_ele('iframe', web.screen.container, {
 			src: this.src,
@@ -1147,6 +1245,12 @@ ui.webview = class ui_webview extends ui.rect {
 		Reflect.apply(ui.rect.prototype.draw, this, [ ctx, dims ]);
 	}
 }
+
+/**
+* @param {string} xml xml data to parse, needs to be valid and a string
+* @param {string} show-in-bar if the xml data should show in a bar
+* @return {ui_window} window element
+*/
 
 ui.parse_xml = (xml, show_in_bar = true) => {
 	var dom_parser = new DOMParser(),
@@ -1227,7 +1331,12 @@ ui.parse_xml = (xml, show_in_bar = true) => {
 	return win;
 };
 
-ui.bar = class extends ui.rect {
+/**
+* @param {string} color hex color
+* @return {ui_bar} system bar
+*/
+
+ui.bar = class ui_bar extends ui.rect {
 	constructor(opts){
 		super(opts);
 		
