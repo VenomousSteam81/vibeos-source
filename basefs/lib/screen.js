@@ -125,8 +125,8 @@ var fs = require('fs'),
 			var wins = all_elements.filter(element => element instanceof ui.window).sort((ele, pele) => ele.layer - pele.layer),
 				target_win = wins.find(element => element.includes(target));
 			
-			if(target.steal_focus && event.type == 'mousedown'){
-				if(target_win){
+			if(event.type == 'mousedown'){
+				if(target_win && target.steal_focus){
 					wins.forEach(element => {
 						element.active = false;
 						target_win.layer = element.layer + element.elements.length + 1;
@@ -134,19 +134,17 @@ var fs = require('fs'),
 					
 					target_win.active = true;
 				}else wins.forEach(element => element.active = false);
-			}
-			
-			var menu_toggles = all_elements.filter(element => element instanceof ui.menu_button);
-			
-			if(event.type == 'mousedown'){
+				
 				mouse.focused = [];
 				all_elements.forEach(element => {
 					if(element.includes(target)){
 						mouse.focused.push(element);
-						element.focused = element.toggle_focus ? !element.focused : true;
-					}else element.focused = false;
+						element.focused = target.steal_focus ? element.toggle_focus ? !element.focused : true : element.focused;
+						
+						element.should_be_focused = element.toggle_focus ? !element.should_be_focused : true;
+					}else element.focused = element.should_be_focused = false;
 				});
-			}
+			}else if(event.type == 'mousedown')target.focused = target.toggle_focus ? !target.focused : true;
 		},
 	}),
 	keyboard = web.keyboard = Object.assign(new events(), {

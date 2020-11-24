@@ -207,6 +207,11 @@ ui.last_layer = 0;
 * @property {function} delete_uuid deletes an elements sub elements with specific uuid
 * @property {function} draw_scroll draws/creates the scroll bar stuff, called by renderer
 * @property {function} not_visible runs when element.visible is false, called by renderer
+* @property {boolean} mouse_hover if the mouse is hovering over element
+* @property {boolean} mouse_left if left mouse button is pressing this element
+* @property {boolean} mouse_right if right mouse button is pressing this element
+* @property {boolean} mouse_pressed if the left mouse is pressing this button (alt)
+* @property {boolean} focused if this element has recieved focus
 * @property {string} uuid  unique identifier assigned to element
 * @return {element} base ui element
 */
@@ -515,6 +520,8 @@ ui.border = class ui_border extends ui.element {
 		super(opts, {
 			color: '#FFF',
 			size: 2,
+			width: '100%',
+			height: '100%',
 			// prevent this from stealing mouse events
 			interact: false,
 		});
@@ -535,6 +542,7 @@ ui.border = class ui_border extends ui.element {
 * @class
 * @param {object} opts options to override defaults
 * @param {string} opts.path path to image, can be https or absolute path
+* @param {string} opts.filter custom filter to apply when image is drawn
 * @return {ui_image} image element
 */
 
@@ -544,6 +552,7 @@ ui.image = class ui_image extends ui.element {
 		
 		super(opts, {
 			path: '/usr/share/missing.png',
+			filter: '',
 		});
 		
 		this.gen();
@@ -558,6 +567,7 @@ ui.image = class ui_image extends ui.element {
 	draw(ctx, dims){
 		var fixed = ui.fixed_sp(this, dims);
 		
+		ctx.filter = this.filter;
 		ctx.drawImage(this.image, fixed.x, fixed.y, fixed.width, fixed.height);
 	}
 }
@@ -1101,20 +1111,17 @@ ui.menu_button = class ui_button extends ui.rect {
 * @return {ui_input} input element
 */
 
-// TODO: add disabled property on bar
-
 ui.input = class ui_input extends ui.rect {
 	constructor(opts){
-		var thise = super(opts, {
+		var othis = super(opts, {
 			width: 100,
 			height: 20,
 			placeholder: '',
 			value: '',
 			submit: true,
-			get cursor(){
-				return thise.disabled ? 'unavailable' : 'text';
-			}
 		});
+		
+		this.cursor = 'text';
 		
 		this.cursor_pos = this.value.length;
 		
@@ -1123,16 +1130,16 @@ ui.input = class ui_input extends ui.rect {
 			width: '100%',
 			height: '100%',
 			get color(){
-				return thise.focused ? '#0078D7' : '#000';
+				return othis.focused ? '#0078D7' : '#000';
 			},
 		}));
 		
 		this.text = this.append(new ui.text({
 			get text(){
-				return thise.value || '';
+				return othis.value || '';
 			},
 			get color(){
-				return thise.value ? '#000' : '#767676';
+				return othis.value ? '#000' : '#767676';
 			},
 			width: '100%',
 			color: '#000',
@@ -1216,6 +1223,7 @@ ui.input = class ui_input extends ui.rect {
 * @param {object} opts options to override defaults
 * @param {string} opts.src current page to display, changable
 * @param {string} opts.window REQUIRED, parent window element that this goes in
+* @param {string} opts.silence_warnings silences errors about overall usage of webviews
 * @return {ui_webview} webview element
 */
 
@@ -1227,9 +1235,12 @@ ui.webview = class ui_webview extends ui.rect {
 			width: 100,
 			height: 20,
 			src: 'about:blank',
+			silence_warnings: false,
 		});
 		
-		if(!opts.window)return console.warn('ui: webview created with no window!');
+		if(!this.silence_warnings)console.warn('ui: refrain from using webviews! there are many new technologies that can replace them!');
+		
+		if(!opts.window && !this.silence_warnings)return console.warn('ui: webview created with no window!');
 		
 		this.iframe = dom_utils.add_ele('iframe', web.screen.container, {
 			src: this.src,
@@ -1379,7 +1390,7 @@ ui.parse_xml = (xml, show_in_bar = true) => {
 
 ui.bar = class ui_bar extends ui.rect {
 	constructor(opts){
-		var thise = super(opts);
+		var othis = super(opts);
 		
 		Object.assign(this, {
 			width: '100%',
@@ -1388,7 +1399,7 @@ ui.bar = class ui_bar extends ui.rect {
 		});
 		
 		this.menu = this.append(new ui.rect({
-			width: 102,
+			width: 100,
 			height: 30,
 			size: 1,
 			toggle_focus: true,
@@ -1399,7 +1410,7 @@ ui.bar = class ui_bar extends ui.rect {
 		
 		this.menu.icon = this.menu.append(new ui.image({
 			path: '/usr/share/applications.png',
-			x: 10,
+			x: 8,
 			y: ui.align.middle,
 			width: 16,
 			height: 16,
@@ -1416,7 +1427,7 @@ ui.bar = class ui_bar extends ui.rect {
 			baseline: 'hanging',
 			interact: false,
 			offset: {
-				x: 10,
+				x: 8,
 			},
 		}));
 		
@@ -1426,7 +1437,7 @@ ui.bar = class ui_bar extends ui.rect {
 			type: 'inset',
 			size: 2,
 			get color(){
-				return thise.menu.focused ? '#3E3E3E' : thise.menu.mouse_hover ? '#4890DA' : 'transparent';
+				return othis.menu.focused ? '#3E3E3E' : othis.menu.mouse_hover ? '#4890DA' : 'transparent';
 			},
 		}));
 		
@@ -1436,27 +1447,74 @@ ui.bar = class ui_bar extends ui.rect {
 			type: 'inset',
 			size: 1,
 			get color(){
-				return thise.menu.focused ? '#3E3E3E' : thise.menu.mouse_hover ? '#2D557F' : 'transparent';
+				return othis.menu.focused ? '#3E3E3E' : othis.menu.mouse_hover ? '#2D557F' : 'transparent';
 			},
 		}));
 		
 		this.menu.items = this.menu.append(new ui.rect({
-			width: 200,
-			height: 300,
+			width: 150,
+			get height(){
+				return othis.menu.open.length * 30;
+			},
 			y: '100%', // hanging menu
 			color: '#FFF',
 			get visible(){
-				return thise.menu.focused;
+				return othis.menu.focused;
 			},
 		}));
+		
+		this.menu.open = [{
+			icon_path: '',
+			path: '/var/apps/web.js',
+			title: 'web bros',
+			pinned: true,
+		},{
+			icon_path: '/usr/share/categ/configuration.png',
+			title: 'Settings',
+			contents: [{
+				icon_path: 'https://raw.githubusercontent.com/vibeOS/vibeos-legacy/master/tango/apps/32/internet-web-browser.png',
+				path: '/var/apps/web.js',
+				title: 'web bros',
+				pinned: true,
+			}],
+		},{
+			icon_path: '/usr/share/categ/accessories.png',
+			title: 'Accessories',
+			contents: [],
+		},{
+			icon_path: '/usr/share/categ/graphics.png',
+			title: 'Graphics',
+			contents: [],
+		},{
+			icon_path: '/usr/share/categ/internet.png',
+			title: 'Internet',
+			contents: [],
+		},{
+			icon_path: '/usr/share/categ/multimedia.png',
+			title: 'Multimedia',
+			contents: [],
+		},{
+			icon_path: '/usr/share/categ/office.png',
+			title: 'Office',
+			contents: [],
+		},{
+			icon_path: '/usr/share/categ/system.png',
+			title: 'System',
+			contents: [],
+		},{
+			icon_path: '/usr/share/categ/games.png',
+			title: 'Games',
+			contents: [],
+		},];
 		
 		this.layer = 1e10;
 		
 		this.open = [];
 	}
 	draw(ctx, dims){
-		var thise = this;
+		var othis = this;
 		
+		// WINDOWS OPEN
 		this.open.forEach((data, ind, arr) => {
 			if(!data.icon){
 				data.icon = this.append(new ui.rect({
@@ -1470,7 +1528,7 @@ ui.bar = class ui_bar extends ui.rect {
 					height: '100%',
 					offset: {
 						get x(){
-							return (thise.menu.fixed || { width: 0 }).width;
+							return (othis.menu.fixed || { width: 0 }).width;
 						},
 					},
 					steal_focus: false,
@@ -1523,9 +1581,103 @@ ui.bar = class ui_bar extends ui.rect {
 				if(!data.pinned)return data.icon.deleted = true, this.open.splice(ind, 1);
 				else data.element = null;
 			}
-		
-			Reflect.apply(ui.rect.prototype.draw, this, [ ctx, dims ]);
 		});
+		
+		// APPLICATIONS MENU
+		
+		var proc_menus = (item_arr, item_rect) => {
+			item_arr.forEach((data, ind, arr) => {
+				if(!data.container){
+					data.container = item_rect.append(new ui.rect({
+						width: '100%',
+						height: 30,
+						y: ind * 30,
+						get color(){
+							return this.mouse_hover ? '#287CD5' : 'transparent';
+						},
+						steal_focus: !data.contents,
+						toggle_focus: true,
+					}));
+					
+					data.container.border = data.container.append(new ui.border({
+						size: 1,
+						get color(){
+							return data.container.mouse_hover ? '#3B90E8' : '#828282';
+						},
+					}));
+					
+					data.container.image = data.container.append(new ui.image({
+						x: 0,
+						y: ui.align.middle,
+						offset: {
+							x: 5,
+							y: 5,
+							width: -10,
+							height: -10,
+						},
+						width: 30,
+						height: '100%',
+						path: data.icon_path || '/usr/share/missing.png',
+						interact: false,
+					}));
+					
+					data.container.text = data.container.append(new ui.text({
+						x: 30,
+						y: '50%',
+						wrap: false,
+						text: data.title,
+						interact: false,
+						get color(){
+							return data.container.mouse_hover ? '#FFF' : '#000';
+						},
+						size: 13,
+					}));
+					
+					if(data.contents){
+						data.items = data.container.append(new ui.rect({
+							width: '100%',
+							x: '100%',
+							get height(){
+								return data.contents.length * 30;
+							},
+							y: 0,
+							color: '#FFF',
+							get visible(){
+								// console.log(data.container.focused);
+								return data.container.should_be_focused;
+							},
+						}));
+						
+						if(data.contents.length)data.container.tick = data.container.append(new ui.image({
+							path: 'data:image/svg+xml,<svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg"><path d="M162.966008 264.825993l-154.391 89.137v-178.275l154.391 89.138z"/></svg>',
+							get filter(){
+								return data.container.mouse_hover ? 'contrast(0) brightness(2)' : '';
+							},
+							width: 20,
+							height: 20,
+							x: ui.align.right,
+							y: ui.align.middle,
+							offset: {
+								x: -10,
+							},
+							interact: false,
+						}));
+					}
+					
+					data.container.on('mousedown', event => {
+						if(data.contents)proc_menus(data.contents, data.items);
+						else if(data.element && !data.element.deleted)data.element.active ? data.element.hide() : data.element.bring_to_top();
+						else data.element = (path.extname(data.path) == 'xml')
+						? web.screen.layers.append(ui.parse_xml(fs.readFileSync(data.path, 'utf8'), false))
+						: web.screen.layers.append(require(data.path, { cache: false }));
+					});
+				}
+			});
+		};
+		
+		proc_menus(this.menu.open, this.menu.items);
+		
+		Reflect.apply(ui.rect.prototype.draw, this, [ ctx, dims ]);
 	}
 };
 
@@ -1600,7 +1752,5 @@ ui.canvas = class ui_canvas extends ui.element {
 			
 			if(this.image)ctx.drawImage(this.image, this.fixed.x, this.fixed.y, this.fixed.width, this.fixed.height);
 		}
-		
-		// 
 	}
 }
