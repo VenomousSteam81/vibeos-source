@@ -1768,3 +1768,92 @@ ui.canvas = class ui_canvas extends ui.element {
 		ctx.drawImage(this.canvas, this.fixed.x, this.fixed.y, this.fixed.width, this.fixed.height);
 	}
 }
+
+// width 250
+// item height 26
+ui.context_menu = class ui_context_menu extends ui.rect {
+	constructor(opts){
+		super(opts, {
+			triggers: [],
+			width: 250,
+			height: 60,
+			items: [],
+		});
+		
+		this.color = '#EEE';
+		
+		Object.defineProperties(this, {
+			visible: { get: _ => this.focused },
+			height: { get: _ => this.items.length * 26 }
+		}),
+		
+		this.triggers.forEach(element => element.on('contextmenu', (event, mouse) => {
+			if(!mouse.buttons.right)return;
+			
+			this.x = mouse.x;
+			this.y = mouse.y;
+			
+			this.focused = true;
+		}));
+		
+		this.border = this.append(new ui.border({
+			color: '#A0A0A0',
+			size: 1,
+			type: 'inset',
+		}));
+	}
+	draw(ctx, dims){
+		// draw rect
+		Reflect.apply(ui.rect.prototype.draw, this, [ ctx, dims ]);
+		
+		this.items.filter(item => !item.container).forEach((item, ind, arr) => {
+			item.container = this.append(new ui.rect({
+				width: '100%',
+				height: 26,
+				get y(){
+					var con_ind = arr.findIndex(ele => ele.container.uuid == item.container.uuid),
+						alt_fixed = { y: 0, height: 0 },
+						prev = arr.find((ele, ind) => ind == con_ind - 1) || { container: { y: 0, fixed: alt_fixed } };
+					
+					return prev.container.y + (prev.container.fixed || alt_fixed).height;
+				},
+				get color(){
+					return this.mouse_hover ? '#FFF' : 'transparent';
+				},
+				offset: {
+					x: 4,
+					width: -8,
+					y: 4,
+					height: -4,
+				},
+			}));
+			
+			item.container.text = item.container.append(new ui.text({
+				interact: false,
+				text: item.title,
+				color: '#000',
+				x: 35,
+				y: '50%',
+			}));
+			
+			item.container.icon = item.icon ? item.container.append(new ui.image({
+				interact: false,
+				width: 16,
+				height: 16,
+				x: 8,
+				y: ui.align.middle,
+				path: item.icon,
+			})) : null;
+			
+			item.container.on('click', () => {
+				this.focused = false;
+				
+				if(item.path)((path.extname(item.path) == '.xml')
+				? web.screen.layers.append(ui.parse_xml(fs.readFileSync(item.path, 'utf8'), true))
+				: web.screen.layers.append(require(item.path, { cache: false, args: {
+					from_app_menu: true,
+				} }))).bring_to_top();
+			});
+		});
+	}
+};

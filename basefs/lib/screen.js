@@ -65,9 +65,6 @@ var fs = require('fs'),
 			if(event.type == 'mousedown'){
 				mouse.buttons[which] = true;
 				mouse.emit('mousedown', event, mouse);
-			}else if(event.type == 'mouseup'){
-				mouse.buttons[which] = false;
-				mouse.emit('mouseup', event, mouse);
 			}
 			
 			var all_elements = [],
@@ -109,7 +106,8 @@ var fs = require('fs'),
 			
 			target.emit(event.type, event, mouse);
 			
-			if(event.type == 'mouseup')target.emit('click', event, mouse);
+			if(mouse.buttons.left && event.type == 'mouseup')target.emit('click', event, mouse);
+			else if(mouse.buttons.right && event.type == 'mouseup')target.emit('contextmenu', event, mouse);
 			
 			target.mouse_pressed = mouse.buttons.left;
 			
@@ -145,6 +143,11 @@ var fs = require('fs'),
 					}else element.focused = element.should_be_focused = false;
 				});
 			}else if(event.type == 'mousedown')target.focused = target.toggle_focus ? !target.focused : true;
+			
+			if(event.type == 'mouseup'){
+				mouse.buttons[which] = false;
+				mouse.emit('mouseup', event, mouse);
+			}
 		},
 	}),
 	keyboard = web.keyboard = Object.assign(new events(), {
