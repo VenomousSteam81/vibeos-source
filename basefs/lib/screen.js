@@ -109,7 +109,7 @@ var fs = require('fs'),
 			
 			target.emit(event.type, event, mouse);
 			
-			if(event.type == 'mouseup')target.emit('click', event);
+			if(event.type == 'mouseup')target.emit('click', event, mouse);
 			
 			target.mouse_pressed = mouse.buttons.left;
 			
@@ -183,7 +183,7 @@ window.addEventListener('keyup', keyboard.handler);
 
 document.body.style = 'margin: 0px; background: #000;';
 
-var ctx = screen.ctx = canvas.getContext('2d');
+var ctx = web.ctx = canvas.getContext('2d');
 
 screen.layers = Object.assign([
 	require('/opt/ui/bg'),

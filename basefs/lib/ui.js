@@ -425,12 +425,15 @@ ui.text = class ui_text extends ui.element {
 			auto_width: true,
 		});
 	}
-	measure(ctx){
+	apply_style(ctx){
 		ctx.save();
 		ctx.fillStyle = this.color;
 		ctx.textAlign = this.align;
 		ctx.textBaseline = this.baseline;
 		ctx.font = (this.weight ? this.weight + ' ' : '') + this.size + 'px ' + this.family;
+	}
+	measure(ctx, dims){
+		this.apply_style(ctx);
 		
 		var ret = ctx.measureText(this.text);
 		
@@ -940,7 +943,7 @@ ui.button = class ui_button extends ui.rect {
 			},
 		}));
 		
-		this.width = this.auto_width ? this.text.measure(web.screen.ctx).width + 20 : this.width;
+		this.width = this.auto_width ? this.text.measure(web.ctx).width + 20 : this.width;
 	}
 	draw(ctx, dims){
 		this.width = this.auto_width ? this.text.measure(ctx).width + 20 : this.width;
@@ -1183,8 +1186,29 @@ ui.input = class ui_input extends ui.rect {
 			},
 		}));
 		
-		this.on('click', () => {
+		this.on('click', (event, mouse) => {
 			this.cursor_pos = this.value.length;
+			
+			web.ctx.save();
+			
+			this.text.apply_style(web.ctx);
+			
+			var prev = 0,
+				chars = this.value.split('').map((val, ind) => {
+					var ret = { ind: ind, vale: ~~web.ctx.measureText(val).width };
+					
+					ret.val = prev += ret.vale;
+					
+					ret.val += ret.vale / 2;
+					
+					return ret;
+				}),
+				last = chars[chars.length - 1],
+				rel = mouse.x - this.fixed.x;
+			
+			web.ctx.restore();
+			
+			this.cursor_pos = chars.concat({ ind: chars.length, val: last.val + last.vale }).reduce((prev, curr) => Math.abs(curr.val - rel) < Math.abs(prev.val - rel) ? curr : prev).ind;
 			
 			blink_bool(this.uuid, 1000, true);
 		});
@@ -1726,7 +1750,7 @@ ui.canvas = class ui_canvas extends ui.element {
 			apply: (target, thisArg, [ type, options ]) => {
 				if(/^webgl/.test(type) && options)options.preserveDrawingBuffer = true;
 				
-				var ret = Reflect.apply(target, thisArg, [ type, options ]);
+				var ret = Reflect.apply(target, thisArg, [ type, options ]); 
 				
 				this.ctx = ret;
 				
