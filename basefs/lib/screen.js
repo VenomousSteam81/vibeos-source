@@ -188,8 +188,16 @@ document.body.style = 'margin: 0px; background: #000;';
 
 var ctx = web.ctx = canvas.getContext('2d');
 
+
+
 screen.layers = Object.assign([
-	require('/opt/ui/bg'),
+	// apparently you can assign properties while initating array??
+	web.bg = new ui.image({
+		width: '100%',
+		height: '100%',
+		path: '/usr/share/wallpaper/default.png',
+		steal_focus: false,
+	}),
 	web.bar = new ui.bar({}),
 ], {
 	append(...elements){
@@ -198,6 +206,19 @@ screen.layers = Object.assign([
 		return elements[0];
 	}
 });
+
+web.bg.context_menu = screen.layers.append(new ui.context_menu({
+	triggers: [ web.bg ],
+	items: [{
+		title: 'browser test',
+		icon: '/usr/share/categ/multimedia.png',
+		path: '/var/apps/web.js',
+	},{
+		title: 'About vibeOS',
+		icon: '/usr/share/categ/office.png',
+		path: '/var/xml/about.xml',
+	}],
+}));
 
 screen.render = () => {
 	container.style.width = screen.dims.width + 'px';

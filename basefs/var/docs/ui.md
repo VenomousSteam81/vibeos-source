@@ -41,6 +41,10 @@
     -   [Parameters][37]
     -   [Properties][38]
     -   [Examples][39]
+-   [context_menu][40]
+    -   [Parameters][41]
+    -   [Properties][42]
+    -   [Examples][43]
 
 ## element
 
@@ -48,58 +52,58 @@
 
 ### Parameters
 
--   `addon` **[object][40]** Addon options to override options (lazy).
--   `opts` **[object][40]** Options to override defaults.
-    -   `opts.x` **([number][41] \| [string][42])** x pos on screen (if value is a unit of %, it is relative to its parent) (example: 50%)
-    -   `opts.y` **([number][41] \| [string][42])** y pos on screen (if value is a unit of %, it is relative to its parent) (example: 50%)
-    -   `opts.width` **([number][41] \| [string][42])** width size on screen (if value is a unit of %, it is relative to its parent) (example: 50%)
-    -   `opts.height` **([number][41] \| [string][42])** height size on screen (if value is a unit of %, it is relative to its parent) (example: 50%)
-    -   `opts.layer` **[number][41]** automatically set, layer to render an element
-    -   `opts.cursor` **[string][42]** cursor when mouse hovers over element
-    -   `opts.filter` **[string][42]** filter to apply on the context when rendering (similar to css filter)
-    -   `opts.apply_clip` **[boolean][43]** if the renderer should apply a parent elements clip (keep in bounds)
-    -   `opts.apply_translate` **[boolean][43]** if the renderer should translate the position on screen (offset but multiple)
-    -   `opts.steal_focus` **[boolean][43]** if clicking on the element should take the current focus
-    -   `opts.scroll` **[boolean][43]** show a scroll bar and clip (wip)
-    -   `opts.interact` **[boolean][43]** if an element should recieve pointer events
-    -   `opts.visible` **[boolean][43]** if the element is visible on screen
-    -   `opts.deleted` **[boolean][43]** if the element is deleted and should be destroyed by the renderer
-    -   `opts.resizable` **[boolean][43]** if the element can be resized
-    -   `opts.toggle_focus` **[boolean][43]** if clicking the element should toggle the focus
-    -   `opts.offset` **[object][40]** element offsets if the width and height are not numbers
-        -   `opts.offset.x` **[number][41]** offset x
-        -   `opts.offset.y` **[number][41]** offset y
-        -   `opts.offset.width` **[number][41]** offset width
-        -   `opts.offset.height` **[number][41]** offset height
-    -   `opts.translate` **[object][40]** translate for all the appended elements
-        -   `opts.translate.x` **[number][41]** translate x
-        -   `opts.translate.y` **[number][41]** translate y
-    -   `opts.resizing` **[object][40]** resize space for element
-        -   `opts.resizing.min_width` **[number][41]** mininum resizable width
-        -   `opts.resizing.min_height` **[number][41]** mininum resizable height
-        -   `opts.resizing.max_width` **[number][41]** maximum resizable width
-        -   `opts.resizing.max_height` **[number][41]** maximum resizable height
+-   `addon` **[object][44]** Addon options to override options (lazy).
+-   `opts` **[object][44]** Options to override defaults.
+    -   `opts.x` **([number][45] \| [string][46])** x pos on screen (if value is a unit of %, it is relative to its parent) (example: 50%)
+    -   `opts.y` **([number][45] \| [string][46])** y pos on screen (if value is a unit of %, it is relative to its parent) (example: 50%)
+    -   `opts.width` **([number][45] \| [string][46])** width size on screen (if value is a unit of %, it is relative to its parent) (example: 50%)
+    -   `opts.height` **([number][45] \| [string][46])** height size on screen (if value is a unit of %, it is relative to its parent) (example: 50%)
+    -   `opts.layer` **[number][45]** automatically set, layer to render an element
+    -   `opts.cursor` **[string][46]** cursor when mouse hovers over element
+    -   `opts.filter` **[string][46]** filter to apply on the context when rendering (similar to css filter)
+    -   `opts.apply_clip` **[boolean][47]** if the renderer should apply a parent elements clip (keep in bounds)
+    -   `opts.apply_translate` **[boolean][47]** if the renderer should translate the position on screen (offset but multiple)
+    -   `opts.steal_focus` **[boolean][47]** if clicking on the element should take the current focus
+    -   `opts.scroll` **[boolean][47]** show a scroll bar and clip (wip)
+    -   `opts.interact` **[boolean][47]** if an element should recieve pointer events
+    -   `opts.visible` **[boolean][47]** if the element is visible on screen
+    -   `opts.deleted` **[boolean][47]** if the element is deleted and should be destroyed by the renderer
+    -   `opts.resizable` **[boolean][47]** if the element can be resized
+    -   `opts.toggle_focus` **[boolean][47]** if clicking the element should toggle the focus
+    -   `opts.offset` **[object][44]** element offsets if the width and height are not numbers
+        -   `opts.offset.x` **[number][45]** offset x
+        -   `opts.offset.y` **[number][45]** offset y
+        -   `opts.offset.width` **[number][45]** offset width
+        -   `opts.offset.height` **[number][45]** offset height
+    -   `opts.translate` **[object][44]** translate for all the appended elements
+        -   `opts.translate.x` **[number][45]** translate x
+        -   `opts.translate.y` **[number][45]** translate y
+    -   `opts.resizing` **[object][44]** resize space for element
+        -   `opts.resizing.min_width` **[number][45]** mininum resizable width
+        -   `opts.resizing.min_height` **[number][45]** mininum resizable height
+        -   `opts.resizing.max_width` **[number][45]** maximum resizable width
+        -   `opts.resizing.max_height` **[number][45]** maximum resizable height
 
 ### Properties
 
--   `on` **[function][44]** event emitter on event, varies from: keydown, keyup, click, drag, mousedown, mouseup, scroll
--   `once` **[function][44]** event emitter once event
--   `off` **[function][44]** event emitter off event
--   `draw` **[function][44]** event emitter on event
--   `append` **[function][44]** add an element to this element, assigns layer to it
--   `draw` **[function][44]** draws the element, called by renderer
--   `delete_uuid` **[function][44]** deletes an elements sub elements with specific uuid
--   `draw_scroll` **[function][44]** draws/creates the scroll bar stuff, called by renderer
--   `not_visible` **[function][44]** runs when element.visible is false, called by renderer
--   `mouse_hover` **[boolean][43]** if the mouse is hovering over element
--   `mouse_left` **[boolean][43]** if left mouse button is pressing this element
--   `mouse_right` **[boolean][43]** if right mouse button is pressing this element
--   `mouse_pressed` **[boolean][43]** if the left mouse is pressing this button (alt)
--   `focused` **[boolean][43]** if this element has recieved focus
--   `uuid` **[string][42]** unique identifier assigned to element
--   `elements` **[array][45]** an array of appended elements (see element.append)
+-   `on` **[function][48]** event emitter on event, varies from: keydown, keyup, click, drag, mousedown, mouseup, scroll
+-   `once` **[function][48]** event emitter once event
+-   `off` **[function][48]** event emitter off event
+-   `draw` **[function][48]** event emitter on event
+-   `append` **[function][48]** add an element to this element, assigns layer to it
+-   `draw` **[function][48]** draws the element, called by renderer
+-   `delete_uuid` **[function][48]** deletes an elements sub elements with specific uuid
+-   `draw_scroll` **[function][48]** draws/creates the scroll bar stuff, called by renderer
+-   `not_visible` **[function][48]** runs when element.visible is false, called by renderer
+-   `mouse_hover` **[boolean][47]** if the mouse is hovering over element
+-   `mouse_left` **[boolean][47]** if left mouse button is pressing this element
+-   `mouse_right` **[boolean][47]** if right mouse button is pressing this element
+-   `mouse_pressed` **[boolean][47]** if the left mouse is pressing this button (alt)
+-   `focused` **[boolean][47]** if this element has recieved focus
+-   `uuid` **[string][46]** unique identifier assigned to element
+-   `elements` **[array][49]** an array of appended elements (see element.append)
 
-Returns **[element][46]** base ui element
+Returns **[element][50]** base ui element
 
 ## text
 
@@ -109,20 +113,20 @@ text element
 
 ### Parameters
 
--   `opts` **[object][40]** options to override defaults
-    -   `opts.text` **[string][42]** text to display
-    -   `opts.size` **[number][41]** font size
-    -   `opts.family` **[string][42]** font family
-    -   `opts.family` **[string][42]** font family
-    -   `opts.align` **[string][42]** font alignment (start, end)
-    -   `opts.color` **[string][42]** font hex color
-    -   `opts.baseline` **[string][42]** font baseline (top, bottom, middle, alphabetic, hanging)
-    -   `opts.auto_width` **[string][42]** if the elements width should be set automatically
-    -   `opts.wrap` **[string][42]** if the element should be wrapped by width (buggy)
+-   `opts` **[object][44]** options to override defaults
+    -   `opts.text` **[string][46]** text to display
+    -   `opts.size` **[number][45]** font size
+    -   `opts.family` **[string][46]** font family
+    -   `opts.family` **[string][46]** font family
+    -   `opts.align` **[string][46]** font alignment (start, end)
+    -   `opts.color` **[string][46]** font hex color
+    -   `opts.baseline` **[string][46]** font baseline (top, bottom, middle, alphabetic, hanging)
+    -   `opts.auto_width` **[string][46]** if the elements width should be set automatically
+    -   `opts.wrap` **[string][46]** if the element should be wrapped by width (buggy)
 
 ### Properties
 
--   `measure` **[function][44]** gives canvas font measurements
+-   `measure` **[function][48]** gives canvas font measurements
 
 Returns **ui_text** text element
 
@@ -134,8 +138,8 @@ rectangle to meet all your desires
 
 ### Parameters
 
--   `opts` **[object][40]** options to override defaults
-    -   `opts.color` **[string][42]** rectangle hex color
+-   `opts` **[object][44]** options to override defaults
+    -   `opts.color` **[string][46]** rectangle hex color
 
 Returns **ui_rect** rectangle element
 
@@ -147,10 +151,10 @@ border outline
 
 ### Parameters
 
--   `opts` **[object][40]** options to override defaults
-    -   `opts.color` **[string][42]** rectangle hex color
-    -   `opts.size` **[string][42]** size of border
-    -   `opts.type` **[string][42]** either inset, outset, determines if the border is inside a region or outside of it
+-   `opts` **[object][44]** options to override defaults
+    -   `opts.color` **[string][46]** rectangle hex color
+    -   `opts.size` **[string][46]** size of border
+    -   `opts.type` **[string][46]** either inset, outset, determines if the border is inside a region or outside of it
 
 Returns **ui_border** border element
 
@@ -162,9 +166,9 @@ image
 
 ### Parameters
 
--   `opts` **[object][40]** options to override defaults
-    -   `opts.path` **[string][42]** path to image, can be https or absolute path
-    -   `opts.filter` **[string][42]** custom filter to apply when image is drawn
+-   `opts` **[object][44]** options to override defaults
+    -   `opts.path` **[string][46]** path to image, can be https or absolute path
+    -   `opts.filter` **[string][46]** custom filter to apply when image is drawn
 
 Returns **ui_image** image element
 
@@ -176,8 +180,8 @@ menu, appended to window automatically
 
 ### Parameters
 
--   `opts` **[object][40]** options to override defaults
-    -   `opts.color` **[string][42]** color of the bar
+-   `opts` **[object][44]** options to override defaults
+    -   `opts.color` **[string][46]** color of the bar
 
 Returns **ui_image** image element
 
@@ -189,21 +193,21 @@ window
 
 ### Parameters
 
--   `opts` **[object][40]** options to override defaults
-    -   `opts.show_in_bar` **[string][42]** determines to show this window in the bar
-    -   `opts.title` **[string][42]** title of the window
-    -   `opts.icon` **[string][42]** https link or path to window icon
-    -   `opts.menu` **[object][40]** an object containing sub objects with functions
+-   `opts` **[object][44]** options to override defaults
+    -   `opts.show_in_bar` **[string][46]** determines to show this window in the bar
+    -   `opts.title` **[string][46]** title of the window
+    -   `opts.icon` **[string][46]** https link or path to window icon
+    -   `opts.menu` **[object][44]** an object containing sub objects with functions
 
 ### Properties
 
--   `show` **[function][44]** changes visibility of the window
--   `hide` **[function][44]** changes visibility of the window
--   `bring_to_top` **[function][44]** brings the window to the top
--   `focus` **[function][44]** makes the window gain focus
--   `blur` **[function][44]** makes the window lose focus
--   `close` **[function][44]** sets window.deleted to true, closing the window
--   `content` **[object][40]** ui_rect that all contents should be appended to
+-   `show` **[function][48]** changes visibility of the window
+-   `hide` **[function][48]** changes visibility of the window
+-   `bring_to_top` **[function][48]** brings the window to the top
+-   `focus` **[function][48]** makes the window gain focus
+-   `blur` **[function][48]** makes the window lose focus
+-   `close` **[function][48]** sets window.deleted to true, closing the window
+-   `content` **[object][44]** ui_rect that all contents should be appended to
 
 ### Examples
 
@@ -246,9 +250,9 @@ button
 
 ### Parameters
 
--   `opts` **[object][40]** options to override defaults
-    -   `opts.text` **[string][42]** text to display on button
-    -   `opts.auto_width` **[string][42]** if the button should have its width automatically set
+-   `opts` **[object][44]** options to override defaults
+    -   `opts.text` **[string][46]** text to display on button
+    -   `opts.auto_width` **[string][46]** if the button should have its width automatically set
 
 Returns **ui_button** button element
 
@@ -260,9 +264,9 @@ system button
 
 ### Parameters
 
--   `opts` **[object][40]** options to override defaults
-    -   `opts.text` **[string][42]** text to display on button
-    -   `opts.auto_width` **[string][42]** if the button should have its width automatically set
+-   `opts` **[object][44]** options to override defaults
+    -   `opts.text` **[string][46]** text to display on button
+    -   `opts.auto_width` **[string][46]** if the button should have its width automatically set
 
 Returns **system_button** system button element
 
@@ -274,9 +278,9 @@ menu button, meant to be used with menu element
 
 ### Parameters
 
--   `opts` **[object][40]** options to override defaults
-    -   `opts.text` **[string][42]** text to display on button
-    -   `opts.auto_width` **[string][42]** if the button should have its width automatically set
+-   `opts` **[object][44]** options to override defaults
+    -   `opts.text` **[string][46]** text to display on button
+    -   `opts.auto_width` **[string][46]** if the button should have its width automatically set
 
 Returns **system_button** system button element
 
@@ -288,14 +292,14 @@ input
 
 ### Parameters
 
--   `opts` **[object][40]** options to override defaults
-    -   `opts.placeholder` **[string][42]** placeholder to show on input bar
-    -   `opts.value` **[string][42]** value to show on button, gets set dynamically
-    -   `opts.submit` **[string][42]** if the enter key should submit and clear this input
+-   `opts` **[object][44]** options to override defaults
+    -   `opts.placeholder` **[string][46]** placeholder to show on input bar
+    -   `opts.value` **[string][46]** value to show on button, gets set dynamically
+    -   `opts.submit` **[string][46]** if the enter key should submit and clear this input
 
 ### Properties
 
--   `submit` **[object][40]** (EVENT) when enter is pressed and inputs submit value is true
+-   `submit` **[object][44]** (EVENT) when enter is pressed and inputs submit value is true
 
 ### Examples
 
@@ -324,10 +328,10 @@ webview
 
 ### Parameters
 
--   `opts` **[object][40]** options to override defaults
-    -   `opts.src` **[string][42]** current page to display, changable
-    -   `opts.window` **[string][42]** REQUIRED, parent window element that this goes in
-    -   `opts.silence_warnings` **[string][42]** silences errors about overall usage of webviews
+-   `opts` **[object][44]** options to override defaults
+    -   `opts.src` **[string][46]** current page to display, changable
+    -   `opts.window` **[string][46]** REQUIRED, parent window element that this goes in
+    -   `opts.silence_warnings` **[string][46]** silences errors about overall usage of webviews
 
 Returns **ui_webview** webview element
 
@@ -335,9 +339,9 @@ Returns **ui_webview** webview element
 
 ### Parameters
 
--   `xml` **[string][42]** xml data to parse, needs to be valid and a string
+-   `xml` **[string][46]** xml data to parse, needs to be valid and a string
 -   `show_in_bar`   (optional, default `true`)
--   `show-in-bar` **[string][42]** if the xml data should show in a bar
+-   `show-in-bar` **[string][46]** if the xml data should show in a bar
 
 ### Examples
 
@@ -357,7 +361,7 @@ Returns **ui_window** window element
 
 ### Parameters
 
--   `color` **[string][42]** hex color
+-   `color` **[string][46]** hex color
 
 Returns **ui_bar** system bar
 
@@ -369,16 +373,16 @@ canvas for additional drawing where ui elements are not applicable
 
 ### Parameters
 
--   `opts` **[object][40]** options
-    -   `opts.context` **[string][42]** context to grab from canvas when created, setting to skip will allow you to call getContext manually
-    -   `opts.context_opts` **[array][45]** additional arguments if opts.content is valid when calling getcontext
+-   `opts` **[object][44]** options
+    -   `opts.context` **[string][46]** context to grab from canvas when created, setting to skip will allow you to call getContext manually
+    -   `opts.context_opts` **[array][49]** additional arguments if opts.content is valid when calling getcontext
 
 ### Properties
 
--   `ctx` **[CanvasRenderingContext2D][47]** the rendering context made automatically
--   `canavs` **[HTMLCanvasElement][48]** the canvas created to render on
--   `draw` **[event][49]** frame to draw stuff on before an image is captured
--   `canvas` **[HTMLCanvasElement][48]** canvas containing raw functions
+-   `ctx` **[CanvasRenderingContext2D][51]** the rendering context made automatically
+-   `canavs` **[HTMLCanvasElement][52]** the canvas created to render on
+-   `draw` **[event][53]** frame to draw stuff on before an image is captured
+-   `canvas` **[HTMLCanvasElement][52]** canvas containing raw functions
 
 ### Examples
 
@@ -399,6 +403,44 @@ canvas.on('draw', () => {
 	canvas.ctx.fillStyle = 'white';
 	canvas.ctx.fillRect(web.mouse.x - canvas.fixed.x, web.mouse.y - canvas.fixed.y, 10, 10);
 });
+```
+
+## context_menu
+
+**Extends ui.element**
+
+context menu for showing items
+
+### Parameters
+
+-   `opts` **[object][44]** options
+    -   `opts.triggers` **[array][49]** list of elements to check for right clicks on (ui.element(s))
+    -   `opts.items` **[array][49]** list of items to append (format is { title: '...', icon: '...', path: '...executable, js, or xml' })
+
+### Properties
+
+-   `ctx` **[CanvasRenderingContext2D][51]** the rendering context made automatically
+-   `canavs` **[HTMLCanvasElement][52]** the canvas created to render on
+-   `draw` **[event][53]** frame to draw stuff on before an image is captured
+
+### Examples
+
+```javascript
+var win = web.screen.layers.append(new ui.window({
+	title: 'demo',
+	x: ui.align.middle,
+	y: ui.align.middle,
+}));
+
+// make sure the menu is ONLY appended to screen.layers
+win.context_menu = screen.layers.append(new ui.context_menu({
+	triggers: [ win.content, win.title_bar ],
+	items: [{
+		title: 'About vibeOS',
+		icon: '/usr/share/categ/office.png',
+		path: '/var/xml/about.xml',
+	}],
+}));
 ```
 
 [1]: #element
@@ -479,22 +521,30 @@ canvas.on('draw', () => {
 
 [39]: #examples-3
 
-[40]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object
+[40]: #context_menu
 
-[41]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number
+[41]: #parameters-15
 
-[42]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String
+[42]: #properties-5
 
-[43]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean
+[43]: #examples-4
 
-[44]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/function
+[44]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object
 
-[45]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array
+[45]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number
 
-[46]: https://developer.mozilla.org/docs/Web/API/Element
+[46]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String
 
-[47]: https://developer.mozilla.org/docs/Web/API/CanvasRenderingContext2D
+[47]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean
 
-[48]: https://developer.mozilla.org/docs/Web/API/HTMLCanvasElement
+[48]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/function
 
-[49]: https://developer.mozilla.org/docs/Web/API/Event
+[49]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array
+
+[50]: https://developer.mozilla.org/docs/Web/API/Element
+
+[51]: https://developer.mozilla.org/docs/Web/API/CanvasRenderingContext2D
+
+[52]: https://developer.mozilla.org/docs/Web/API/HTMLCanvasElement
+
+[53]: https://developer.mozilla.org/docs/Web/API/Event

@@ -82,7 +82,17 @@ var fs = require('fs'),
 		
 		return blinking[uuid];
 	},
-	ui = exports;
+	ui = exports,
+	is_object = item => item && typeof item == 'object' && !Array.isArray(item),
+	merge_deep = (target, ...sources) => {
+		if(!sources.length)return target;
+		var source = sources.shift();
+
+		if(is_object(target) && is_object(source))for(const key in source)if(is_object(source[key]))!target[key] && Object.assign(target, { [key]: {} }), merge_deep(target[key], source[key]);
+		else Object.assign(target, { [key]: source[key] });
+
+		return merge_deep(target, ...sources);
+	};
 
 ui.align = {
 	left: Symbol(),
@@ -260,7 +270,9 @@ ui.element = class extends events {
 				max_width: 600,
 				max_height: 600,
 			},
-		}, addon);
+		});
+		
+		Object.assign(this, addon);
 		
 		this.setMaxListeners(50);
 		
@@ -559,7 +571,6 @@ ui.image = class ui_image extends ui.element {
 		
 		super(opts, {
 			path: '/usr/share/missing.png',
-			filter: '',
 		});
 		
 		this.gen();
@@ -1769,18 +1780,45 @@ ui.canvas = class ui_canvas extends ui.element {
 	}
 }
 
-// width 250
-// item height 26
-ui.context_menu = class ui_context_menu extends ui.rect {
+/**
+* @description context menu for showing items
+* @class
+* @param {object} opts options
+* @param {array} opts.triggers list of elements to check for right clicks on (ui.element(s))
+* @param {array} opts.items list of items to append (format is { title: '...', icon: '...', path: '...executable, js, or xml' })
+* @property {CanvasRenderingContext2D} ctx the rendering context made automatically
+* @property {HTMLCanvasElement} canavs the canvas created to render on
+* @property {event} draw frame to draw stuff on before an image is captured
+* @example
+* var win = web.screen.layers.append(new ui.window({
+* 	title: 'demo',
+* 	x: ui.align.middle,
+* 	y: ui.align.middle,
+* }));
+* 
+* // make sure the menu is ONLY appended to screen.layers
+* win.context_menu = screen.layers.append(new ui.context_menu({
+* 	triggers: [ win.content, win.title_bar ],
+* 	items: [{
+* 		title: 'About vibeOS',
+* 		icon: '/usr/share/categ/office.png',
+* 		path: '/var/xml/about.xml',
+* 	}],
+* }));
+*/
+
+ui.context_menu = class ui_context_menu extends ui.element {
 	constructor(opts){
 		super(opts, {
 			triggers: [],
 			width: 250,
 			height: 60,
+			color: '#EEE',
 			items: [],
 		});
 		
-		this.color = '#EEE';
+		// above ui bar 
+		this.layer = 1e10 + 5;
 		
 		Object.defineProperties(this, {
 			visible: { get: _ => this.focused },
@@ -1811,6 +1849,7 @@ ui.context_menu = class ui_context_menu extends ui.rect {
 				width: '100%',
 				height: 26,
 				get y(){
+					// list up-down
 					var con_ind = arr.findIndex(ele => ele.container.uuid == item.container.uuid),
 						alt_fixed = { y: 0, height: 0 },
 						prev = arr.find((ele, ind) => ind == con_ind - 1) || { container: { y: 0, fixed: alt_fixed } };
@@ -1834,6 +1873,7 @@ ui.context_menu = class ui_context_menu extends ui.rect {
 				color: '#000',
 				x: 35,
 				y: '50%',
+				wrap: false,
 			}));
 			
 			item.container.icon = item.icon ? item.container.append(new ui.image({
@@ -1850,9 +1890,7 @@ ui.context_menu = class ui_context_menu extends ui.rect {
 				
 				if(item.path)((path.extname(item.path) == '.xml')
 				? web.screen.layers.append(ui.parse_xml(fs.readFileSync(item.path, 'utf8'), true))
-				: web.screen.layers.append(require(item.path, { cache: false, args: {
-					from_app_menu: true,
-				} }))).bring_to_top();
+				: web.screen.layers.append(require(item.path, { cache: false, args: { from_app_menu: true } }))).bring_to_top();
 			});
 		});
 	}
