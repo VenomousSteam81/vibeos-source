@@ -54,17 +54,18 @@
     -   `opts.y` **([number][41] \| [string][42])** y pos on screen (if value is a unit of %, it is relative to its parent) (example: 50%)
     -   `opts.width` **([number][41] \| [string][42])** width size on screen (if value is a unit of %, it is relative to its parent) (example: 50%)
     -   `opts.height` **([number][41] \| [string][42])** height size on screen (if value is a unit of %, it is relative to its parent) (example: 50%)
+    -   `opts.layer` **[number][41]** automatically set, layer to render an element
     -   `opts.cursor` **[string][42]** cursor when mouse hovers over element
+    -   `opts.filter` **[string][42]** filter to apply on the context when rendering (similar to css filter)
     -   `opts.apply_clip` **[boolean][43]** if the renderer should apply a parent elements clip (keep in bounds)
     -   `opts.apply_translate` **[boolean][43]** if the renderer should translate the position on screen (offset but multiple)
     -   `opts.steal_focus` **[boolean][43]** if clicking on the element should take the current focus
     -   `opts.scroll` **[boolean][43]** show a scroll bar and clip (wip)
-    -   `opts.elements` **[array][44]** an array of appended elements (see element.append)
-    -   `opts.layer` **[number][41]** automatically set, layer to render an element
     -   `opts.interact` **[boolean][43]** if an element should recieve pointer events
     -   `opts.visible` **[boolean][43]** if the element is visible on screen
     -   `opts.deleted` **[boolean][43]** if the element is deleted and should be destroyed by the renderer
     -   `opts.resizable` **[boolean][43]** if the element can be resized
+    -   `opts.toggle_focus` **[boolean][43]** if clicking the element should toggle the focus
     -   `opts.offset` **[object][40]** element offsets if the width and height are not numbers
         -   `opts.offset.x` **[number][41]** offset x
         -   `opts.offset.y` **[number][41]** offset y
@@ -78,24 +79,25 @@
         -   `opts.resizing.min_height` **[number][41]** mininum resizable height
         -   `opts.resizing.max_width` **[number][41]** maximum resizable width
         -   `opts.resizing.max_height` **[number][41]** maximum resizable height
-    -   `opts.toggle_focus` **[boolean][43]** if when the element is focused and clicked again, it should get toggled and not set to true
 
 ### Properties
 
--   `on` **[function][45]** event emitter on event, varies from: keydown, keyup, click, drag, mousedown, mouseup, scroll
--   `once` **[function][45]** event emitter on event
--   `draw` **[function][45]** event emitter on event
--   `append` **[function][45]** add an element to this element, assigns layer to it
--   `draw` **[function][45]** draws the element, called by renderer
--   `delete_uuid` **[function][45]** deletes an elements sub elements with specific uuid
--   `draw_scroll` **[function][45]** draws/creates the scroll bar stuff, called by renderer
--   `not_visible` **[function][45]** runs when element.visible is false, called by renderer
+-   `on` **[function][44]** event emitter on event, varies from: keydown, keyup, click, drag, mousedown, mouseup, scroll
+-   `once` **[function][44]** event emitter once event
+-   `off` **[function][44]** event emitter off event
+-   `draw` **[function][44]** event emitter on event
+-   `append` **[function][44]** add an element to this element, assigns layer to it
+-   `draw` **[function][44]** draws the element, called by renderer
+-   `delete_uuid` **[function][44]** deletes an elements sub elements with specific uuid
+-   `draw_scroll` **[function][44]** draws/creates the scroll bar stuff, called by renderer
+-   `not_visible` **[function][44]** runs when element.visible is false, called by renderer
 -   `mouse_hover` **[boolean][43]** if the mouse is hovering over element
 -   `mouse_left` **[boolean][43]** if left mouse button is pressing this element
 -   `mouse_right` **[boolean][43]** if right mouse button is pressing this element
 -   `mouse_pressed` **[boolean][43]** if the left mouse is pressing this button (alt)
 -   `focused` **[boolean][43]** if this element has recieved focus
 -   `uuid` **[string][42]** unique identifier assigned to element
+-   `elements` **[array][45]** an array of appended elements (see element.append)
 
 Returns **[element][46]** base ui element
 
@@ -120,7 +122,7 @@ text element
 
 ### Properties
 
--   `measure` **[function][45]** gives canvas font measurements
+-   `measure` **[function][44]** gives canvas font measurements
 
 Returns **ui_text** text element
 
@@ -195,12 +197,12 @@ window
 
 ### Properties
 
--   `show` **[function][45]** changes visibility of the window
--   `hide` **[function][45]** changes visibility of the window
--   `bring_to_top` **[function][45]** brings the window to the top
--   `focus` **[function][45]** makes the window gain focus
--   `blur` **[function][45]** makes the window lose focus
--   `close` **[function][45]** sets window.deleted to true, closing the window
+-   `show` **[function][44]** changes visibility of the window
+-   `hide` **[function][44]** changes visibility of the window
+-   `bring_to_top` **[function][44]** brings the window to the top
+-   `focus` **[function][44]** makes the window gain focus
+-   `blur` **[function][44]** makes the window lose focus
+-   `close` **[function][44]** sets window.deleted to true, closing the window
 -   `content` **[object][40]** ui_rect that all contents should be appended to
 
 ### Examples
@@ -369,7 +371,7 @@ canvas for additional drawing where ui elements are not applicable
 
 -   `opts` **[object][40]** options
     -   `opts.context` **[string][42]** context to grab from canvas when created, setting to skip will allow you to call getContext manually
-    -   `opts.context_opts` **[array][44]** additional arguments if opts.content is valid when calling getcontext
+    -   `opts.context_opts` **[array][45]** additional arguments if opts.content is valid when calling getcontext
 
 ### Properties
 
@@ -485,9 +487,9 @@ canvas.on('draw', () => {
 
 [43]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean
 
-[44]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array
+[44]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/function
 
-[45]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/function
+[45]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array
 
 [46]: https://developer.mozilla.org/docs/Web/API/Element
 
