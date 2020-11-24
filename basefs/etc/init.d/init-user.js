@@ -18,6 +18,7 @@ web.bar.menu.open = [{
 	contents: [],
 },{
 	icon_path: '/usr/share/categ/accessories.png',
+	title: 'Accessories',
 	contents: [],
 },{
 	icon_path: '/usr/share/categ/graphics.png',
