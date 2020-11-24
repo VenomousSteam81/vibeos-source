@@ -1742,7 +1742,7 @@ ui.canvas = class ui_canvas extends ui.element {
 			context_opts: [],
 		});
 		
-		this.canvas = dom_utils.add_ele('canvas', web.screen.container, {});
+		this.canvas = dom_utils.add_ele('canvas', web.screen.container, { style: 'display:none' });
 		
 		if(this.context != 'skip')this.ctx = this.canvas.getContext(this.context);
 	 	
