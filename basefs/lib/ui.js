@@ -1495,49 +1495,7 @@ ui.bar = class ui_bar extends ui.rect {
 			},
 		}));
 		
-		this.menu.open = [{
-			icon_path: '/usr/share/categ/configuration.png',
-			title: 'Settings',
-			contents: [],
-		},{
-			icon_path: '/usr/share/categ/accessories.png',
-			title: 'Accessories',
-			contents: [],
-		},{
-			icon_path: '/usr/share/categ/graphics.png',
-			title: 'Graphics',
-			contents: [],
-		},{
-			icon_path: '/usr/share/categ/internet.png',
-			title: 'Internet',
-			contents: [{
-				icon_path: 'https://raw.githubusercontent.com/vibeOS/vibeos-legacy/master/tango/apps/32/internet-web-browser.png',
-				path: '/var/apps/web.js',
-				title: 'Embedded Browser',
-				pinned: true,
-			}],
-		},{
-			icon_path: '/usr/share/categ/multimedia.png',
-			title: 'Multimedia',
-			contents: [],
-		},{
-			icon_path: '/usr/share/categ/office.png',
-			title: 'Office',
-			contents: [],
-		},{
-			icon_path: '/usr/share/categ/system.png',
-			title: 'System',
-			contents: [],
-		},{
-			icon_path: '/usr/share/categ/games.png',
-			title: 'Games',
-			contents: [],
-		},{
-			icon_path: '/usr/share/categ/system.png',
-			path: '/var/xml/about.xml',
-			title: 'About vibeOS',
-			pinned: true,
-		}];
+		this.menu.open = [];
 		
 		this.layer = 1e10;
 		

@@ -78,6 +78,7 @@
         -   `opts.resizing.min_height` **[number][41]** mininum resizable height
         -   `opts.resizing.max_width` **[number][41]** maximum resizable width
         -   `opts.resizing.max_height` **[number][41]** maximum resizable height
+    -   `opts.toggle_focus` **[boolean][43]** if when the element is focused and clicked again, it should get toggled and not set to true
 
 ### Properties
 
@@ -89,6 +90,11 @@
 -   `delete_uuid` **[function][45]** deletes an elements sub elements with specific uuid
 -   `draw_scroll` **[function][45]** draws/creates the scroll bar stuff, called by renderer
 -   `not_visible` **[function][45]** runs when element.visible is false, called by renderer
+-   `mouse_hover` **[boolean][43]** if the mouse is hovering over element
+-   `mouse_left` **[boolean][43]** if left mouse button is pressing this element
+-   `mouse_right` **[boolean][43]** if right mouse button is pressing this element
+-   `mouse_pressed` **[boolean][43]** if the left mouse is pressing this button (alt)
+-   `focused` **[boolean][43]** if this element has recieved focus
 -   `uuid` **[string][42]** unique identifier assigned to element
 
 Returns **[element][46]** base ui element
@@ -142,6 +148,7 @@ border outline
 -   `opts` **[object][40]** options to override defaults
     -   `opts.color` **[string][42]** rectangle hex color
     -   `opts.size` **[string][42]** size of border
+    -   `opts.type` **[string][42]** either inset, outset, determines if the border is inside a region or outside of it
 
 Returns **ui_border** border element
 
@@ -155,6 +162,7 @@ image
 
 -   `opts` **[object][40]** options to override defaults
     -   `opts.path` **[string][42]** path to image, can be https or absolute path
+    -   `opts.filter` **[string][42]** custom filter to apply when image is drawn
 
 Returns **ui_image** image element
 
@@ -317,6 +325,7 @@ webview
 -   `opts` **[object][40]** options to override defaults
     -   `opts.src` **[string][42]** current page to display, changable
     -   `opts.window` **[string][42]** REQUIRED, parent window element that this goes in
+    -   `opts.silence_warnings` **[string][42]** silences errors about overall usage of webviews
 
 Returns **ui_webview** webview element
 

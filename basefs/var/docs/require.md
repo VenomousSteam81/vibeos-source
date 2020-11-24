@@ -44,8 +44,9 @@ Returns **[function][9]** require
 
 -   `script` **[string][10]** text content of script to execute
 -   `file` **[string][10]** filename of script being executed (for adding to cache)
--   `options` **[object][8]** options when processing (optional, default `{cache:true}`)
+-   `options` **[object][8]** options when processing (optional, default `{cache:true,args:{}}`)
     -   `options.cache` **[object][8]** if the output should be added to cache
+    -   `options.args` **[object][8]** additional args to pass to function
 
 ### Examples
 
