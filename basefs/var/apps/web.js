@@ -77,7 +77,9 @@ browser.nav.history_rect = browser.nav_rect.append(new ui.element({
 browser.nav.history.back = browser.nav.history_rect.append(new ui.button({
 	width: '50%',
 	height: '100%',
+	x: 0,
 	y: ui.align.middle,
+	auto_width: false,
 	offset: {
 		width: -2,
 	},
@@ -89,6 +91,7 @@ browser.nav.history.forward = browser.nav.history_rect.append(new ui.button({
 	height: '100%',
 	x: '50%',
 	y: ui.align.middle,
+	auto_width: false,
 	offset: {
 		width: -2,
 		x: 2,
