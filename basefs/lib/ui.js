@@ -767,7 +767,7 @@ ui.window = class ui_window extends ui.rect {
 			
 			var fixede = this.buttons.minimize.fixed;
 			if(fixede){
-				var fixed = ui.fixed_sp({ offset: {}, x: ui.align.middle, y: ui.align.middle, width: '35%', height: 1 }, fixede);
+				var fixed = ui.fixed_sp({ offset: {}, x: ui.align.middle, y: ui.align.middle, width: '30%', height: 1 }, fixede);
 				
 				ctx.fillStyle = '#000';
 				ctx.fillRect(fixed.x, fixed.y, fixed.width, fixed.height);
@@ -1666,11 +1666,11 @@ ui.bar = class ui_bar extends ui.rect {
 					data.container.on('mousedown', event => {
 						if(data.contents)proc_menus(data.contents, data.items);
 						
-						if(data.path)(path.extname(data.path) == '.xml')
+						if(data.path)((path.extname(data.path) == '.xml')
 						? web.screen.layers.append(ui.parse_xml(fs.readFileSync(data.path, 'utf8'), true))
 						: web.screen.layers.append(require(data.path, { cache: false, args: {
 							from_app_menu: true,
-						} }));
+						} }))).bring_to_top();
 					});
 				}
 			});
