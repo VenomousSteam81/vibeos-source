@@ -1563,7 +1563,7 @@ ui.bar = class ui_bar extends ui.rect {
 				data.icon.open_indicator = data.icon.append(new ui.rect({
 					x: ui.align.middle,
 					get width(){
-						return (data.element && data.element.visible) ? '100%' : '75%';
+						return (data.element && data.element.visible || data.icon.mouse_hover) ? '100%' : '75%';
 					},
 					height: 2,
 					color: '#60B0D5',
