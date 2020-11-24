@@ -762,17 +762,17 @@ ui.window = class ui_window extends ui.rect {
 			},
 		}));
 		
-		this.buttons.minimize.text = this.buttons.minimize.append(new ui.text({
-			x: ui.align.middle,
-			y: 15,
-			size: 14,
-			baseline: 'middle',
-			width: '100%',
-			height: '100%',
-			text: '━',
-			interact: false,
-			color: '#000',
-		}));
+		this.buttons.minimize.draw = (ctx, dims) => {
+			Reflect.apply(ui.rect.prototype.draw, this.buttons.minimize, [ ctx, dims ]);
+			
+			var fixede = this.buttons.minimize.fixed;
+			if(fixede){
+				var fixed = ui.fixed_sp({ offset: {}, x: ui.align.middle, y: ui.align.middle, width: '35%', height: 1 }, fixede);
+				
+				ctx.fillStyle = '#000';
+				ctx.fillRect(fixed.x, fixed.y, fixed.width, fixed.height);
+			}
+		};
 		
 		this.buttons.minimize.on('mouseup', event => this.visible = false);
 		
@@ -1645,13 +1645,15 @@ ui.bar = class ui_bar extends ui.rect {
 							},
 						}));
 						
+						console.log('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500"><path stroke="%23000" d="M.5.866l459 265.004L.5 530.874z"/></svg>');
+						
 						if(data.contents.length)data.container.tick = data.container.append(new ui.image({
-							path: 'data:image/svg+xml,<svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg"><path d="M162.966008 264.825993l-154.391 89.137v-178.275l154.391 89.138z"/></svg>',
+							path: `data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500"><path stroke="%23000" d="M.5.866l459 265.004L.5 530.874z"/></svg>`,
 							get filter(){
 								return data.container.mouse_hover ? 'contrast(0) brightness(2)' : '';
 							},
-							width: 20,
-							height: 20,
+							width: 7,
+							height: 7,
 							x: ui.align.right,
 							y: ui.align.middle,
 							offset: {
