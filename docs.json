@@ -5,6 +5,6 @@
 	},
 	{
 		"label": "require",
-		"path": ["app", "require.js"]
+		"path": ["basefs", "lib", "node", "require.js"]
 	}
 ]

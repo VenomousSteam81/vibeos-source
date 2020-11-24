@@ -5,5 +5,39 @@
 	},
 	"webos": {
 		"ver": "0.0.1"
-	}
+	},
+	"bundle": [{
+		"mod": "buffer",
+		"options": {}
+	},{
+		"mod": ["basefs", "lib", "node", "mime.js"],
+		"options": {
+			"expose": "mime"
+		}
+	},{
+		"mod": ["app", "path.js"],
+		"options": {
+			"expose": "path"
+		}
+	},{
+		"mod": ["app", "start.js"],
+		"options": {
+			"expose": "./start.js"
+		}
+	},{
+		"mod": ["basefs", "lib", "node", "require.js"],
+		"options": {
+			"expose": "/lib/node/require.js"
+		}
+	},{
+		"mod": ["basefs", "lib", "lzutf8.js"],
+		"options": {
+			"expose": "/lib/lzutf8.js"
+		}
+	},{
+		"mod": ["basefs", "lib", "node", "fs.js"],
+		"options": {
+			"expose": "/lib/node/fs.js"
+		}
+	}]
 }

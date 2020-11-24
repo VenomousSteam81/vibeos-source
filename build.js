@@ -7,12 +7,21 @@ var fs = require('fs'),
 	base_fs = path.join(__dirname, 'basefs'),
 	app_dir = path.join(__dirname, 'app'),
 	dist = path.join(__dirname, 'dist.html'),
-	pack_fs = require(path.join(app_dir, 'pack-fs.js')),
-	terser = require('terser'),
-	files = {
-		build: path.join(__dirname, 'build.json'),
-		modules: path.join(app_dir, 'bundled.json'),
+	pack_fs = dir => {
+		var files = Object.fromEntries(fs.readdirSync(dir).map(sub_dir => {
+				var full_dir = path.join(dir, sub_dir),
+					stats = fs.statSync(full_dir),
+					is_dir = stats.isDirectory(),
+					ret = is_dir ? pack_fs(full_dir) : lzutf8.compress(fs.readFileSync(full_dir, 'base64'), { outputEncoding: 'Base64' });
+				
+				return [ sub_dir, ret ];
+			})),
+			dir_stats = fs.statSync(dir);
+		
+		return files;
 	},
+	lzutf8 = require(path.join(base_fs, 'lib', 'lzutf8.js')),
+	terser = require('terser'),
 	building = false,
 	build = async () => {
 		if(building)return;
@@ -20,7 +29,7 @@ var fs = require('fs'),
 		console.log('building..');
 		building = true;
 		
-		var build_opts = JSON.parse(fs.readFileSync(files.build)),
+		var build_opts = JSON.parse(fs.readFileSync(path.join(__dirname, 'build.json'), 'utf8')),
 			br = browserify(),
 			chunks = [],
 			terser_opts = {
@@ -32,7 +41,7 @@ var fs = require('fs'),
 				},
 			};
 		
-		JSON.parse(fs.readFileSync(files.modules)).forEach(data => br.require(
+		build_opts.bundle.forEach(data => br.require(
 			data.mod.constructor == Array ? path.resolve(__dirname, ...data.mod) : data.mod,
 			data.options,
 		));

@@ -1590,7 +1590,7 @@ ui.bar = class ui_bar extends ui.rect {
 						height: 30,
 						y: ind * 30,
 						get color(){
-							return this.mouse_hover ? '#287CD5' : 'transparent';
+							return this.mouse_pressed ? '#2766A8' : this.mouse_hover ? '#287CD5' : 'transparent';
 						},
 						steal_focus: !data.contents,
 						toggle_focus: true,
