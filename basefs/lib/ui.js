@@ -176,17 +176,18 @@ ui.last_layer = 0;
 * @param {number|string} opts.y y pos on screen (if value is a unit of %, it is relative to its parent) (example: 50%)
 * @param {number|string} opts.width width size on screen (if value is a unit of %, it is relative to its parent) (example: 50%)
 * @param {number|string} opts.height height size on screen (if value is a unit of %, it is relative to its parent) (example: 50%)
+* @param {number} opts.layer automatically set, layer to render an element
 * @param {string} opts.cursor cursor when mouse hovers over element
+* @param {string} opts.filter filter to apply on the context when rendering (similar to css filter)
 * @param {boolean} opts.apply_clip if the renderer should apply a parent elements clip (keep in bounds)
 * @param {boolean} opts.apply_translate if the renderer should translate the position on screen (offset but multiple)
 * @param {boolean} opts.steal_focus if clicking on the element should take the current focus
 * @param {boolean} opts.scroll show a scroll bar and clip (wip)
-* @param {array} opts.elements an array of appended elements (see element.append)
-* @param {number} opts.layer automatically set, layer to render an element
 * @param {boolean} opts.interact if an element should recieve pointer events
 * @param {boolean} opts.visible if the element is visible on screen
 * @param {boolean} opts.deleted if the element is deleted and should be destroyed by the renderer
 * @param {boolean} opts.resizable if the element can be resized
+* @param {boolean} opts.toggle_focus if clicking the element should toggle the focus
 * @param {object} opts.offset element offsets if the width and height are not numbers
 * @param {number} opts.offset.x offset x
 * @param {number} opts.offset.y offset y
@@ -200,9 +201,9 @@ ui.last_layer = 0;
 * @param {number} opts.resizing.min_height mininum resizable height
 * @param {number} opts.resizing.max_width maximum resizable width
 * @param {number} opts.resizing.max_height maximum resizable height
-* @param {boolean} opts.toggle_focus if when the element is focused and clicked again, it should get toggled and not set to true
 * @property {function} on event emitter on event, varies from: keydown, keyup, click, drag, mousedown, mouseup, scroll
-* @property {function} once event emitter on event
+* @property {function} once event emitter once event
+* @property {function} off event emitter off event
 * @property {function} draw event emitter on event
 * @property {function} append add an element to this element, assigns layer to it
 * @property {function} draw draws the element, called by renderer
@@ -215,6 +216,7 @@ ui.last_layer = 0;
 * @property {boolean} mouse_pressed if the left mouse is pressing this button (alt)
 * @property {boolean} focused if this element has recieved focus
 * @property {string} uuid  unique identifier assigned to element
+* @property {array} elements an array of appended elements (see element.append)
 * @return {element} base ui element
 */
 
@@ -241,7 +243,7 @@ ui.element = class extends events {
 			deleted: false,
 			resizable: false,
 			toggle_focus: false,
-			// x-change, y-change are passed to rendering since cant add to any width or height properties if they are 50% or a symbol
+			filter: '',
 			offset: {
 				x: 0,
 				y: 0,
@@ -569,7 +571,6 @@ ui.image = class ui_image extends ui.element {
 	draw(ctx, dims){
 		var fixed = ui.fixed_sp(this, dims);
 		
-		ctx.filter = this.filter;
 		ctx.drawImage(this.image, fixed.x, fixed.y, fixed.width, fixed.height);
 	}
 }
@@ -1162,7 +1163,7 @@ ui.input = class ui_input extends ui.rect {
 			width: '100%',
 			height: '100%',
 			get color(){
-				return othis.focused ? '#0078D7' : '#000';
+				return othis.focused ? '#2997CC' : '#999999';
 			},
 		}));
 		
@@ -1171,7 +1172,7 @@ ui.input = class ui_input extends ui.rect {
 				return othis.value || '';
 			},
 			get color(){
-				return othis.value ? '#000' : '#767676';
+				return '#232323';
 			},
 			width: '100%',
 			color: '#000',
@@ -1184,6 +1185,8 @@ ui.input = class ui_input extends ui.rect {
 		
 		this.on('click', () => {
 			this.cursor_pos = this.value.length;
+			
+			blink_bool(this.uuid, 1000, true);
 		});
 		
 		this.text.draw = (ctx, dims) => {
@@ -1599,7 +1602,7 @@ ui.bar = class ui_bar extends ui.rect {
 					data.container.border = data.container.append(new ui.border({
 						size: 1,
 						get color(){
-							return data.container.mouse_hover ? '#3B90E8' : '#828282';
+							return (data.container.mouse_hover || data.container.mouse_pressed) ? '#3B90E8' : '#828282';
 						},
 					}));
 					
@@ -1625,7 +1628,7 @@ ui.bar = class ui_bar extends ui.rect {
 						text: data.title,
 						interact: false,
 						get color(){
-							return data.container.mouse_hover ? '#FFF' : '#000';
+							return (data.container.mouse_hover || data.container.mouse_pressed) ? '#FFF' : '#000';
 						},
 						size: 13,
 					}));
@@ -1640,17 +1643,14 @@ ui.bar = class ui_bar extends ui.rect {
 							y: 0,
 							color: '#FFF',
 							get visible(){
-								// console.log(data.container.focused);
 								return data.container.should_be_focused;
 							},
 						}));
 						
-						console.log('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500"><path stroke="%23000" d="M.5.866l459 265.004L.5 530.874z"/></svg>');
-						
 						if(data.contents.length)data.container.tick = data.container.append(new ui.image({
 							path: `data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500"><path stroke="%23000" d="M.5.866l459 265.004L.5 530.874z"/></svg>`,
 							get filter(){
-								return data.container.mouse_hover ? 'contrast(0) brightness(2)' : '';
+								return (data.container.mouse_hover || data.container.mouse_pressed) ? 'contrast(0) brightness(2)' : '';
 							},
 							width: 7,
 							height: 7,
@@ -1723,35 +1723,24 @@ ui.canvas = class ui_canvas extends ui.element {
 		if(this.context != 'skip')this.ctx = this.canvas.getContext(this.context);
 	 	
 		this.canvas.getContext = new Proxy(this.canvas.getContext, {
-			apply: (target, thisArg, argArray) => {
-				var ret = Reflect.apply(target, thisArg, argArray);
+			apply: (target, thisArg, [ type, options ]) => {
+				if(/^webgl/.test(type) && options)options.preserveDrawingBuffer = true;
+				
+				var ret = Reflect.apply(target, thisArg, [ type, options ]);
 				
 				this.ctx = ret;
-				// this.ctx.preserveDrawingBuffer = true;
 				
 				return ret;
 			}
 		});
 	}
 	draw(ctx, dims){
-		/*if(+this.canvas.width != +this.fixed.width)console.log('setting size') + Object.assign(this.canvas, {
-			width: this.fixed.width,
-			height: this.fixed.height,
-		});*/
-		
-		//console.log(this.fixed, this.ctx.canvas.width, this.ctx.canvas.height);*/
+		// draw rect
+		Reflect.apply(ui.rect.prototype.draw, this, [ ctx, dims ]);
 		
 		this.emit('draw', ctx, dims);
 		
-		if(this.ctx.fillRect){ // 2D context
-			if(this.ctx)ctx.putImageData(this.ctx.getImageData(0, 0, this.fixed.width, this.fixed.height), this.fixed.x, this.fixed.y);
-		}else{ // webGL
-			var image = new Image();
-			image.src = this.canvas.toDataURL('image/jpeg', 0.95);
-			image.addEventListener('load', () => this.image = image);
-			
-			
-			if(this.image)ctx.drawImage(this.image, this.fixed.x, this.fixed.y, this.fixed.width, this.fixed.height);
-		}
+		// draw canvas onto canvas
+		ctx.drawImage(this.canvas, this.fixed.x, this.fixed.y, this.fixed.width, this.fixed.height);
 	}
 }

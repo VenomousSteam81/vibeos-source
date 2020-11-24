@@ -226,6 +226,8 @@ screen.render = () => {
 			
 			if(dims.translate && element.apply_translate)ctx.translate(dims.translate.x, dims.translate.y);
 			
+			ctx.filter = element.filter;
+			
 			if(element.radius){
 				var region = new Path2D(),
 					half_rad = (2 * Math.PI) / 2,
@@ -270,12 +272,12 @@ screen.render = () => {
 				ctx.clip(region, 'evenodd');
 			}
 			
-			element.draw(screen.ctx, dims);
+			element.draw(ctx, dims);
 			ctx.restore();
 			
 			if(element.scroll){
 				ctx.save();
-				element.draw_scroll(screen.ctx, dims);
+				element.draw_scroll(ctx, dims);
 				ctx.restore();
 			}
 			
