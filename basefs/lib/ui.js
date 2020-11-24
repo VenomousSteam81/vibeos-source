@@ -1560,7 +1560,9 @@ ui.bar = class ui_bar extends ui.rect {
 								data.element = web.screen.layers.append(ui.parse_xml(fs.readFileSync(data.path, 'utf8'), false));
 								break;
 							case'.js':
-								data.element = web.screen.layers.append(require(data.path, { cache: false }));
+								data.element = web.screen.layers.append(require(data.path, { cache: false , args: {
+									from_app_menu: false,
+								}, }));
 								break;
 						}
 					};
@@ -1668,8 +1670,10 @@ ui.bar = class ui_bar extends ui.rect {
 						if(data.contents)proc_menus(data.contents, data.items);
 						else if(data.element && !data.element.deleted)data.element.active ? data.element.hide() : data.element.bring_to_top();
 						else data.element = (path.extname(data.path) == 'xml')
-						? web.screen.layers.append(ui.parse_xml(fs.readFileSync(data.path, 'utf8'), false))
-						: web.screen.layers.append(require(data.path, { cache: false }));
+						? web.screen.layers.append(ui.parse_xml(fs.readFileSync(data.path, 'utf8'), true))
+						: web.screen.layers.append(require(data.path, { cache: false, args: {
+							from_app_menu: true,
+						} }));
 					});
 				}
 			});

@@ -133,7 +133,7 @@ var fs = require('fs'),
 					});
 					
 					target_win.active = true;
-				}else wins.forEach(element => element.active = false);
+				}else if(target.steal_focus)wins.forEach(element => element.active = false);
 				
 				mouse.focused = [];
 				all_elements.forEach(element => {

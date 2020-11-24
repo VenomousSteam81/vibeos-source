@@ -47,6 +47,7 @@ exports.init = (fs, base_dir, user, stack = 'main') => {
 	* @param {string} file filename of script being executed (for adding to cache)
 	* @param {object} options options when processing
 	* @param {object} options.cache if the output should be added to cache
+	* @param {object} options.args additional args to pass to function
 	* @example
 	* // returns object
 	* console.log(cvrequire.exec(fs.readFileSync('/lib/node/events.js', 'utf8'), 'events'));
@@ -54,7 +55,7 @@ exports.init = (fs, base_dir, user, stack = 'main') => {
 	* @return {function} exec
 	*/
 	
-	require.exec = (script, file, options = { cache: true }) => {
+	require.exec = (script, file, options = { cache: true, args: {} }) => {
 		if(mime.getType(file) == 'application/json')return JSON.parse(file);
 		
 		var _exports = {},
@@ -79,7 +80,7 @@ exports.init = (fs, base_dir, user, stack = 'main') => {
 		
 		args.require.user = require.user;
 		
-		new Function(Object.keys(args), script)(...Object.values(args));
+		new Function(Object.keys(args).concat(Object.keys(options.args)), script)(...Object.values(args).concat(Object.values(options.args)));
 		
 		return options.cache ? exports.cache[file] = _exports : _exports;
 	};

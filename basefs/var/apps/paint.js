@@ -13,7 +13,7 @@ var ui = require('/lib/ui.js'),
 				},
 			},
 		},
-		show_in_bar: false,
+		show_in_bar: from_app_menu,
 	}),
 	three = require('/var/lib/three.js'),
 	canvas = paint_window.content.append(new ui.canvas({ width: '100%', height: '100%', context: 'skip' }));

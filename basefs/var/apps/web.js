@@ -6,7 +6,7 @@ var ui = require('/lib/ui.js'),
 		y: ui.align.middle,
 		width: 600,
 		height: 400,
-		show_in_bar: false,
+		show_in_bar: from_app_menu,
 		title: 'Web Browser',
 	}),
 	browser = {
