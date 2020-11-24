@@ -1,0 +1,10 @@
+[
+	{
+		"label": "ui",
+		"path": ["basefs", "lib", "ui.js"]
+	},
+	{
+		"label": "require",
+		"path": ["app", "require.js"]
+	}
+]

@@ -23,4 +23,5 @@ Check ```./basefs/var/docs/```
 ## Making docs
 
 See https://devdocs.io/jsdoc/tags-example for format
-Add path to file in docs.js
+
+To add a file, add the path in docs.json
