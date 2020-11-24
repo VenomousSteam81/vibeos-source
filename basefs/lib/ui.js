@@ -11,12 +11,14 @@ var fs = require('fs'),
 				border: '#3C9ECD',
 				text: '#000000',
 				secondary_hover: '#2588B7',
+				secondary_pressed: '#2179A3',
 			},
 			inactive: {
 				main: '#FFFFFF',
 				border: '#434343',
 				text: '#AAAAAA',
 				secondary_hover: '#E5E5E5',
+				secondary_pressed: '#E5E5E5',
 			},
 		},
 		menu: {
@@ -708,7 +710,6 @@ ui.window = class ui_window extends ui.rect {
 		
 		this.buttons.close = this.title_bar.append(new ui.rect({
 			x: ui.align.right,
-			y: 0,
 			width: 45,
 			height: 29,
 			offset: {
@@ -740,10 +741,40 @@ ui.window = class ui_window extends ui.rect {
 			},
 		}));
 		
-		this.buttons.close.on('mouseup', event => {
-			this.deleted = true;
-			// setting deleted to true will allow element to be picked up by renderer for deletion
-		});
+		this.buttons.close.on('mouseup', event => this.deleted = true);
+		
+		this.buttons.minimize = this.title_bar.append(new ui.rect({
+			x: ui.align.right,
+			width: 45,
+			height: 29,
+			offset: {
+				x: -45,
+				y: 1,
+			},
+			get color(){
+				return othis.buttons.minimize.mouse_pressed
+					? colors.window[othis.active ? 'active' : 'inactive'].secondary_pressed
+					: othis.buttons.minimize.mouse_hover
+						? colors.window[othis.active ? 'active' : 'inactive'].secondary_hover
+						: othis.active
+							? colors.window.active.main
+							: colors.window.inactive.main
+			},
+		}));
+		
+		this.buttons.minimize.text = this.buttons.minimize.append(new ui.text({
+			x: ui.align.middle,
+			y: 15,
+			size: 14,
+			baseline: 'middle',
+			width: '100%',
+			height: '100%',
+			text: '━',
+			interact: false,
+			color: '#000',
+		}));
+		
+		this.buttons.minimize.on('mouseup', event => this.visible = false);
 		
 		if(this.icon)this.title_image = this.title_bar.append(new ui.image({
 			path: this.icon,
@@ -1113,17 +1144,18 @@ ui.menu_button = class ui_button extends ui.rect {
 
 ui.input = class ui_input extends ui.rect {
 	constructor(opts){
-		var othis = super(opts, {
+		var othis = super(opts);
+		
+		Object.assign(this, {
 			width: 100,
 			height: 20,
 			placeholder: '',
 			value: '',
 			submit: true,
-		});
+			cursor: 'text',
+		}, opts);
 		
-		this.cursor = 'text';
-		
-		this.cursor_pos = this.value.length;
+		this.cursor_pos = (this.value || '').length;
 		
 		this.border = this.append(new ui.border({
 			size: 1,
@@ -1464,19 +1496,9 @@ ui.bar = class ui_bar extends ui.rect {
 		}));
 		
 		this.menu.open = [{
-			icon_path: '',
-			path: '/var/apps/web.js',
-			title: 'web bros',
-			pinned: true,
-		},{
 			icon_path: '/usr/share/categ/configuration.png',
 			title: 'Settings',
-			contents: [{
-				icon_path: 'https://raw.githubusercontent.com/vibeOS/vibeos-legacy/master/tango/apps/32/internet-web-browser.png',
-				path: '/var/apps/web.js',
-				title: 'web bros',
-				pinned: true,
-			}],
+			contents: [],
 		},{
 			icon_path: '/usr/share/categ/accessories.png',
 			title: 'Accessories',
@@ -1488,7 +1510,12 @@ ui.bar = class ui_bar extends ui.rect {
 		},{
 			icon_path: '/usr/share/categ/internet.png',
 			title: 'Internet',
-			contents: [],
+			contents: [{
+				icon_path: 'https://raw.githubusercontent.com/vibeOS/vibeos-legacy/master/tango/apps/32/internet-web-browser.png',
+				path: '/var/apps/web.js',
+				title: 'Embedded Browser',
+				pinned: true,
+			}],
 		},{
 			icon_path: '/usr/share/categ/multimedia.png',
 			title: 'Multimedia',
@@ -1505,7 +1532,12 @@ ui.bar = class ui_bar extends ui.rect {
 			icon_path: '/usr/share/categ/games.png',
 			title: 'Games',
 			contents: [],
-		},];
+		},{
+			icon_path: '/usr/share/categ/system.png',
+			path: '/var/xml/about.xml',
+			title: 'About vibeOS',
+			pinned: true,
+		}];
 		
 		this.layer = 1e10;
 		
@@ -1565,11 +1597,16 @@ ui.bar = class ui_bar extends ui.rect {
 								}, }));
 								break;
 						}
+						
+						data.element.bring_to_top();
 					};
 				});
 				
 				data.icon.open_indicator = data.icon.append(new ui.rect({
-					width: '100%',
+					x: ui.align.middle,
+					get width(){
+						return (data.element && data.element.visible) ? '100%' : '75%';
+					},
 					height: 2,
 					color: '#60B0D5',
 					get visible(){
@@ -1668,8 +1705,8 @@ ui.bar = class ui_bar extends ui.rect {
 					
 					data.container.on('mousedown', event => {
 						if(data.contents)proc_menus(data.contents, data.items);
-						else if(data.element && !data.element.deleted)data.element.active ? data.element.hide() : data.element.bring_to_top();
-						else data.element = (path.extname(data.path) == 'xml')
+						
+						if(data.path)(path.extname(data.path) == '.xml')
 						? web.screen.layers.append(ui.parse_xml(fs.readFileSync(data.path, 'utf8'), true))
 						: web.screen.layers.append(require(data.path, { cache: false, args: {
 							from_app_menu: true,
