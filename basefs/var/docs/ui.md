@@ -2,7 +2,7 @@
 
 ### Table of Contents
 
--   [ui_element#doubleclick when the element is doubleclicked][1]
+-   [ui_element#doubleclick when the element is doub][1]
     -   [Parameters][2]
     -   [Properties][3]
 -   [text][4]
@@ -46,7 +46,7 @@
     -   [Properties][42]
     -   [Examples][43]
 
-## ui_element#doubleclick when the element is doubleclicked
+## ui_element#doubleclick when the element is doub
 
 ### Parameters
 
@@ -443,7 +443,7 @@ win.context_menu = screen.layers.append(new ui.context_menu({
 }));
 ```
 
-[1]: #ui_elementdoubleclick-when-the-element-is-doubleclicked
+[1]: #ui_elementdoubleclick-when-the-element-is-doub
 
 [2]: #parameters
 
