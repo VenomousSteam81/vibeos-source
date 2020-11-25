@@ -1,4 +1,4 @@
-# vibeOS License (BSD 4-Clause)
+# vibeOS License Revision 2 (BSD 4-Clause)
 Introduced: November 24, 2020 | Last Revised: November 24, 2020
 
 vibeOS is licensed under the BSD 4-Clause License or "Original" License.
