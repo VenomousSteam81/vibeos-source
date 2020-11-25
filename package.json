@@ -2,7 +2,6 @@
 	"name": "webos builder",
 	"version": "1.0.0",
 	"dependencies": {
-		"browserify": "^17.0.0",
 		"documentation": "^13.1.0",
 		"terser": "^5.4.0"
 	}

@@ -329,12 +329,6 @@ screen.render = () => {
 			
 			element.offset = temp;
 			
-			if(element.scroll){
-				ctx.save();
-				element.draw_scroll(ctx, dims);
-				ctx.restore();
-			}
-			
 			render_through(element.elements, ui.fixed_sp(element, dims), start_opts);
 		});
 	};

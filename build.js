@@ -3,7 +3,6 @@ var fs = require('fs'),
 	os = require('os'),
 	path = require('path'),
 	stream = require('stream'),
-	browserify = require('browserify'),
 	base_fs = path.join(__dirname, 'basefs'),
 	app_dir = path.join(__dirname, 'app'),
 	dist = path.join(__dirname, 'dist.html'),
@@ -30,8 +29,6 @@ var fs = require('fs'),
 		building = true;
 		
 		var build_opts = JSON.parse(fs.readFileSync(path.join(__dirname, 'build.json'), 'utf8')),
-			br = browserify(),
-			chunks = [],
 			terser_opts = {
 				compress: build_opts.fast ? false : true,
 				mangle: true,
@@ -39,29 +36,22 @@ var fs = require('fs'),
 					comments: false,
 					quote_style: 1,
 				},
-			};
-		
-		build_opts.bundle.forEach(data => br.require(
-			data.mod.constructor == Array ? path.resolve(__dirname, ...data.mod) : data.mod,
-			data.options,
-		));
-		
-		var browserify_start = Date.now(),
-			chunks = [],
-			bundle = await new Promise(resolve => br.bundle().pipe(Object.assign(new stream(), {
-				write: chunk => chunks.push(chunk),
-				end: () => resolve(Buffer.concat(chunks)),
-			})));
-		
-		console.log('took ' + (Date.now() - browserify_start) + 'ms for browserify');
-		
-		var terser_start = Date.now();
-		
-		if(build_opts.minify.enabled)bundle = await new Promise(resolve => terser.minify(bundle.toString('utf8'), terser_opts).then(data => resolve(data.code)));
-		
-		console.log('took ' + (Date.now() - terser_start) + 'ms for terser');
+			},
+			bundle = 'var md={' + build_opts.bundle.map(data => {
+				data.path = path.resolve(__dirname, ...data.path);
 				
-		console.log('packing fs..');
+				var plain = (path.extname(data.path) == '.json' ? 'module.exports=' : '') + fs.readFileSync(data.path, 'utf8');
+				
+				return JSON.stringify([ data.options.expose ]).slice(1, -1) + '(module,exports,require,global,process){' + plain + '}';
+			}).join(',') + '},gp={cwd:_=>"/"},require=fn=>{var xp={},mo={get exports(){return xp},set exports(v){return xp=v}};md[fn.toLowerCase()](mo,xp,require,globalThis,gp);return xp};';
+		
+		if(build_opts.minify.enabled){
+			var terser_start = Date.now();
+			
+			bundle = await new Promise(resolve => terser.minify(bundle.toString('utf8'), terser_opts).then(data => resolve(data.code)));
+			
+			console.log('took ' + (Date.now() - terser_start) + 'ms for terser');
+		}
 		
 		var fs_string = JSON.stringify(pack_fs(base_fs));
 		

@@ -9,7 +9,7 @@ var ui = require('/lib/ui.js'),
 		menu: {
 			File: {
 				Exit(){
-					cat_window.close();
+					paint_window.close();
 				},
 			},
 		},

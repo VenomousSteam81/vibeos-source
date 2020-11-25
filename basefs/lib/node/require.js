@@ -1,5 +1,6 @@
 var path = require('path'),
 	mime = require('mime'),
+	buffer = require('buffer'),
 	web = {};
 
 exports.cache = {};
@@ -8,7 +9,7 @@ exports.cache = {};
 * @param {object} fs filesystem to read and search from
 * @param {object} base_dir directory that non-absolute paths are resolved from
 * @param {object} user user account to assign to output
-* @param {object} stack module that is initating
+* @param {object} stack module that is initating 
 * @property {object} user user account data
 * @property {function} exec execute scripts
 * @example
@@ -72,7 +73,7 @@ exports.init = (fs, base_dir, user, stack = 'main') => {
 				module: _module,
 				exports: _exports,
 				require: exports.init(fs, path.dirname(file), require.user, file),
-				Buffer: Buffer,
+				Buffer: buffer.Buffer,
 				__filename: file,
 				__dirname: path.dirname(file),
 				web: web,

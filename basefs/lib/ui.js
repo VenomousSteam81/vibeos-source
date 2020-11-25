@@ -111,6 +111,7 @@ ui.percentage = (perc, full) => (perc * full) / 100;
 
 ui.fixed_sp = (data, dims) => {
 	var data = Object.assign({}, data),
+		dims = Object.assign({}, dims),
 		correct = {
 			width: 0,
 			height: 0,
@@ -138,6 +139,8 @@ ui.fixed_sp = (data, dims) => {
 		if(data.y == 'ui.align.' + key)data.y = val;
 		
 	});
+	
+	if(dims.inner_height)dims.height = dims.inner_height;
 	
 	correct.width = proc(data.width, dims.width);
 	correct.height = proc(data.height, dims.height);
@@ -224,9 +227,9 @@ ui.last_layer = 0;
 * @property {function} append add an element to this element, assigns layer to it
 * @property {function} draw draws the element, called by renderer
 * @property {function} delete_uuid deletes an elements sub elements with specific uuid
-* @property {function} draw_scroll draws/creates the scroll bar stuff, called by renderer
 * @property {function} not_visible runs when element.visible is false, called by renderer
 * @property {function} nested_size full size of element and its sub-elements
+* @property {function} assign_object moves all property descriptors of an object into element (getters, setters)
 * @property {boolean} mouse_hover if the mouse is hovering over element
 * @property {boolean} mouse_left if left mouse button is pressing this element
 * @property {boolean} mouse_right if right mouse button is pressing this element
@@ -280,11 +283,18 @@ ui.element = class extends events {
 			},
 		});
 		
-		Object.assign(this, addon);
+		this.assign_object(addon);
 		
 		this.setMaxListeners(50);
 		
-		Object.defineProperties(this, Object.getOwnPropertyDescriptors(opts));
+		this.assign_object(opts);
+		
+		return this;
+	}
+	assign_object(obj){
+		if(!obj)throw new TypeError(this, ': no object to assign specified!');
+		
+		Object.defineProperties(this, Object.getOwnPropertyDescriptors(obj));
 		
 		return this;
 	}
@@ -350,101 +360,6 @@ ui.element = class extends events {
 		var ind = this.elements.findIndex(ele => ele.uuid == uuid);
 		
 		if(ind)return this.elements.splice(ind, 1);
-	}
-	draw_scroll(ctx, dims){
-		var content_height = () => {
-			var tmp = 0,
-				content_height_set = arr => arr.filter(element => element.fixed).forEach(element => {
-					var val = this.fixed.y - element.fixed.y + element.fixed.height;
-					
-					if(val > tmp)tmp = val;
-					
-					content_height_set(element.elements);
-				});
-			
-			content_height_set(this.elements);
-			
-			return tmp;
-		};
-		
-		if(!this.scroll_box){
-			var drag_handler = mouse => {
-				var fixed = this.fixed || this,
-					soon_val = this.scroll_button.offset.y + mouse.movement.y,
-					full_y = fixed.y + mouse.movement.y,
-					full_ey = full_y + fixed.height,
-					full_y_height = soon_val + this.scroll_button.fixed?.height;
-				
-				
-				
-				if(soon_val <= 0){
-					this.translate.y = 0;
-					this.scroll_button.offset.y = 0;
-					
-					return;
-				}else if(full_y_height >= fixed.height){
-					this.translate.y = 0 - fixed.height;
-					this.scroll_button.offset.y = fixed.height - this.scroll_button.fixed?.height;
-					
-					return;
-				}
-				
-				if(full_y >= mouse.y || full_ey <= mouse.y)return;
-				
-				this.translate.y -= mouse.movement.y;
-				
-				this.scroll_button.offset.y += mouse.movement.y;
-			};
-			
-			this.scroll_box = this.append(new ui.element({
-				width: '100%',
-				height: '100%',
-				offset: {
-					x: -4,
-					y: -4,
-					width: 15,
-					height: 2,
-				},
-				apply_clip: false,
-				apply_translate: false,
-				interact: 'only_contents',
-			}));
-			
-			this.scroll_bar = this.scroll_box.append(new ui.rect({
-				size: 2,
-				color: '#F1F1F1',
-				width: 17,
-				height: this.height / content_height,
-				x: ui.align.right,
-				y: 0,
-				offset: {
-					x: 1,
-					width: 4,
-				},
-				apply_clip: false,
-				apply_translate: false,
-			}));
-			
-				
-			this.on('wheel', event => drag_handler(Object.assign({}, web.mouse, {
-				movement: {
-					x: event.deltaX / 10,
-					y: event.deltaY /  10,
-				},
-			})));
-			
-			this.scroll_button = this.scroll_bar.append(new ui.rect({
-				get color(){
-					return this.mouse_pressed ? '#787878' : this.mouse_hover ? '#A8A8A8' : '#C1C1C1';
-				},
-				width: 13,
-				height: 17,
-				x: ui.align.middle,
-				apply_translate: false,
-			}));
-			
-			this.scroll_button.on('drag', drag_handler);
-		}
 	}
 };
 
@@ -615,7 +530,15 @@ ui.image = class ui_image extends ui.element {
 		
 		this.gen();
 		
-		Object.defineProperty(this, 'path', { set: v => this[pathe] = v, get: () => this[pathe] });
+		this.assign_object({
+			get path(){
+				return this[pathe];
+			},
+			set path(v){
+				this[pathe] = v;
+				this.gen();
+			},
+		});
 	}
 	gen(){
 		this.image = Object.assign(new Image(), {
@@ -669,7 +592,7 @@ ui.menu = class ui_menu extends ui.rect {
 					height: '100%',
 				}, val));
 			
-			// added.index = 1e10 - 2;
+			added.index = 1e10 - 2;
 			
 			this.buttons.push(added);
 			
@@ -1485,9 +1408,17 @@ ui.parse_xml = (xml, show_in_bar = true) => {
 				element.on(key.substr(2), event => func.apply(element, [ win ]));
 			});
 			
+			switch(node.nodeName){
+				case'scroll_box':
+					
+					element.point_append = element.content;
+					
+					break;
+			}
+			
 			node.querySelectorAll('*').forEach(node => proc_node(node, element));
 			
-			append_to.append(element);
+			append_to.point_append ? append_to.point_append.append(element) : append_to.append(element);
 		};
 	
 	parsed.querySelectorAll('script').forEach(node => new Function('window', node.innerHTML)(win));
@@ -1945,21 +1876,25 @@ ui.scroll_box = class ui_scroll_box extends ui.element {
 	constructor(opts){
 		var othis = super(opts, {
 			clip: true,
+			inner_height: 500,
+			track_size: 80,
 		});
 		
-		this.drag_handler = mouse => {
+		this.movement = (mouse, event) => {
 			var rel = mouse.y - this.content.fixed.y,
-				inc = (rel / this.content.content_height()) * 100;
+				new_pos = this.grip.offset.y + mouse.movement.y,
+				content_ratio = +this.inner_height / this.fixed.height;
 			
+			if(new_pos < 0)new_pos = 0;
+			if((new_pos + this.grip.fixed.height) > this.fixed.height)new_pos = this.fixed.height - this.grip.fixed.height;
 			
-			// or4nge408
-			console.log(inc, mouse.movement.y, this.content.content_height());
+			var new_pos_ratio = new_pos * content_ratio;
 			
-			this.content.translate.y -= inc;
-			this.scroll_button.offset.y += mouse.movement.y;
+			this.content.translate.y = -(new_pos_ratio);
+			this.grip.offset.y = new_pos;
 		};
 		
-		this.scroll_bar = this.append(new ui.rect({
+		this.bar = this.append(new ui.rect({
 			size: 2,
 			color: '#F1F1F1',
 			width: 17,
@@ -1972,7 +1907,7 @@ ui.scroll_box = class ui_scroll_box extends ui.element {
 			},
 		}));
 		
-		this.scroll_button = this.scroll_bar.append(new ui.rect({
+		this.grip = this.bar.append(new ui.rect({
 			get color(){
 				return this.mouse_pressed ? '#787878' : this.mouse_hover ? '#A8A8A8' : '#C1C1C1';
 			},
@@ -1987,7 +1922,7 @@ ui.scroll_box = class ui_scroll_box extends ui.element {
 			color: 'transparent',
 			offset: {
 				get width(){
-					return -(othis.scroll_bar.fixed || { width: 10 }).width
+					return -(othis.grip.fixed || { width: 10 }).width
 				},
 			},
 			translate: {
@@ -1999,18 +1934,20 @@ ui.scroll_box = class ui_scroll_box extends ui.element {
 			},
 		}));
 		
-		this.scroll_button.on('drag', this.drag_handler);
+		this.grip.on('drag', this.movement);
 		
-		/*this.on('sub-wheel', event => this.drag_handler(Object.assign({}, web.mouse, {
+		this.on('sub-wheel', event => this.movement(Object.assign({}, web.mouse, {
 			movement: {
-				x: event.deltaX,
-				y: event.deltaY / this.content_height(),
+				x: event.deltaX / 10,
+				y: event.deltaY / 10,
 			},
-		})));*/
+		}), event));
 	}
 	draw(ctx, dims){
-		var fixed = ui.fixed_sp(this, dims);
+		var fixed = ui.fixed_sp(this, dims),
+			ratio = this.fixed.height / this.inner_height,
+			grip_size = this.track_size * ratio;
 		
-		
+		this.grip.height = grip_size;
 	}
 }

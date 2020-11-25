@@ -1,43 +1,53 @@
 {
 	"minify": {
-		"enabled": false,
+		"enabled": true,
 		"fast": false
 	},
 	"webos": {
 		"ver": "0.0.1"
 	},
-	"bundle": [{
-		"mod": "buffer",
-		"options": {}
-	},{
-		"mod": ["basefs", "lib", "node", "mime.js"],
-		"options": {
-			"expose": "mime"
+	"bundle": [
+		{
+			"path": ["basefs", "lib", "node", "buffer.js"],
+			"options": {
+				"expose": "buffer"
+			}
+		},
+		{
+			"path": ["basefs", "lib", "node", "mime.js"],
+			"options": {
+				"expose": "mime"
+			}
+		},
+		{
+			"path": ["basefs", "lib", "node", "path.js"],
+			"options": {
+				"expose": "path"
+			}
+		},
+		{
+			"path": ["app", "start.js"],
+			"options": {
+				"expose": "./start.js"
+			}
+		},
+		{
+			"path": ["basefs", "lib", "node", "require.js"],
+			"options": {
+				"expose": "/lib/node/require.js"
+			}
+		},
+		{
+			"path": ["basefs", "lib", "lzutf8.js"],
+			"options": {
+				"expose": "/lib/lzutf8.js"
+			}
+		},
+		{
+			"path": ["basefs", "lib", "node", "fs.js"],
+			"options": {
+				"expose": "/lib/node/fs.js"
+			}
 		}
-	},{
-		"mod": ["app", "path.js"],
-		"options": {
-			"expose": "path"
-		}
-	},{
-		"mod": ["app", "start.js"],
-		"options": {
-			"expose": "./start.js"
-		}
-	},{
-		"mod": ["basefs", "lib", "node", "require.js"],
-		"options": {
-			"expose": "/lib/node/require.js"
-		}
-	},{
-		"mod": ["basefs", "lib", "lzutf8.js"],
-		"options": {
-			"expose": "/lib/lzutf8.js"
-		}
-	},{
-		"mod": ["basefs", "lib", "node", "fs.js"],
-		"options": {
-			"expose": "/lib/node/fs.js"
-		}
-	}]
+	]
 }
