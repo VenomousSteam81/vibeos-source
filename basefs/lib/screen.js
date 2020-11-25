@@ -68,8 +68,17 @@ var fs = require('fs'),
 			}
 			
 			var all_elements = [],
-				add_elements = (arr, dims) => arr.filter(element => element.visible && element.interact).forEach(element => {
+				add_elements = (arr, dims, start_opts = {}) => arr.filter(element => element.visible && element.interact).forEach(element => {
 					// only_contents flag exists for interact
+					
+					start_opts = Object.assign({}, start_opts);
+					
+					if(dims && dims.translate && dims.translate.enabled)start_opts.translate = dims.translate;
+					
+					element.dims = dims;
+					element.start_opts = start_opts;
+					
+					element.fixed = ui.fixed_sp(element, dims);
 					
 					if(element.interact === true)all_elements.push(element);
 					
@@ -84,7 +93,7 @@ var fs = require('fs'),
 			
 			all_elements = mouse.all_elements = all_elements.sort((ele, pele) => pele.layer - (pele.always_on_top ? ele.layer - pele.layer : ele.layer));
 			
-			var target = all_elements.find(element => screen.element_in_mouse(element)) || { emit(){}, cursor: 'pointer', };
+			var target = all_elements.find(element => screen.element_in_mouse(element, element.dims)) || { emit(){}, cursor: 'pointer', };
 			
 			target.mouse_hover = true;
 			
@@ -120,14 +129,21 @@ var fs = require('fs'),
 				mouse.target.drag.offset.y += mouse.movement.y;
 			}
 			
-			var wins = all_elements.filter(element => element instanceof ui.window).sort((ele, pele) => ele.layer - pele.layer),
-				target_win = wins.find(element => element.includes(target));
+			all_elements.forEach(element => {
+				if(element.includes(target))element.emit('sub-' + event.type, event, mouse);
+			});
 			
 			if(event.type == 'mousedown'){
+				var wins = all_elements.filter(element => element instanceof ui.window).sort((ele, pele) => ele.layer - pele.layer),
+					target_win = wins.find(element => element.includes(target));
+				
 				if(target_win && target.steal_focus){
 					wins.forEach(element => {
 						element.active = false;
-						target_win.layer = element.layer + element.elements.length + 1;
+						// console.log('modifying: ' + element.layer + ', target: ' + target_win.layer);
+						
+						// get elements size + sub elements size
+						target_win.layer = element.layer + element.nested_size() + 1;
 					});
 					
 					target_win.active = true;
@@ -196,7 +212,6 @@ screen.layers = Object.assign([
 		width: '100%',
 		height: '100%',
 		path: '/usr/share/wallpaper/default.png',
-		steal_focus: false,
 	}),
 	web.bar = new ui.bar({}),
 ], {
@@ -228,7 +243,9 @@ screen.render = () => {
 	canvas.height = screen.dims.height;
 	
 	
-	var render_through = (elements, dims) => {
+	var render_through = (elements, dims, start_opts = {}) => {
+		start_opts = Object.assign({}, start_opts); // new opts
+		
 		elements.filter(ele => !ele.visible).forEach(element => element.emit('not_visible'));
 		
 		elements.filter(ele => ele.visible).sort((ele, pele) => ele.layer - pele.layer).forEach(element => {
@@ -242,13 +259,15 @@ screen.render = () => {
 			
 			element.fixed = ui.fixed_sp(element, dims);
 			
-			if(dims.clip && element.apply_clip){
+			if(dims.clip)start_opts.clip = dims;
+			
+			if(start_opts.clip && element.apply_clip){
 				var region = new Path2D();
-				region.rect(dims.x, dims.y, dims.width, dims.height);
+				region.rect(start_opts.clip.x, start_opts.clip.y, start_opts.clip.width, start_opts.clip.height);
 				ctx.clip(region, 'evenodd');
 			}
 			
-			if(dims.translate && element.apply_translate)ctx.translate(dims.translate.x, dims.translate.y);
+			if(dims.translate && dims.translate.enabled)start_opts.translate = dims.translate;
 			
 			ctx.filter = element.filter;
 			
@@ -296,8 +315,19 @@ screen.render = () => {
 				ctx.clip(region, 'evenodd');
 			}
 			
+			var temp = Object.assign({}, element.offset);
+			
+			if(start_opts.translate && element.apply_translate){
+				//element.offset.x += start_opts.translate.x;
+				//element.offset.y += start_opts.translate.y;
+				
+				//element.fixed = ui.fixed_sp(element, dims);
+			}
+			
 			element.draw(ctx, dims);
 			ctx.restore();
+			
+			element.offset = temp;
 			
 			if(element.scroll){
 				ctx.save();
@@ -305,7 +335,7 @@ screen.render = () => {
 				ctx.restore();
 			}
 			
-			render_through(element.elements, ui.fixed_sp(element, dims));
+			render_through(element.elements, ui.fixed_sp(element, dims), start_opts);
 		});
 	};
 	
@@ -317,14 +347,16 @@ screen.render = () => {
 };
 
 screen.element_in_mouse = element => {
-	if(!element.fixed)return;
-	
-	var region = {
-			sx: element.fixed.x,
-			sy: element.fixed.y,
-			mx: element.fixed.x + element.fixed.width,
-			my: element.fixed.y + element.fixed.height,
+	var dims = element.dims,
+		start_opts = element.start_opts,
+		fixed = ui.fixed_sp(element, dims),
+		region = {
+			sx: fixed.x,
+			sy: fixed.y,
+			mx: fixed.x + fixed.width,
+			my: fixed.y + fixed.height,
 		};
+		
 	
 	if(region.sx <= mouse.x && region.sy <= mouse.y && region.mx >= mouse.x && region.my >= mouse.y)return true;
 }

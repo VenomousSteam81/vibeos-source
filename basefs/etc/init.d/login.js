@@ -12,7 +12,7 @@ var screen = require('/lib/screen.js'),
 				var now = new Date(),
 					hour = (now.getHours() + '') % 12;
 				
-				return (hour == 0 ? 12 : hour) + ':' + (now.getMinutes() + '').padStart(2, 0) + ' ' + (hour > 12 ? 'PM' : 'AM');
+				return (hour == 0 ? 12 : hour) + ':' + (now.getMinutes() + '').padStart(2, 0) + ' ' + (hour < 12 ? 'PM' : 'AM');
 			},
 		})),
 		pfp: login_rect.append(new ui.image({
@@ -53,6 +53,7 @@ login.login_button.on('click', event => {
 	login_rect.deleted = true;
 	login_rect.interact = false,
 	web.bar.visible = true;
+	
 	// change this to be dynamic soon
 	require.user.alias = 'vibeOS';
 	require.user.home = '/home/vibeOS';

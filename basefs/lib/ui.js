@@ -109,7 +109,7 @@ ui.gen_uuid = () => [...Array(4)].map(() => {
 
 ui.percentage = (perc, full) => (perc * full) / 100;
 
-ui.fixed_sp = (data, bounds) => {
+ui.fixed_sp = (data, dims) => {
 	var data = Object.assign({}, data),
 		correct = {
 			width: 0,
@@ -139,15 +139,15 @@ ui.fixed_sp = (data, bounds) => {
 		
 	});
 	
-	correct.width = proc(data.width, bounds.width);
-	correct.height = proc(data.height, bounds.height);
+	correct.width = proc(data.width, dims.width);
+	correct.height = proc(data.height, dims.height);
 	
 	switch(data.x){
 		case ui.align.middle:
-			data.x = (bounds.width / 2) - (correct.width / 2);
+			data.x = (dims.width / 2) - (correct.width / 2);
 			break;
 		case ui.align.right:
-			data.x = bounds.width - correct.width;
+			data.x = dims.width - correct.width;
 			break;
 		case ui.align.left:
 			data.x = correct.width;
@@ -156,18 +156,23 @@ ui.fixed_sp = (data, bounds) => {
 	
 	switch(data.y){
 		case ui.align.middle:
-			data.y = (bounds.height / 2) - (correct.height / 2);
+			data.y = (dims.height / 2) - (correct.height / 2);
 			break;
 		case ui.align.top:
 			data.y = correct.height;
 			break;
 		case ui.align.bottom:
-			data.y = bounds.height - correct.height;
+			data.y = dims.height - correct.height;
 			break;
 	}
 	
-	correct.x = bounds.x + proc(data.x, bounds.width) + (data.offset.x || 0);
-	correct.y = bounds.y + proc(data.y, bounds.height) + (data.offset.y || 0);
+	correct.x = dims.x + proc(data.x, dims.width) + (data.offset.x || 0);
+	correct.y = dims.y + proc(data.y, dims.height) + (data.offset.y || 0);
+	
+	if(dims.translate && dims.translate.enabled){
+		correct.x += dims.translate.x;
+		correct.y += dims.translate.y;
+	}
 	
 	correct.width +=  data.offset.width || 0;
 	correct.height +=  data.offset.height || 0;
@@ -206,6 +211,7 @@ ui.last_layer = 0;
 * @param {object} opts.translate translate for all the appended elements
 * @param {number} opts.translate.x translate x
 * @param {number} opts.translate.y translate y
+* @param {number} opts.translate.enabled if translating the position should be enabled
 * @param {object} opts.resizing resize space for element
 * @param {number} opts.resizing.min_width mininum resizable width
 * @param {number} opts.resizing.min_height mininum resizable height
@@ -220,6 +226,7 @@ ui.last_layer = 0;
 * @property {function} delete_uuid deletes an elements sub elements with specific uuid
 * @property {function} draw_scroll draws/creates the scroll bar stuff, called by renderer
 * @property {function} not_visible runs when element.visible is false, called by renderer
+* @property {function} nested_size full size of element and its sub-elements
 * @property {boolean} mouse_hover if the mouse is hovering over element
 * @property {boolean} mouse_left if left mouse button is pressing this element
 * @property {boolean} mouse_right if right mouse button is pressing this element
@@ -263,6 +270,7 @@ ui.element = class extends events {
 			translate: {
 				x: 0,
 				y: 0,
+				enabled: false,
 			},
 			resizing: {
 				min_width: 200,
@@ -285,6 +293,38 @@ ui.element = class extends events {
 	}
 	draw(ctx, dims){
 		
+	}
+	content_height(){
+		var height = 0,
+			content_height_set = arr => {
+				var prev;
+				
+				arr.filter(element => element.fixed).sort((ele, pele) => ele.fixed.y - pele.fixed.y).forEach(element => {
+					height += element.fixed.height;
+					
+					if(prev)height += prev.fixed.y - element.fixed.y;
+					
+					content_height_set(element.elements);
+					
+					prev = element;
+				});
+			};
+		
+		content_height_set(this.elements);
+		
+		return height;
+	}
+	nested_size(){
+		var count = 1,
+			add_count = arr => arr.forEach(element => {
+				count++;
+				
+				add_count(element.elements);
+			});
+		
+		add_count(this.elements);
+		
+		return count;
 	}
 	append(element){
 		var layer = this.elements.length + 1;
@@ -314,8 +354,8 @@ ui.element = class extends events {
 	draw_scroll(ctx, dims){
 		var content_height = () => {
 			var tmp = 0,
-				content_height_set = arr => arr.filter(element => element.apply_clip).forEach(element => {
-					var val = (element.fixed?.y || element.y) + (element.fixed?.height || element.height);
+				content_height_set = arr => arr.filter(element => element.fixed).forEach(element => {
+					var val = this.fixed.y - element.fixed.y + element.fixed.height;
 					
 					if(val > tmp)tmp = val;
 					
@@ -629,6 +669,8 @@ ui.menu = class ui_menu extends ui.rect {
 					height: '100%',
 				}, val));
 			
+			// added.index = 1e10 - 2;
+			
 			this.buttons.push(added);
 			
 			prev = added;
@@ -653,7 +695,7 @@ ui.menu = class ui_menu extends ui.rect {
 * @param {object} opts.menu an object containing sub objects with functions
 * @property {function} show changes visibility of the window
 * @property {function} hide changes visibility of the window
-* @property {function} bring_to_top brings the window to the top
+* @property {function} bring_front brings the window to the top
 * @property {function} focus makes the window gain focus
 * @property {function} blur makes the window lose focus
 * @property {function} close sets window.deleted to true, closing the window
@@ -716,7 +758,10 @@ ui.window = class ui_window extends ui.rect {
 			size: 14,
 			baseline: 'middle',
 			height: '100%',
-			text: this.title,
+			get text(){
+				// dynamic title
+				return othis.title;
+			},
 			interact: false,
 			get color(){
 				return othis.active ? colors.window.active.text : colors.window.inactive.text;
@@ -855,7 +900,7 @@ ui.window = class ui_window extends ui.rect {
 			});
 		}
 	}
-	bring_to_top(){
+	bring_front(){
 		var all_elements = [],
 			add_elements = (arr, dims) => arr.filter(element => element.visible && element.interact).forEach(element => {
 				var fixed = ui.fixed_sp(element, dims);
@@ -873,7 +918,7 @@ ui.window = class ui_window extends ui.rect {
 		
 		all_elements.filter(element => element instanceof ui.window && element.uuid != this.uuid).sort((ele, pele) => ele.layer - pele.layer).forEach(element => {
 			element.active = false;
-			this.layer = element.layer + element.elements.length + 1;
+			this.layer = element.layer + element.nested_size() + 1;
 		});
 		
 		this.show();
@@ -1214,7 +1259,7 @@ ui.input = class ui_input extends ui.rect {
 					
 					return ret;
 				}),
-				last = chars[chars.length - 1],
+				last = chars[chars.length - 1] || { val: 0, vale: 0 },
 				rel = mouse.x - this.fixed.x;
 			
 			web.ctx.restore();
@@ -1581,7 +1626,7 @@ ui.bar = class ui_bar extends ui.rect {
 				}));
 				
 				data.icon.on('click', event => {
-					if(data.element && !data.element.deleted)data.element.active ? data.element.hide() : data.element.bring_to_top();
+					if(data.element && !data.element.deleted)data.element.active ? data.element.hide() : data.element.bring_front();
 					else {
 						switch(path.extname(data.path)){
 							case'.xml':
@@ -1594,7 +1639,7 @@ ui.bar = class ui_bar extends ui.rect {
 								break;
 						}
 						
-						data.element.bring_to_top();
+						data.element.bring_front();
 					};
 				});
 				
@@ -1705,7 +1750,7 @@ ui.bar = class ui_bar extends ui.rect {
 						? web.screen.layers.append(ui.parse_xml(fs.readFileSync(data.path, 'utf8'), true))
 						: web.screen.layers.append(require(data.path, { cache: false, args: {
 							from_app_menu: true,
-						} }))).bring_to_top();
+						} }))).bring_front();
 					});
 				}
 			});
@@ -1890,8 +1935,82 @@ ui.context_menu = class ui_context_menu extends ui.element {
 				
 				if(item.path)((path.extname(item.path) == '.xml')
 				? web.screen.layers.append(ui.parse_xml(fs.readFileSync(item.path, 'utf8'), true))
-				: web.screen.layers.append(require(item.path, { cache: false, args: { from_app_menu: true } }))).bring_to_top();
+				: web.screen.layers.append(require(item.path, { cache: false, args: { from_app_menu: true } }))).bring_front();
 			});
 		});
 	}
 };
+
+ui.scroll_box = class ui_scroll_box extends ui.element {
+	constructor(opts){
+		var othis = super(opts, {
+			clip: true,
+		});
+		
+		this.drag_handler = mouse => {
+			var rel = mouse.y - this.content.fixed.y,
+				inc = (rel / this.content.content_height()) * 100;
+			
+			
+			// or4nge408
+			console.log(inc, mouse.movement.y, this.content.content_height());
+			
+			this.content.translate.y -= inc;
+			this.scroll_button.offset.y += mouse.movement.y;
+		};
+		
+		this.scroll_bar = this.append(new ui.rect({
+			size: 2,
+			color: '#F1F1F1',
+			width: 17,
+			height: '100%',
+			x: ui.align.right,
+			y: 0,
+			offset: {
+				x: 1,
+				width: 4,
+			},
+		}));
+		
+		this.scroll_button = this.scroll_bar.append(new ui.rect({
+			get color(){
+				return this.mouse_pressed ? '#787878' : this.mouse_hover ? '#A8A8A8' : '#C1C1C1';
+			},
+			width: 13,
+			height: 17,
+			x: ui.align.middle,
+		}));
+		
+		this.content = this.append(new ui.rect({
+			width: '100%',
+			height: '100%',
+			color: 'transparent',
+			offset: {
+				get width(){
+					return -(othis.scroll_bar.fixed || { width: 10 }).width
+				},
+			},
+			translate: {
+				enabled: true,
+				x: 0,
+				y: 0,
+				width: 0,
+				height: 0,
+			},
+		}));
+		
+		this.scroll_button.on('drag', this.drag_handler);
+		
+		/*this.on('sub-wheel', event => this.drag_handler(Object.assign({}, web.mouse, {
+			movement: {
+				x: event.deltaX,
+				y: event.deltaY / this.content_height(),
+			},
+		})));*/
+	}
+	draw(ctx, dims){
+		var fixed = ui.fixed_sp(this, dims);
+		
+		
+	}
+}

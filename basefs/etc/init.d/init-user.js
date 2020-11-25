@@ -2,12 +2,18 @@ var screen = require('/lib/screen.js'),
 	ui = require('/lib/ui.js'),
 	fs = require('fs'),
 	path = require('path'),
-	bar_data_path = path.join(require.user.home, 'bar.json');
+	bar_data_path = path.join(require.user.home, 'bar.json'),
+	folders = ['Desktop', 'Documents', 'Downloads', 'Music', 'Pictures', 'Videos'];
 
 if(!fs.existsSync(require.user.home))fs.mkdirSync(require.user.home);
+folders.filter(folder => !fs.existsSync(path.join(require.user.home, folder))).forEach(folder => fs.mkdirSync(path.join(require.user.home, folder)));
 if(!fs.existsSync(bar_data_path))fs.writeFileSync(bar_data_path, '[]');
 
 [{
+	icon_path: '/usr/share/categ/development.png',
+	path: '/var/apps/explorer.js',
+	pinned: true,
+},{
 	path: '/var/xml/license.xml',
 	pinned: true,
 }].concat(JSON.parse(fs.readFileSync(bar_data_path, 'utf8'))).forEach(entry => web.bar.open.push(entry));

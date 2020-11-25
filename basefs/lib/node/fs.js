@@ -67,7 +67,7 @@ var path = require('path'),
 			var depth = this.walk_file(path.resolve(file));
 			
 			return {
-				isDirectory: () => typeof depth == 'object',
+				isDirectory: () => typeof depth != 'string',
 				ctimeMs: () => Date.now(),
 				atimeMs: () => Date.now(),
 				mtimeMs: () => Date.now(),
@@ -93,7 +93,7 @@ var path = require('path'),
 		read_dir(file){
 			var depth = this.walk_file(file);
 			 
-			return Object.keys(depth);
+			return ['.', '..'].concat(Object.keys(depth));
 		}
 		write(file, data, options){
 			if(typeof data != 'string' && !(data instanceof Buffer) && !Array.isArray(data))throw errors.invalid_arg_type('data', ['Buffer', 'TypedArray', 'DataView'], typeof data);
