@@ -220,10 +220,14 @@ ui.last_layer = 0;
 * @param {number} opts.resizing.min_height mininum resizable height
 * @param {number} opts.resizing.max_width maximum resizable width
 * @param {number} opts.resizing.max_height maximum resizable height
-* @event ui_element#keydown when a key is pressed when mouse hovers over element or focused
-* @event ui_element#keyup when a key is lifted when mouse hovers over element or focused
-* @event ui_element#click when the element is clicked
-* @event ui_element#doubleclick when the element is doub
+* @property {event} keydown when a key is pressed when mouse hovers over element or focused
+* @property {event} keyup when a key is lifted when mouse hovers over element or focused
+* @property {event} click when the element is clicked
+* @property {event} doubleclick when the element is double clicked
+* @property {event} drag when the element is being dragged
+* @property {event} mousedown when the element is pressed
+* @property {event} mouseup when the element is lifted
+* @property {event} scroll when the scroll wheel is used
 * @property {function} on event emitter on event, varies from: keydown, keyup, click, drag, mousedown, mouseup, scroll, doubleclick
 * @property {function} once event emitter once event
 * @property {function} off event emitter off event

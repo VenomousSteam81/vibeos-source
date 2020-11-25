@@ -2,7 +2,7 @@
 
 ### Table of Contents
 
--   [ui_element#doubleclick when the element is doub][1]
+-   [element][1]
     -   [Parameters][2]
     -   [Properties][3]
 -   [text][4]
@@ -46,7 +46,9 @@
     -   [Properties][42]
     -   [Examples][43]
 
-## ui_element#doubleclick when the element is doub
+## element
+
+**Extends events**
 
 ### Parameters
 
@@ -85,25 +87,33 @@
 
 ### Properties
 
--   `on` **[function][48]** event emitter on event, varies from: keydown, keyup, click, drag, mousedown, mouseup, scroll, doubleclick
--   `once` **[function][48]** event emitter once event
--   `off` **[function][48]** event emitter off event
--   `draw` **[function][48]** event emitter on event
--   `append` **[function][48]** add an element to this element, assigns layer to it
--   `draw` **[function][48]** draws the element, called by renderer
--   `delete_uuid` **[function][48]** deletes an elements sub elements with specific uuid
--   `not_visible` **[function][48]** runs when element.visible is false, called by renderer
--   `nested_size` **[function][48]** full size of element and its sub-elements
--   `assign_object` **[function][48]** moves all property descriptors of an object into element (getters, setters)
+-   `keydown` **[event][48]** when a key is pressed when mouse hovers over element or focused
+-   `keyup` **[event][48]** when a key is lifted when mouse hovers over element or focused
+-   `click` **[event][48]** when the element is clicked
+-   `doubleclick` **[event][48]** when the element is double clicked
+-   `drag` **[event][48]** when the element is being dragged
+-   `mousedown` **[event][48]** when the element is pressed
+-   `mouseup` **[event][48]** when the element is lifted
+-   `scroll` **[event][48]** when the scroll wheel is used
+-   `on` **[function][49]** event emitter on event, varies from: keydown, keyup, click, drag, mousedown, mouseup, scroll, doubleclick
+-   `once` **[function][49]** event emitter once event
+-   `off` **[function][49]** event emitter off event
+-   `draw` **[function][49]** event emitter on event
+-   `append` **[function][49]** add an element to this element, assigns layer to it
+-   `draw` **[function][49]** draws the element, called by renderer
+-   `delete_uuid` **[function][49]** deletes an elements sub elements with specific uuid
+-   `not_visible` **[function][49]** runs when element.visible is false, called by renderer
+-   `nested_size` **[function][49]** full size of element and its sub-elements
+-   `assign_object` **[function][49]** moves all property descriptors of an object into element (getters, setters)
 -   `mouse_hover` **[boolean][47]** if the mouse is hovering over element
 -   `mouse_left` **[boolean][47]** if left mouse button is pressing this element
 -   `mouse_right` **[boolean][47]** if right mouse button is pressing this element
 -   `mouse_pressed` **[boolean][47]** if the left mouse is pressing this button (alt)
 -   `focused` **[boolean][47]** if this element has recieved focus
 -   `uuid` **[string][46]** unique identifier assigned to element
--   `elements` **[array][49]** an array of appended elements (see element.append)
+-   `elements` **[array][50]** an array of appended elements (see element.append)
 
-Returns **[element][50]** base ui element
+Returns **[element][51]** base ui element
 
 ## text
 
@@ -126,7 +136,7 @@ text element
 
 ### Properties
 
--   `measure` **[function][48]** gives canvas font measurements
+-   `measure` **[function][49]** gives canvas font measurements
 
 Returns **ui_text** text element
 
@@ -201,12 +211,12 @@ window
 
 ### Properties
 
--   `show` **[function][48]** changes visibility of the window
--   `hide` **[function][48]** changes visibility of the window
--   `bring_front` **[function][48]** brings the window to the top
--   `focus` **[function][48]** makes the window gain focus
--   `blur` **[function][48]** makes the window lose focus
--   `close` **[function][48]** sets window.deleted to true, closing the window
+-   `show` **[function][49]** changes visibility of the window
+-   `hide` **[function][49]** changes visibility of the window
+-   `bring_front` **[function][49]** brings the window to the top
+-   `focus` **[function][49]** makes the window gain focus
+-   `blur` **[function][49]** makes the window lose focus
+-   `close` **[function][49]** sets window.deleted to true, closing the window
 -   `content` **[object][44]** ui_rect that all contents should be appended to
 
 ### Examples
@@ -375,14 +385,14 @@ canvas for additional drawing where ui elements are not applicable
 
 -   `opts` **[object][44]** options
     -   `opts.context` **[string][46]** context to grab from canvas when created, setting to skip will allow you to call getContext manually
-    -   `opts.context_opts` **[array][49]** additional arguments if opts.content is valid when calling getcontext
+    -   `opts.context_opts` **[array][50]** additional arguments if opts.content is valid when calling getcontext
 
 ### Properties
 
--   `ctx` **[CanvasRenderingContext2D][51]** the rendering context made automatically
--   `canavs` **[HTMLCanvasElement][52]** the canvas created to render on
--   `draw` **[event][53]** frame to draw stuff on before an image is captured
--   `canvas` **[HTMLCanvasElement][52]** canvas containing raw functions
+-   `ctx` **[CanvasRenderingContext2D][52]** the rendering context made automatically
+-   `canavs` **[HTMLCanvasElement][53]** the canvas created to render on
+-   `draw` **[event][48]** frame to draw stuff on before an image is captured
+-   `canvas` **[HTMLCanvasElement][53]** canvas containing raw functions
 
 ### Examples
 
@@ -414,14 +424,14 @@ context menu for showing items
 ### Parameters
 
 -   `opts` **[object][44]** options
-    -   `opts.triggers` **[array][49]** list of elements to check for right clicks on (ui.element(s))
-    -   `opts.items` **[array][49]** list of items to append (format is { title: '...', icon: '...', path: '...executable, js, or xml' })
+    -   `opts.triggers` **[array][50]** list of elements to check for right clicks on (ui.element(s))
+    -   `opts.items` **[array][50]** list of items to append (format is { title: '...', icon: '...', path: '...executable, js, or xml' })
 
 ### Properties
 
--   `ctx` **[CanvasRenderingContext2D][51]** the rendering context made automatically
--   `canavs` **[HTMLCanvasElement][52]** the canvas created to render on
--   `draw` **[event][53]** frame to draw stuff on before an image is captured
+-   `ctx` **[CanvasRenderingContext2D][52]** the rendering context made automatically
+-   `canavs` **[HTMLCanvasElement][53]** the canvas created to render on
+-   `draw` **[event][48]** frame to draw stuff on before an image is captured
 
 ### Examples
 
@@ -443,7 +453,7 @@ win.context_menu = screen.layers.append(new ui.context_menu({
 }));
 ```
 
-[1]: #ui_elementdoubleclick-when-the-element-is-doub
+[1]: #element
 
 [2]: #parameters
 
@@ -537,14 +547,14 @@ win.context_menu = screen.layers.append(new ui.context_menu({
 
 [47]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean
 
-[48]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/function
+[48]: https://developer.mozilla.org/docs/Web/API/Event
 
-[49]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array
+[49]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/function
 
-[50]: https://developer.mozilla.org/docs/Web/API/Element
+[50]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array
 
-[51]: https://developer.mozilla.org/docs/Web/API/CanvasRenderingContext2D
+[51]: https://developer.mozilla.org/docs/Web/API/Element
 
-[52]: https://developer.mozilla.org/docs/Web/API/HTMLCanvasElement
+[52]: https://developer.mozilla.org/docs/Web/API/CanvasRenderingContext2D
 
-[53]: https://developer.mozilla.org/docs/Web/API/Event
+[53]: https://developer.mozilla.org/docs/Web/API/HTMLCanvasElement
