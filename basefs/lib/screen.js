@@ -100,8 +100,7 @@ var fs = require('fs'),
 			mouse.cursor = target.cursor;
 			
 			if(event.type == 'mousedown' && mouse.buttons.left)mouse.target = target;
-			else if(event.type == 'mouseup')mouse.target = null;
-			
+						
 			mouse.target_hover = target;
 			
 			if(event.type == 'mousedown' && mouse.buttons.left)target.mouse_left = true;
@@ -110,13 +109,21 @@ var fs = require('fs'),
 			else if(event.type == 'mouseup')target.mouse_left = target.mouse_right = false;
 			
 			all_elements.filter(element => element.uuid != target.uuid).forEach(element => {
+				element.click_count = 0;
 				element.mouse_left = element.mouse_right = element.mouse_middle = element.mouse_hover = element.mouse_pressed = false;
 			});
 			
 			target.emit(event.type, event, mouse);
 			
-			if(mouse.buttons.left && event.type == 'mouseup')target.emit('click', event, mouse);
-			else if(mouse.buttons.right && event.type == 'mouseup')target.emit('contextmenu', event, mouse);
+			if(mouse.buttons.left && mouse.target.uuid == target.uuid && event.type == 'mouseup'){
+				target.click_count++;
+				
+				if(target.click_count == 2)target.emit('doubleclick', event, mouse);
+				
+				target.emit('click', event, mouse);
+			}else if(mouse.buttons.right && event.type == 'mouseup')target.emit('contextmenu', event, mouse);
+			
+			if(event.type == 'mouseup')mouse.target = null;
 			
 			target.mouse_pressed = mouse.buttons.left;
 			

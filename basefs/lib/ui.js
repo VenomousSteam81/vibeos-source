@@ -220,7 +220,7 @@ ui.last_layer = 0;
 * @param {number} opts.resizing.min_height mininum resizable height
 * @param {number} opts.resizing.max_width maximum resizable width
 * @param {number} opts.resizing.max_height maximum resizable height
-* @property {function} on event emitter on event, varies from: keydown, keyup, click, drag, mousedown, mouseup, scroll
+* @property {function} on event emitter on event, varies from: keydown, keyup, click, drag, mousedown, mouseup, scroll, doubleclick
 * @property {function} once event emitter once event
 * @property {function} off event emitter off event
 * @property {function} draw event emitter on event
