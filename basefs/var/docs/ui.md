@@ -2,7 +2,7 @@
 
 ### Table of Contents
 
--   [element][1]
+-   [ui_element#doubleclick when the element is doubleclicked][1]
     -   [Parameters][2]
     -   [Properties][3]
 -   [text][4]
@@ -46,9 +46,7 @@
     -   [Properties][42]
     -   [Examples][43]
 
-## element
-
-**Extends events**
+## ui_element#doubleclick when the element is doubleclicked
 
 ### Parameters
 
@@ -78,6 +76,7 @@
     -   `opts.translate` **[object][44]** translate for all the appended elements
         -   `opts.translate.x` **[number][45]** translate x
         -   `opts.translate.y` **[number][45]** translate y
+        -   `opts.translate.enabled` **[number][45]** if translating the position should be enabled
     -   `opts.resizing` **[object][44]** resize space for element
         -   `opts.resizing.min_width` **[number][45]** mininum resizable width
         -   `opts.resizing.min_height` **[number][45]** mininum resizable height
@@ -86,15 +85,16 @@
 
 ### Properties
 
--   `on` **[function][48]** event emitter on event, varies from: keydown, keyup, click, drag, mousedown, mouseup, scroll
+-   `on` **[function][48]** event emitter on event, varies from: keydown, keyup, click, drag, mousedown, mouseup, scroll, doubleclick
 -   `once` **[function][48]** event emitter once event
 -   `off` **[function][48]** event emitter off event
 -   `draw` **[function][48]** event emitter on event
 -   `append` **[function][48]** add an element to this element, assigns layer to it
 -   `draw` **[function][48]** draws the element, called by renderer
 -   `delete_uuid` **[function][48]** deletes an elements sub elements with specific uuid
--   `draw_scroll` **[function][48]** draws/creates the scroll bar stuff, called by renderer
 -   `not_visible` **[function][48]** runs when element.visible is false, called by renderer
+-   `nested_size` **[function][48]** full size of element and its sub-elements
+-   `assign_object` **[function][48]** moves all property descriptors of an object into element (getters, setters)
 -   `mouse_hover` **[boolean][47]** if the mouse is hovering over element
 -   `mouse_left` **[boolean][47]** if left mouse button is pressing this element
 -   `mouse_right` **[boolean][47]** if right mouse button is pressing this element
@@ -203,7 +203,7 @@ window
 
 -   `show` **[function][48]** changes visibility of the window
 -   `hide` **[function][48]** changes visibility of the window
--   `bring_to_top` **[function][48]** brings the window to the top
+-   `bring_front` **[function][48]** brings the window to the top
 -   `focus` **[function][48]** makes the window gain focus
 -   `blur` **[function][48]** makes the window lose focus
 -   `close` **[function][48]** sets window.deleted to true, closing the window
@@ -443,7 +443,7 @@ win.context_menu = screen.layers.append(new ui.context_menu({
 }));
 ```
 
-[1]: #element
+[1]: #ui_elementdoubleclick-when-the-element-is-doubleclicked
 
 [2]: #parameters
 
