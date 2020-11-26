@@ -1,6 +1,6 @@
 // TEXT EDITOR
 var ui = require('/lib/ui.js'),
-	text_win = new ui.window({
+	win = new ui.window({
 		title: 'Text Editor',
 		x: ui.align.middle, 
 		y: ui.align.middle,
@@ -12,7 +12,7 @@ var ui = require('/lib/ui.js'),
 		menu: {
 			File: {
 				Exit(){
-					text_win.close();
+					win.close();
 				},
 				Open(){
 					
@@ -22,8 +22,16 @@ var ui = require('/lib/ui.js'),
 				
 			},
 		},
-	});
+	}),
+	text = {
+		open_file(loc){
+			win.title = 'Text Editor - ' + loc;
+			
+			
+		}
+	};
+
+if(flags.file)text.open_file(flags.file);
 
 
-
-module.exports = text_win;
+module.exports = win;

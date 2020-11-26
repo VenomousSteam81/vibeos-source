@@ -67,7 +67,7 @@ var ui = require('/lib/ui.js'),
 					})),
 				};
 			
-			if(stats.isDirectory())container.on('doubleclick', () => create_folders(loc));
+			container.on('doubleclick', () => stats.isDirectory() ? create_folders(loc) : ui.open_app('/var/apps/text.js', { flags: { file: loc } }, true));
 			
 			return data;
 		},

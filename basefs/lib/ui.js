@@ -1359,12 +1359,12 @@ ui.webview = class ui_webview extends ui.rect {
 
 ui.open_app = (app_path, args, show_in_bar) => {
 	var win;
-	
+	  
 	if(path.extname(app_path) == '.xml'){
 		win = web.screen.layers.append(ui.parse_xml(fs.readFileSync(app_path, 'utf8'), show_in_bar));
 	}else{
 		win = web.screen.layers.append(require(app_path, { cache: false, args: Object.assign({ flags: {} }, args, {
-			show_in_bar: false,
+			show_in_bar: show_in_bar,
 		}) }));
 	}
 	
@@ -2051,7 +2051,7 @@ ui.desktop = class ui_desktop extends ui.element {
 				},
 			}));
 			
-			data.con.on('doubleclick', () => ui.open_app(data.path, data.args, false));
+			data.con.on('doubleclick', () => ui.open_app(data.path, data.args, true));
 			
 			prev = data;
 		});
