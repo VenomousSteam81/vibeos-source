@@ -88,6 +88,7 @@ var fs = require('fs'),
 					start_opts = Object.assign({}, start_opts);
 					
 					if(dims && dims.translate && dims.translate.enabled)start_opts.translate = dims.translate;
+					if(dims.clip)start_opts.clip = dims;
 					
 					element.dims = dims;
 					element.start_opts = start_opts;
@@ -358,8 +359,15 @@ screen.element_in_mouse = element => {
 			sy: fixed.y,
 			mx: fixed.x + fixed.width,
 			my: fixed.y + fixed.height,
-		};
-		
+		},
+		cregion = start_opts.clip ? {
+			sx: start_opts.clip.x,
+			sy: start_opts.clip.y,
+			mx: start_opts.clip.x + start_opts.clip.width,
+			my: start_opts.clip.y + start_opts.clip.height,
+		} : null;
 	
-	if(region.sx <= mouse.x && region.sy <= mouse.y && region.mx >= mouse.x && region.my >= mouse.y)return true;
+	if(region.sx <= mouse.x && region.sy <= mouse.y && region.mx >= mouse.x && region.my >= mouse.y)return cregion
+	? (cregion.sx <= mouse.x && cregion.sy <= mouse.y && cregion.mx >= mouse.x && cregion.my >= mouse.y)
+	: true;
 }
