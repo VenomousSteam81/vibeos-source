@@ -1357,6 +1357,22 @@ ui.webview = class ui_webview extends ui.rect {
 	}
 }
 
+ui.open_app = (app_path, args, show_in_bar) => {
+	var win;
+	
+	if(path.extname(app_path) == '.xml'){
+		win = web.screen.layers.append(ui.parse_xml(fs.readFileSync(app_path, 'utf8'), show_in_bar));
+	}else{
+		win = web.screen.layers.append(require(app_path, { cache: false, args: Object.assign({ flags: {} }, args, {
+			show_in_bar: false,
+		}) }));
+	}
+	
+	win.bring_front();
+	
+	return win;
+};
+
 /**
 * @param {string} xml xml data to parse, needs to be valid and a string
 * @param {string} show-in-bar if the xml data should show in a bar
@@ -1586,18 +1602,7 @@ ui.bar = class ui_bar extends ui.rect {
 				data.icon.on('click', event => {
 					if(data.element && !data.element.deleted)data.element.active ? data.element.hide() : data.element.bring_front();
 					else {
-						switch(path.extname(data.path)){
-							case'.xml':
-								data.element = web.screen.layers.append(ui.parse_xml(fs.readFileSync(data.path, 'utf8'), false));
-								break;
-							case'.js':
-								data.element = web.screen.layers.append(require(data.path, { cache: false , args: {
-									from_app_menu: false,
-								}, }));
-								break;
-						}
-						
-						data.element.bring_front();
+						data.element = ui.open_app(data.path, {}, false);
 					};
 				});
 				
@@ -1704,11 +1709,7 @@ ui.bar = class ui_bar extends ui.rect {
 					data.container.on('mousedown', event => {
 						if(data.contents)proc_menus(data.contents, data.items);
 						
-						if(data.path)((path.extname(data.path) == '.xml')
-						? web.screen.layers.append(ui.parse_xml(fs.readFileSync(data.path, 'utf8'), true))
-						: web.screen.layers.append(require(data.path, { cache: false, args: {
-							from_app_menu: true,
-						} }))).bring_front();
+						if(data.path)ui.open_app(data.path, {}, false);
 					});
 				}
 			});
@@ -1893,9 +1894,7 @@ ui.context_menu = class ui_context_menu extends ui.element {
 			data.container.on('click', () => {
 				this.focused = false;
 				
-				if(data.path)((path.extname(data.path) == '.xml')
-				? web.screen.layers.append(ui.parse_xml(fs.readFileSync(data.path, 'utf8'), true))
-				: web.screen.layers.append(require(data.path, { cache: false, args: { from_app_menu: true } }))).bring_front();
+				ui.open_app(data.path, {}, true);
 			});
 		});
 	}
@@ -2052,11 +2051,7 @@ ui.desktop = class ui_desktop extends ui.element {
 				},
 			}));
 			
-			data.con.on('doubleclick', () => ((path.extname(data.path) == '.xml')
-				? screen.layers.append(ui.parse_xml(fs.readFileSync(data.path, 'utf8'), true))
-				: screen.layers.append(require(data.path, { cache: false, args: {
-					from_app_menu: true,
-				} }))).bring_front());
+			data.con.on('doubleclick', () => ui.open_app(data.path, data.args, false));
 			
 			prev = data;
 		});

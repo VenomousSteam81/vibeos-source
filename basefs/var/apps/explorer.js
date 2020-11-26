@@ -10,7 +10,7 @@ var ui = require('/lib/ui.js'),
 		width: 600,
 		height: 300,
 		icon: '/usr/share/categ/development.png',
-		show_in_bar: from_app_menu,
+		show_in_bar: show_in_bar,
 		menu: {
 			File: {
 				Exit(){
@@ -129,7 +129,7 @@ var ui = require('/lib/ui.js'),
 		});
 	};
 
-create_folders('/');
+create_folders(flags.folder || '/');
 
 exp.sidebar.border = exp.sidebar.append(new ui.border({
 	color: '#000',

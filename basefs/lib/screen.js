@@ -1,5 +1,3 @@
-window.web = web;
-
 var screen = web.screen = module.exports = {
 		states: {},
 		state: 'none',
@@ -236,19 +234,6 @@ web.bg = new ui.image({
 });
 
 web.bar = new ui.bar({});
-
-web.bg.context_menu = screen.layers.append(new ui.context_menu({
-	triggers: [ web.bg ],
-	items: [{
-		title: 'browser test',
-		icon: '/usr/share/categ/multimedia.png',
-		path: '/var/apps/web.js',
-	},{
-		title: 'About vibeOS',
-		icon: '/usr/share/categ/office.png',
-		path: '/var/xml/about.xml',
-	}],
-}));
 
 screen.render = () => {
 	container.style.width = screen.dims.width + 'px';

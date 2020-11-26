@@ -71,9 +71,24 @@ var desktop = screen.layers.append(new ui.desktop({
 		title: 'Recycle Bin',
 		icon: '/usr/share/categ/internet.png',
 		path: '/var/apps/explorer.js',
-		flags: {
-			folder: '/lost+found/',
+		args: {
+			flags: {
+				folder: '/lost+found/',
+			},
 		},
 		context_menu: null,
 	}]
+}));
+
+desktop.context_menu = screen.layers.append(new ui.context_menu({
+	triggers: [ web.bg, desktop ],
+	items: [{
+		title: 'browser test',
+		icon: '/usr/share/categ/multimedia.png',
+		path: '/var/apps/web.js',
+	},{
+		title: 'About vibeOS',
+		icon: '/usr/share/categ/office.png',
+		path: '/var/xml/about.xml',
+	}],
 }));

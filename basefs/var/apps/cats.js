@@ -7,7 +7,7 @@ var ui = require('/lib/ui.js'),
 		width: '600px',
 		height: '400px',
 		icon: '/usr/share/missing.png',
-		show_in_bar: from_app_menu,
+		show_in_bar: show_in_bar,
 		menu: {
 			File: {
 				Exit(){
