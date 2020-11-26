@@ -25,7 +25,11 @@ web.bar.menu.open = [{
 },{
 	icon_path: '/usr/share/categ/accessories.png',
 	title: 'Accessories',
-	contents: [],
+	contents: [{
+		icon_path: '/usr/share/mimes/document.png',
+		path: '/var/apps/text.js',
+		title: 'Text Editor',
+	}],
 },{
 	icon_path: '/usr/share/categ/graphics.png',
 	title: 'Graphics',
