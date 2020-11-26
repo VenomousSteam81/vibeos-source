@@ -132,7 +132,10 @@ var fs = require('fs'),
 			if(mouse.buttons.left && mouse.target.uuid == target.uuid && event.type == 'mouseup'){
 				target.click_count++;
 				
-				if(target.click_count == 2)target.emit('doubleclick', event, mouse);
+				if(target.click_count >= 2){
+					target.emit('doubleclick', event, mouse);
+					target.click_count = 0;
+				}
 				
 				target.emit('click', event, mouse);
 			}else if(mouse.buttons.right && event.type == 'mouseup')target.emit('contextmenu', event, mouse);

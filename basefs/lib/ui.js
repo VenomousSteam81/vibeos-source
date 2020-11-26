@@ -256,6 +256,7 @@ ui.element = class extends events {
 		Object.assign(this, {
 			x: 0,
 			y: 0,
+			click_count: 0,
 			width: 0,
 			height: 0,
 			cursor: 'pointer',
@@ -1956,7 +1957,7 @@ ui.scroll_box = class ui_scroll_box extends ui.element {
 				x: event.deltaX / 10,
 				y: event.deltaY / 10,
 			},
-		}), event));
+		}), event)); 
 	}
 	set_scroll(perc){
 		if(!this.fixed)return;
