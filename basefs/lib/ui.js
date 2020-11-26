@@ -207,7 +207,8 @@ ui.last_layer = 0;
 * @param {boolean} opts.deleted if the element is deleted and should be destroyed by the renderer
 * @param {boolean} opts.resizable if the element can be resized
 * @param {boolean} opts.toggle_focus if clicking the element should toggle the focus
-* @param {object} opts.offset element offsets if the width and height are not numbers
+* @param {object} opts.offset element offsets if the width and height are not number
+* @param {number} opts.alpha alpha transparency of the canvas when renderings
 * @param {number} opts.offset.x offset x
 * @param {number} opts.offset.y offset y
 * @param {number} opts.offset.width offset width
@@ -274,6 +275,7 @@ ui.element = class extends events {
 			resizable: false,
 			toggle_focus: false,
 			filter: '',
+			alpha: 1,
 			offset: {
 				x: 0,
 				y: 0,
@@ -402,6 +404,7 @@ ui.text = class ui_text extends ui.element {
 			align: 'start',
 			color: '#FFF',
 			baseline: 'middle',
+			wrap: true,
 			auto_width: true,
 		});
 	}
@@ -434,38 +437,45 @@ ui.text = class ui_text extends ui.element {
 		this.width = measured.width;
 		this.height = measured.height;
 		
-		var fixed = ui.fixed_sp(this, dims),
-			tmp_line = 0,
-			lines = this.text.split('\n').flatMap(line => {
-				var ret = [],
-					width = 0;
-				
-				line.split(' ').forEach(word => {
-					width = width + ctx.measureText(word + ' ').width;
-					
-					if(width * 1.4 >= dims.width){
+		var fixed = ui.fixed_sp(this, dims);
+		
+		if(this.wrap){
+			var tmp_line = 0,
+				lines = this.text.split('\n').flatMap(line => {
+					var ret = [],
 						width = 0;
-						word = '\n' + word;
-					}
 					
-					ret.push(word);
-				});
+					line.split(' ').forEach(word => {
+						width = width + ctx.measureText(word + ' ').width;
+						
+						if(width * 1.4 >= dims.width){
+							width = 0;
+							word = '\n' + word;
+						}
+						
+						ret.push(word);
+					});
+					
+					return ret.join(' ').split('\n');
+				}),
+				bigg_width = 0;
+			
+			lines.forEach(line => {
+				var measured = ctx.measureText(line);
 				
-				return ret.join(' ').split('\n');
-			}),
-			bigg_width = 0;
-		
-		lines.forEach(line => {
-			var measured = ctx.measureText(line);
+				if(measured.width > bigg_width)bigg_width = measured.width;
+				
+				ctx.fillText(line, fixed.x, fixed.y + tmp_line);
+				
+				tmp_line = tmp_line + Number(this.size);
+			});
 			
-			if(measured.width > bigg_width)bigg_width = measured.width;
+			if(this.auto_width)this.width = bigg_width;
+		}else{
+			ctx.fillText(this.text, fixed.x, fixed.y);
 			
-			ctx.fillText(line, fixed.x, fixed.y + tmp_line);
-			
-			tmp_line = tmp_line + Number(this.size);
-		});
-		
-		if(this.auto_width)this.width = bigg_width;
+			if(this.auto_width)this.width = ctx.measureText(this.text).width;
+		}
 	}
 }
 
@@ -588,7 +598,7 @@ ui.menu = class ui_menu extends ui.rect {
 			color: colors.menu.border,
 		}));
 		
-		this.y = 32; // this.window.title_bar.height
+		this.y = 32;
 		
 		this.buttons = [];
 		
@@ -1837,13 +1847,15 @@ ui.context_menu = class ui_context_menu extends ui.element {
 		// draw rect
 		Reflect.apply(ui.rect.prototype.draw, this, [ ctx, dims ]);
 		
-		this.items.filter(item => !item.container).forEach((item, ind, arr) => {
-			item.container = this.append(new ui.rect({
+		this.items.forEach((data, ind, arr) => {
+			if(data.container)return;
+			
+			data.container = this.append(new ui.rect({
 				width: '100%',
 				height: 26,
 				get y(){
 					// list up-down
-					var con_ind = arr.findIndex(ele => ele.container.uuid == item.container.uuid),
+					var con_ind = arr.findIndex(ele => ele.container.uuid == data.container.uuid),
 						alt_fixed = { y: 0, height: 0 },
 						prev = arr.find((ele, ind) => ind == con_ind - 1) || { container: { y: 0, fixed: alt_fixed } };
 					
@@ -1860,34 +1872,36 @@ ui.context_menu = class ui_context_menu extends ui.element {
 				},
 			}));
 			
-			item.container.text = item.container.append(new ui.text({
+			data.container.text = data.container.append(new ui.text({
 				interact: false,
-				text: item.title,
+				text: data.title,
 				color: '#000',
 				x: 35,
 				y: '50%',
 				wrap: false,
 			}));
 			
-			item.container.icon = item.icon ? item.container.append(new ui.image({
+			data.container.icon = data.icon ? data.container.append(new ui.image({
 				interact: false,
 				width: 16,
 				height: 16,
 				x: 8,
 				y: ui.align.middle,
-				path: item.icon,
+				path: data.icon,
 			})) : null;
 			
-			item.container.on('click', () => {
+			data.container.on('click', () => {
 				this.focused = false;
 				
-				if(item.path)((path.extname(item.path) == '.xml')
-				? web.screen.layers.append(ui.parse_xml(fs.readFileSync(item.path, 'utf8'), true))
-				: web.screen.layers.append(require(item.path, { cache: false, args: { from_app_menu: true } }))).bring_front();
+				if(data.path)((path.extname(data.path) == '.xml')
+				? web.screen.layers.append(ui.parse_xml(fs.readFileSync(data.path, 'utf8'), true))
+				: web.screen.layers.append(require(data.path, { cache: false, args: { from_app_menu: true } }))).bring_front();
 			});
 		});
 	}
 };
+
+// TODO: document
 
 ui.scroll_box = class ui_scroll_box extends ui.element {
 	constructor(opts){
@@ -1977,5 +1991,74 @@ ui.scroll_box = class ui_scroll_box extends ui.element {
 			grip_size = this.track_size * ratio;
 		
 		this.grip.height = grip_size;
+	}
+}
+
+ui.desktop = class ui_desktop extends ui.element {
+	constructor(opts){
+		super(opts, {
+			open: [],
+			width: '100%',
+			height: '100%',
+		});
+	}
+	draw(ctx, dims, screen){
+		var prev;
+		this.open.forEach(data => {
+			if(data.con)return;
+			
+			var previ = prev || { width: 0, x: 0 };
+			
+			data.con = this.append(new ui.rect({
+				width: 75,
+				height: 70,
+				get color(){
+					return data.con.focused ? '#C4E0F6' : data.con.mouse_hover ? '#EBF5FC' : 'transparent';
+				},
+				x: previ.width + previ.x + 1,
+				y: 5,
+				alpha: 0.6,
+			}));
+			
+			data.con.image = data.con.append(new ui.image({
+				width: 48,
+				height: 48,
+				x: ui.align.middle,
+				path: data.icon,
+				interact: false,
+			}));
+			
+			data.con.text = data.con.append(new ui.text({
+				text: data.title,
+				x: ui.align.middle,
+				y: data.con.image.height + 8,
+				baseline: 'hanging',
+				wrap: false,
+				interact: false,
+				size: 12,
+			}));
+			
+			data.con.border = data.con.append(new ui.border({
+				offset: {
+					x: 1,
+					y: 1,
+					width: -1,
+					height: -1,
+					type: 'inset',
+					size: 1,
+				},
+				get color(){
+					return data.con.focused ? '#D3E8F8' : this.mouse_hover ? '#F0F7FD' : 'transparent';
+				},
+			}));
+			
+			data.con.on('doubleclick', () => ((path.extname(data.path) == '.xml')
+				? screen.layers.append(ui.parse_xml(fs.readFileSync(data.path, 'utf8'), true))
+				: screen.layers.append(require(data.path, { cache: false, args: {
+					from_app_menu: true,
+				} }))).bring_front());
+			
+			prev = data;
+		});
 	}
 }

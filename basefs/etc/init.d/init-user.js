@@ -64,3 +64,16 @@ web.bar.menu.open = [{
 	title: 'About vibeOS',
 	pinned: true,
 }];
+
+var desktop = screen.layers.append(new ui.desktop({
+	y: web.bar.height,
+	open: [{
+		title: 'Recycle Bin',
+		icon: '/usr/share/categ/internet.png',
+		path: '/var/apps/explorer.js',
+		flags: {
+			folder: '/lost+found/',
+		},
+		context_menu: null,
+	}]
+}));

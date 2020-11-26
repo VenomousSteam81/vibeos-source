@@ -258,7 +258,7 @@ screen.render = () => {
 	
 	
 	var render_through = (elements, dims, start_opts = {}) => {
-		start_opts = Object.assign({}, start_opts); // new opts
+		var start_opts = Object.assign({}, start_opts); // new opts
 		
 		elements.filter(ele => !ele.visible).forEach(element => element.emit('not_visible'));
 		
@@ -284,6 +284,7 @@ screen.render = () => {
 			if(dims.translate && dims.translate.enabled)start_opts.translate = dims.translate;
 			
 			ctx.filter = element.filter;
+			ctx.globalAlpha = element.alpha;
 			
 			if(element.radius){
 				var region = new Path2D(),
@@ -331,14 +332,8 @@ screen.render = () => {
 			
 			var temp = Object.assign({}, element.offset);
 			
-			if(start_opts.translate && element.apply_translate){
-				//element.offset.x += start_opts.translate.x;
-				//element.offset.y += start_opts.translate.y;
-				
-				//element.fixed = ui.fixed_sp(element, dims);
-			}
+			element.draw(ctx, dims, screen);
 			
-			element.draw(ctx, dims);
 			ctx.restore();
 			
 			element.offset = temp;
