@@ -1,11 +1,25 @@
-var screen = web.screen = exports;
+window.web = web;
 
-screen.dims = {
-	x: 0,
-	y: 0,
-	width: 1000,
-	height: 600,
-};
+var screen = web.screen = module.exports = {
+		states: {},
+		state: 'none',
+		append_layers(...elements){
+			screen.layers.push(...elements);
+				
+			return elements[0];
+		},
+		get layers(){
+			if(!screen.states[screen.state])screen.states[screen.state] = [ web.bg, web.bar ];
+			
+			return Object.assign(screen.states[screen.state], { append: screen.append_layers });
+		},
+		dims: {
+			x: 0,
+			y: 0,
+			width: 1000,
+			height: 600,
+		},
+	};
 
 var fs = require('fs'),
 	dom_utils = require('./dom-utils.js'),
@@ -211,23 +225,13 @@ document.body.style = 'margin: 0px; background: #000;';
 
 var ctx = web.ctx = canvas.getContext('2d');
 
-
-
-screen.layers = Object.assign([
-	// apparently you can assign properties while initating array??
-	web.bg = new ui.image({
-		width: '100%',
-		height: '100%',
-		path: '/usr/share/wallpaper/default.png',
-	}),
-	web.bar = new ui.bar({}),
-], {
-	append(...elements){
-		screen.layers.push(...elements);
-		
-		return elements[0];
-	}
+web.bg = new ui.image({
+	width: '100%',
+	height: '100%',
+	path: '/usr/share/wallpaper/default.png',
 });
+
+web.bar = new ui.bar({});
 
 web.bg.context_menu = screen.layers.append(new ui.context_menu({
 	triggers: [ web.bg ],

@@ -1,6 +1,10 @@
 var screen = require('/lib/screen.js'),
-	ui = require('/lib/ui.js'),
-	login_rect = screen.layers.append(new ui.rect({ width: '100%', height: '100%', color: ui.colors.window.active.main })),
+	ui = require('/lib/ui.js');
+
+// set state of rendering stuff
+screen.state = 'login';
+
+var login_rect = screen.layers.append(new ui.rect({ width: '100%', height: '100%', color: ui.colors.window.active.main })),
 	login = {
 		time: login_rect.append(new ui.text({
 			x: 20,
@@ -50,14 +54,13 @@ var screen = require('/lib/screen.js'),
 	};
 
 login.login_button.on('click', event => {
-	login_rect.deleted = true;
-	login_rect.interact = false,
 	web.bar.visible = true;
 	
 	// change this to be dynamic soon
 	require.user.alias = 'vibeOS';
 	require.user.home = '/home/vibeOS';
 	
+	screen.state = require.user.alias;
 	require('./init-user.js');
 });
 

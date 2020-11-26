@@ -1,3 +1,4 @@
+// 'use strict';
 var fs = require('fs'),
 	path = require('path'),
 	events = require('events'),
@@ -290,8 +291,8 @@ ui.element = class extends events {
 				max_height: 600,
 			},
 		});
-		
-		this.assign_object(addon);
+		if(addon)this.assign_object(addon);
+		else console.warn('ui.element: no addon specified, was this intended?');
 		
 		this.setMaxListeners(50);
 		
@@ -300,7 +301,10 @@ ui.element = class extends events {
 		return this;
 	}
 	assign_object(obj){
-		if(!obj)throw new TypeError(this, ': no object to assign specified!');
+		if(!obj){
+			console.error(this, obj);
+			throw new TypeError(': no object to assign specified!');
+		}
 		
 		Object.defineProperties(this, Object.getOwnPropertyDescriptors(obj));
 		
@@ -661,18 +665,16 @@ ui.menu = class ui_menu extends ui.rect {
 * @return {ui_window} window element
 */
 
-ui.window = class ui_window extends ui.rect {
+ui.window = class ui_window extends ui.element {
 	constructor(opts){
-		var othis = super(opts);
-		
-		Object.assign(this, {
+		var othis = super(opts, {
 			title: 'Placeholder',
 			width: 200,
 			height: 200,
 			buttons: {},
 			show_in_bar: true,
 			icon: null,
-		}, opts);
+		});
 		
 		this.title_bar = this.append(new ui.rect({
 			width: '100%',
@@ -830,6 +832,9 @@ ui.window = class ui_window extends ui.rect {
 				else if(this.offset.height > this.resizing.max_height)this.offset.height = this.resizing.max_height;
 			});
 		}
+	}
+	draw(ctx, dims){
+		Reflect.apply(ui.rect.prototype.draw, this, [ ctx, dims ]);
 	}
 	bring_front(){
 		var all_elements = [],

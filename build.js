@@ -4,7 +4,6 @@ var fs = require('fs'),
 	path = require('path'),
 	stream = require('stream'),
 	base_fs = path.join(__dirname, 'basefs'),
-	app_dir = path.join(__dirname, 'app'),
 	dist = path.join(__dirname, 'dist.html'),
 	pack_fs = dir => {
 		var files = Object.fromEntries(fs.readdirSync(dir).map(sub_dir => {
@@ -55,7 +54,7 @@ var fs = require('fs'),
 		
 		var fs_string = JSON.stringify(pack_fs(base_fs));
 		
-		fs.writeFileSync(dist, `<!DOCTYPE HTML><html><head><meta charset='utf8'></head><body><script>\n/*  == WEBOS ==\n// BUILT ON ${new Date().toUTCString()}\n// DO NOT DISTRIBUTE!\n*/\n\nvar require,base_fs_data=${fs_string},__webos_version='${build_opts.webos.ver}';${bundle.toString('utf8')};require('./start.js')</script></body></html>`);
+		fs.writeFileSync(dist, `<!DOCTYPE HTML><html><head><meta charset='utf8'></head><body><script>\n/*  == WEBOS ==\n// BUILT ON ${new Date().toUTCString()}\n// DO NOT DISTRIBUTE!\n*/\n\nvar require,base_fs_data=${fs_string},__webos_version='${build_opts.webos.ver}';${bundle.toString('utf8')};require('webos')</script></body></html>`);
 		
 		building = false;
 		console.log('build finished, output found at ' + dist);
@@ -64,12 +63,8 @@ var fs = require('fs'),
 build();
 
 fs.watch(base_fs, { recursive: true }, (type, filename) => {
-	console.log(type + ' ' + filename);
+	if(!filename)return;
 	
-	build();
-});
-
-fs.watch(app_dir, { recursive: true }, (type, filename) => {
 	console.log(type + ' ' + filename);
 	
 	build();
