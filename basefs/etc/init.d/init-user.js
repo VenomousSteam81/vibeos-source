@@ -96,3 +96,5 @@ desktop.context_menu = screen.layers.append(new ui.context_menu({
 		path: '/var/xml/about.xml',
 	}],
 }));
+
+ui.template('error', { at: __filename, err: new Error('testing') });

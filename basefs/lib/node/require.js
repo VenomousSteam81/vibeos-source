@@ -1,3 +1,4 @@
+'use strict';
 var path = require('path'),
 	mime = require('mime'),
 	buffer = require('buffer'),

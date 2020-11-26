@@ -1,7 +1,7 @@
 {
 	"minify": {
-		"enabled": false,
-		"fast": false
+		"enabled": true,
+		"fast": true
 	},
 	"webos": {
 		"ver": "0.0.1"

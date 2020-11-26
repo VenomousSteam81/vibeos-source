@@ -39,7 +39,7 @@ var ui = require('/lib/ui.js'),
 					width: '100%',
 					height: 22,
 					get color(){
-						return this.focused ? '#CCE8FF' : this.mouse_hover ? '#E5F3FF' : 'transparent';
+						return this.focus ? '#CCE8FF' : this.hover ? '#E5F3FF' : 'transparent';
 					},
 					get y(){
 						return prev.container.y + (prev.container.fixed || { container: { height: 0 } }).height;
@@ -82,7 +82,7 @@ var ui = require('/lib/ui.js'),
 			
 			val.border.assign_object({
 				get color(){
-					return val.container.focused ? '#99D1FF' : 'transparent';
+					return val.container.focus ? '#99D1FF' : 'transparent';
 				},
 			});
 			
@@ -117,7 +117,7 @@ var ui = require('/lib/ui.js'),
 			
 			val.container.assign_object({
 				get color(){
-					return this.focused ? '#CDE8FF' : this.mouse_hover ? '#E5F3FF' : 'transparent';
+					return this.focus ? '#CDE8FF' : this.hover ? '#E5F3FF' : 'transparent';
 				}
 			});
 			

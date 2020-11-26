@@ -22,24 +22,6 @@ var fs = require('fs'),
 				secondary_pressed: '#E5E5E5',
 			},
 		},
-		menu: {
-			main: '#FFFFFF',
-			border: '#F0F0F0',
-		},
-		menu_button: {
-			idle: {
-				main: '#FFFFFF',
-				border: '#FFFFFF',
-			},
-			hover: {
-				main: '#E5F3FF',
-				border: '#CCE8FF',
-			},
-			active: {
-				main: '#CCE8FF',
-				border: '#91C9F7',
-			},
-		},
 		button: {
 			idle: {
 				border: '#ADADAD',
@@ -111,8 +93,12 @@ ui.gen_uuid = () => [...Array(4)].map(() => {
 ui.percentage = (perc, full) => (perc * full) / 100;
 
 ui.fixed_sp = (data, dims) => {
-	var data = Object.assign({}, data),
-		dims = Object.assign({}, dims),
+	var parse_data = {
+			x: data.x,
+			y: data.y,
+			width: data.width,
+			height: data.height,
+		},
 		correct = {
 			width: 0,
 			height: 0,
@@ -121,68 +107,62 @@ ui.fixed_sp = (data, dims) => {
 		},
 		proc = (val, cor) => {
 			var type = ((val || 0) + '').replace(/[^a-z%]/gi, '') || 'px', // get exact type (%, px, rem, etc..)
-				actu = Number((val + '').replace(/[a-z%]/gi, '')), // remote types or characters
-				ret = actu;
+				actu = Number((val + '').replace(/[a-z%]/gi, '')); // remote types or characters
 			
-			switch(type){
-				case'%':
-					
-					ret = ui.percentage(actu, cor);
-					
-					break;
-			}
+			// use switch statements when more unit s added
+			if(type == '%')actu = (actu * cor) / 100;
 			
-			return ret;
+			return actu;
 		};
 	
 	Object.entries(ui.align).forEach(([ key, val ]) => {
-		if(data.x == 'ui.align.' + key)data.x = val;
-		if(data.y == 'ui.align.' + key)data.y = val;
-		
+		if(parse_data.x == 'ui.align.' + key)parse_data.x = val;
+		if(parse_data.y == 'ui.align.' + key)parse_data.y = val;
 	});
 	
-	if(dims.inner_height)dims.height = dims.inner_height;
+	correct.width = proc(parse_data.width, dims.width);
+	correct.height = proc(parse_data.height, dims.inner_height || dims.height);
 	
-	correct.width = proc(data.width, dims.width);
-	correct.height = proc(data.height, dims.height);
-	
-	switch(data.x){
+	switch(parse_data.x){
 		case ui.align.middle:
-			data.x = (dims.width / 2) - (correct.width / 2);
+			parse_data.x = (dims.width / 2) - (correct.width / 2);
 			break;
 		case ui.align.right:
-			data.x = dims.width - correct.width;
+			parse_data.x = dims.width - correct.width;
 			break;
 		case ui.align.left:
-			data.x = correct.width;
+			parse_data.x = correct.width;
 			break;
 	}
 	
-	switch(data.y){
+	switch(parse_data.y){
 		case ui.align.middle:
-			data.y = (dims.height / 2) - (correct.height / 2);
+			parse_data.y = (dims.height / 2) - (correct.height / 2);
 			break;
 		case ui.align.top:
-			data.y = correct.height;
+			parse_data.y = correct.height;
 			break;
 		case ui.align.bottom:
-			data.y = dims.height - correct.height;
+			parse_data.y = dims.height - correct.height;
 			break;
 	}
 	
-	correct.x = dims.x + proc(data.x, dims.width) + (data.offset.x || 0);
-	correct.y = dims.y + proc(data.y, dims.height) + (data.offset.y || 0);
+	correct.x = dims.x + proc(parse_data.x, dims.width) + (data.offset.x || 0);
+	correct.y = dims.y + proc(parse_data.y, dims.height) + (data.offset.y || 0);
 	
 	if(dims.translate && dims.translate.enabled){
 		correct.x += dims.translate.x;
 		correct.y += dims.translate.y;
 	}
 	
-	correct.width +=  data.offset.width || 0;
-	correct.height +=  data.offset.height || 0;
+	correct.width += data.offset.width || 0;
+	correct.height += data.offset.height || 0;
 	
+	correct.offset = data.offset;
+	correct.clip = data.clip;
+	correct.translate = data.translate;
 	
-	return Object.assign(data, correct);
+	return correct;
 }
 
 ui.last_layer = 0;
@@ -222,8 +202,8 @@ ui.last_layer = 0;
 * @param {number} opts.resizing.min_height mininum resizable height
 * @param {number} opts.resizing.max_width maximum resizable width
 * @param {number} opts.resizing.max_height maximum resizable height
-* @property {event} keydown when a key is pressed when mouse hovers over element or focused
-* @property {event} keyup when a key is lifted when mouse hovers over element or focused
+* @property {event} keydown when a key is pressed when mouse hovers over element or focus
+* @property {event} keyup when a key is lifted when mouse hovers over element or focus
 * @property {event} click when the element is clicked
 * @property {event} doubleclick when the element is double clicked
 * @property {event} drag when the element is being dragged
@@ -240,11 +220,11 @@ ui.last_layer = 0;
 * @property {function} not_visible runs when element.visible is false, called by renderer
 * @property {function} nested_size full size of element and its sub-elements
 * @property {function} assign_object moves all property descriptors of an object into element (getters, setters)
-* @property {boolean} mouse_hover if the mouse is hovering over element
+* @property {boolean} hover if the mouse is hovering over element
 * @property {boolean} mouse_left if left mouse button is pressing this element
 * @property {boolean} mouse_right if right mouse button is pressing this element
 * @property {boolean} mouse_pressed if the left mouse is pressing this button (alt)
-* @property {boolean} focused if this element has recieved focus
+* @property {boolean} focus if this element has recieved focus
 * @property {string} uuid  unique identifier assigned to element
 * @property {array} elements an array of appended elements (see element.append)
 * @return {element} base ui element
@@ -352,11 +332,20 @@ ui.element = class extends events {
 		return count;
 	}
 	append(element){
-		var layer = this.elements.length + 1;
+		var layer = this.elements.length + 1,
+			othis = this;
 		
 		this.elements.push(element);
 		
-		Object.defineProperty(element, 'layer', { get: () => this.layer + layer, set: v => layer = v });
+		element.assign_object({
+			get layer(){
+				return othis.layer + layer;
+			},
+			set layer(v){
+				return layer = v;
+			},
+			append_state: web.screen.state,
+		});
 		
 		return element;
 	}
@@ -589,41 +578,34 @@ ui.menu = class ui_menu extends ui.rect {
 			x: ui.align.middle,
 			width: '100%',
 			height: 20,
-			color: colors.menu.main,
+			color: '#FFF',
 		});
 		
 		this.border = this.append(new ui.border({
-			width: '100%',
-			height: '100%',
-			color: colors.menu.border,
+			color: '#FFF',
 		}));
 		
 		this.y = 32;
 		
-		this.buttons = [];
-		
 		var prev;
 		
 		Object.entries(menu).forEach(([ key, val ], ind) => {
-			var preev = prev, // assign as variable gets changed
+			var preev = prev || { width: 0, x: 0 },
 				added = this.append(new ui.menu_button({
 					text: key,
 					get x(){
-						return preev ? prev.width + preev.x : 0;
+						return preev.width + preev.x;
 					},
-					y: 0,
 					height: '100%',
 				}, val));
 			
 			added.index = 1e10 - 2;
 			
-			this.buttons.push(added);
-			
 			prev = added;
 		});
 	}
 	draw(ctx, dims){
-		ctx.fillStyle = this.color; // this.window.title_bar.color;
+		ctx.fillStyle = this.color;
 		
 		var fixed = ui.fixed_sp(this, dims);
 		
@@ -639,10 +621,12 @@ ui.menu = class ui_menu extends ui.rect {
 * @param {string} opts.title title of the window
 * @param {string} opts.icon https link or path to window icon
 * @param {object} opts.menu an object containing sub objects with functions
+* @param {boolean} opts.show_close determines if a close button should be made
+* @param {boolean} opts.show_min determines if a minimize button should be made
 * @property {function} show changes visibility of the window
 * @property {function} hide changes visibility of the window
 * @property {function} bring_front brings the window to the top
-* @property {function} focus makes the window gain focus
+* @property {function} focus_win makes the window gain focus
 * @property {function} blur makes the window lose focus
 * @property {function} close sets window.deleted to true, closing the window
 * @property {object} content ui_rect that all contents should be appended to
@@ -684,6 +668,8 @@ ui.window = class ui_window extends ui.element {
 			height: 200,
 			buttons: {},
 			show_in_bar: true,
+			show_close: true,
+			show_min: true,
 			icon: null,
 		});
 		
@@ -712,73 +698,8 @@ ui.window = class ui_window extends ui.element {
 			},
 		}));
 		
-		this.buttons.close = this.title_bar.append(new ui.rect({
-			x: ui.align.right,
-			width: 45,
-			height: 29,
-			offset: {
-				x: -1,
-				y: 1,
-			},
-			get color(){
-				return othis.buttons.close.mouse_pressed
-					? colors.window.primary_pressed
-					: othis.buttons.close.mouse_hover
-						? colors.window.primary_hover
-						: othis.active
-							? colors.window.active.main
-							: colors.window.inactive.main
-			},
-		}));
-		
-		this.buttons.close.text = this.buttons.close.append(new ui.text({
-			x: ui.align.middle,
-			y: 15,
-			size: 14,
-			baseline: 'middle',
-			width: '100%',
-			height: '100%',
-			text: '✕',
-			interact: false,
-			get color(){
-				return (othis.buttons.close.mouse_pressed || othis.buttons.close.mouse_hover) ? '#FFF' : '#000';
-			},
-		}));
-		
-		this.buttons.close.on('mouseup', event => this.deleted = true);
-		
-		this.buttons.minimize = this.title_bar.append(new ui.rect({
-			x: ui.align.right,
-			width: 45,
-			height: 29,
-			offset: {
-				x: -45,
-				y: 1,
-			},
-			get color(){
-				return othis.buttons.minimize.mouse_pressed
-					? colors.window[othis.active ? 'active' : 'inactive'].secondary_pressed
-					: othis.buttons.minimize.mouse_hover
-						? colors.window[othis.active ? 'active' : 'inactive'].secondary_hover
-						: othis.active
-							? colors.window.active.main
-							: colors.window.inactive.main
-			},
-		}));
-		
-		this.buttons.minimize.draw = (ctx, dims) => {
-			Reflect.apply(ui.rect.prototype.draw, this.buttons.minimize, [ ctx, dims ]);
-			
-			var fixede = this.buttons.minimize.fixed;
-			if(fixede){
-				var fixed = ui.fixed_sp({ offset: {}, x: ui.align.middle, y: ui.align.middle, width: '30%', height: 1 }, fixede);
-				
-				ctx.fillStyle = '#000';
-				ctx.fillRect(fixed.x, fixed.y, fixed.width, fixed.height);
-			}
-		};
-		
-		this.buttons.minimize.on('mouseup', event => this.visible = false);
+		if(this.show_close)this.gen_close();
+		if(this.show_min)this.gen_min();
 		
 		if(this.icon)this.title_image = this.title_bar.append(new ui.image({
 			path: this.icon,
@@ -844,6 +765,80 @@ ui.window = class ui_window extends ui.element {
 			});
 		}
 	}
+	gen_close(){
+		var othis = this;
+		
+		this.buttons.close = this.title_bar.append(new ui.rect({
+			x: ui.align.right,
+			width: 45,
+			height: 29,
+			offset: {
+				x: -1,
+				y: 1,
+			},
+			get color(){
+				return othis.buttons.close.mouse_pressed
+					? colors.window.primary_pressed
+					: othis.buttons.close.hover
+						? colors.window.primary_hover
+						: othis.active
+							? colors.window.active.main
+							: colors.window.inactive.main
+			},
+		}));
+		
+		this.buttons.close.text = this.buttons.close.append(new ui.text({
+			x: ui.align.middle,
+			y: 15,
+			size: 14,
+			baseline: 'middle',
+			width: '100%',
+			height: '100%',
+			text: '✕',
+			interact: false,
+			get color(){
+				return (othis.buttons.close.mouse_pressed || othis.buttons.close.hover) ? '#FFF' : '#000';
+			},
+		}));
+		
+		this.buttons.close.on('mouseup', event => this.deleted = true);
+	}
+	gen_min(){
+		var othis = this;
+		
+		this.buttons.minimize = this.title_bar.append(new ui.rect({
+			x: ui.align.right,
+			width: 45,
+			height: 29,
+			offset: {
+				x: -45,
+				y: 1,
+			},
+			get color(){
+				return othis.buttons.minimize.mouse_pressed
+					? colors.window[othis.active ? 'active' : 'inactive'].secondary_pressed
+					: othis.buttons.minimize.hover
+						? colors.window[othis.active ? 'active' : 'inactive'].secondary_hover
+						: othis.active
+							? colors.window.active.main
+							: colors.window.inactive.main
+			},
+		}));
+		
+		this.buttons.minimize.draw = (ctx, dims) => {
+			Reflect.apply(ui.rect.prototype.draw, this.buttons.minimize, [ ctx, dims ]);
+			
+			var fixede = this.buttons.minimize.fixed;
+			if(fixede){
+				var fixed = ui.fixed_sp({ offset: {}, x: ui.align.middle, y: ui.align.middle, width: '30%', height: 1 }, fixede);
+				
+				ctx.fillStyle = '#000';
+				ctx.fillRect(fixed.x, fixed.y, fixed.width, fixed.height);
+			}
+		};
+		
+		this.buttons.minimize.on('mouseup', event => this.visible = false);
+	}
 	draw(ctx, dims){
 		Reflect.apply(ui.rect.prototype.draw, this, [ ctx, dims ]);
 	}
@@ -872,7 +867,7 @@ ui.window = class ui_window extends ui.element {
 		});
 		
 		this.show();
-		this.focus();
+		this.focus_win();
 	}
 	show(){
 		this.visible = true;
@@ -881,7 +876,7 @@ ui.window = class ui_window extends ui.element {
 		this.visible = false;
 		this.active = false;
 	}
-	focus(){
+	focus_win(){
 		this.active = true;
 	}
 	blur(){
@@ -908,7 +903,7 @@ ui.button = class ui_button extends ui.rect {
 			get color(){
 				return this.mouse_pressed
 					? colors.button.active.main
-					: this.mouse_hover
+					: this.hover
 						? colors.button.hover.main
 						: colors.button.idle.main
 			},
@@ -925,7 +920,7 @@ ui.button = class ui_button extends ui.rect {
 			get color(){
 				return this.mouse_pressed
 					? colors.button.active.border
-					: this.mouse_hover
+					: this.hover
 						? colors.button.hover.border
 						: colors.button.idle.border;
 			},
@@ -959,111 +954,36 @@ ui.button = class ui_button extends ui.rect {
 }
 
 /**
-* system button
-* @class
-* @param {object} opts options to override defaults
-* @param {string} opts.text text to display on button
-* @param {string} opts.auto_width if the button should have its width automatically set
-* @return {system_button} system button element
-*/
-
-ui.system_button = class ui_button extends ui.rect {
-	constructor(opts){
-		super({
-			height: 22,
-			color: '#E1E1E1',
-			auto_width: true, // determine width automatically
-			cursor: 'link',
-			get color(){
-				return this.mouse_pressed
-					? colors.menu_button.active.main
-					: this.mouse_hover
-						? colors.menu_button.hover.main
-						: colors.menu_button.idle.main;
-			},
-		});
-		
-		Object.defineProperties(this, Object.getOwnPropertyDescriptors(opts));
-		
-		this.offset = {
-			height: -2,
-			x: 1,
-		};
-		
-		this.border = this.append(new ui.border({
-			size: 1,
-			width: '100%',
-			height: '100%',
-			get color(){
-				return this.mouse_pressed
-					? colors.menu_button.active.border
-					: this.mouse_hover
-						? colors.menu_button.hover.border
-						: colors.menu_button.idle.border;
-			},
-		}));
-		
-		this.text = this.append(new ui.text({
-			x: this.icon ? 32 : 8,
-			y: '50%',
-			size: 14,
-			color: '#000',
-			baseline: 'middle',
-			width: 50,
-			height: '100%',
-			text: this.text,
-			interact: false,
-		}));
-	}
-	draw(ctx, dims){
-		this.width = this.auto_width ? this.text.measure(ctx).width + 20 : this.width;
-		
-		return Reflect.apply(ui.rect.prototype.draw, this, [ ctx, dims ]);
-	}
-}
-
-/**
 * menu button, meant to be used with menu element
 * @class
 * @param {object} opts options to override defaults
 * @param {string} opts.text text to display on button
 * @param {string} opts.auto_width if the button should have its width automatically set
-* @return {system_button} system button element
+* @return {menu_button} menu button element
 */
 
 ui.menu_button = class ui_button extends ui.rect {
 	constructor(opts, items){
-		super({
+		var othis = super({
+			width: 280,
 			height: 22,
 			color: '#E1E1E1',
 			auto_width: true, // determine width automatically
 			cursor: 'link',
 			get color(){
-				return 	this.mouse_pressed
-					? colors.menu_button.active.main
-					: this.mouse_hover
-						? colors.menu_button.hover.main
-						: colors.menu_button.idle.main
+				return this.toggle ? '#CCE8FF' : this.hover ? '#E5F3FF' : 'transparent';
 			},
 		});
 		
-		Object.defineProperties(this, Object.getOwnPropertyDescriptors(opts));
-		
-		this.offset = {
-			height: -2,
-			x: 1,
-		};
+		this.assign_object(opts);
 		
 		this.border = this.append(new ui.border({
 			size: 1,
+			type: 'inset',
 			width: '100%',
 			height: '100%',
 			get color(){
-				return this.mouse_pressed
-					? colors.menu_button.active.border
-					: this.mouse_hover
-						? colors.menu_button.hover.border
-						: colors.menu_button.idle.border
+				return othis.toggle ? '#99D1FF' : othis.hover ? '#CCE8FF' : 'transparent';
 			},
 		}));
 		
@@ -1077,50 +997,79 @@ ui.menu_button = class ui_button extends ui.rect {
 			height: '100%',
 			text: this.text,
 			interact: false,
+			wrap: false,
 		}));
 		
-		this.buttons = [];
+		this.box = this.append(new ui.rect({
+			y: '100%', // hanging
+			width: 200,
+			get height(){
+				return this.elements.filter(ele => !(ele instanceof ui.border)).length * 24;
+			},
+			color: '#F2F2F2',
+			get visible(){
+				return othis.toggle;
+			},
+		}));
+		
+		this.box.layer = 1e10;
+		
+		this.box.border = this.box.append(new ui.border({
+			type: 'inset',
+			color: '#CCC',
+			size: 1,
+		}));
 		
 		var prev;
 		
 		Object.entries(items).forEach(([ key, val]) => {
-			var preev = prev,
-				added = this.append(new ui.system_button({
-					text: key,
+			var preev = (prev || { height: 0, y: 0 }),
+				added = this.box.append(new ui.rect({
 					x: 0,
 					get y(){
-						return preev ? 20 + preev.y - 4 : 20
+						return preev.y + preev.height;
 					},
 					width: '100%',
-					height: this.height,
-					auto_width: false,
-				}, val));
+					height: 24,
+					get color(){
+						return this.hover ? '#90C8F6' : 'transparent';
+					},
+					offset: {
+						x: 2,
+						y: 2,
+						width: -4,
+						height: -4,
+					},
+					get visible(){
+						return othis.toggle;
+					},
+				}));
 			
-			this.buttons.push(added);
+			added.text = added.append(new ui.text({
+				x: 32,
+				y: '50%',
+				size: 14,
+				color: '#000',
+				baseline: 'middle',
+				height: '100%',
+				text: key,
+				wrap: false,
+				interact: false,
+			}));
 			
-			added.on('mouseup', () => {
+			added.on('click', () => {
 				val();
 				
 				this.toggle = 0;
-				this.buttons.forEach(button => button.visible = false);
 			});
 			
 			prev = added;
 		});
 		
-		this.buttons.forEach(button => button.visible = false);
-		
-		this.on('mousedown', event => {
-			this.toggle ^= 1;
-			
-			this.buttons.forEach(button => button.visible = this.toggle);
-		});
+		this.on('mousedown', event => this.toggle ^= 1);
 	}
 	draw(ctx, dims){
-		if(!this.focused && this.toggle){
-			this.toggle = 0;
-			this.buttons.forEach(button => button.visible = false);
-		}
+		if(!this.focus && this.toggle)this.toggle = 0;
 		
 		this.width = this.auto_width ? this.text.measure(ctx).width + 20 : this.width;
 		
@@ -1172,7 +1121,7 @@ ui.input = class ui_input extends ui.rect {
 			width: '100%',
 			height: '100%',
 			get color(){
-				return othis.focused ? '#2997CC' : '#999999';
+				return othis.focus ? '#2997CC' : '#999999';
 			},
 		}));
 		
@@ -1222,7 +1171,7 @@ ui.input = class ui_input extends ui.rect {
 		this.text.draw = (ctx, dims) => {
 			Reflect.apply(ui.text.prototype.draw, this.text, [ ctx, dims ]);
 			
-			if(!this.focused || !blink_bool(this.uuid))return;
+			if(!this.focus || !blink_bool(this.uuid))return;
 			
 			ctx.fillStyle = '#000';
 			ctx.fillRect(this.text.fixed.x + ctx.measureText(this.text.text.slice(0, this.cursor_pos)).width, this.text.fixed.y - (this.fixed.height / 4), 2, 16);
@@ -1237,7 +1186,7 @@ ui.input = class ui_input extends ui.rect {
 		});
 		
 		web.keyboard.on('keydown', event => {
-			if(!this.focused)return;
+			if(!this.focus)return;
 			
 			blink_bool(this.uuid, 1000, true);
 			
@@ -1255,7 +1204,7 @@ ui.input = class ui_input extends ui.rect {
 					if(this.submit){
 						this.emit('submit', event);
 						this.value = '';
-						this.focused = false;
+						this.focus = false;
 					}
 					break;
 				case'ArrowLeft':
@@ -1359,7 +1308,7 @@ ui.webview = class ui_webview extends ui.rect {
 
 ui.open_app = (app_path, args, show_in_bar) => {
 	var win;
-	  
+	
 	if(path.extname(app_path) == '.xml'){
 		win = web.screen.layers.append(ui.parse_xml(fs.readFileSync(app_path, 'utf8'), show_in_bar));
 	}else{
@@ -1493,7 +1442,7 @@ ui.bar = class ui_bar extends ui.rect {
 			size: 1,
 			toggle_focus: true,
 			get color(){
-				return this.focused ? '#494949' : this.mouse_hover ? '#287CD5' : 'transparent';
+				return this.focus ? '#494949' : this.hover ? '#287CD5' : 'transparent';
 			},
 		}));
 		
@@ -1526,7 +1475,7 @@ ui.bar = class ui_bar extends ui.rect {
 			type: 'inset',
 			size: 2,
 			get color(){
-				return othis.menu.focused ? '#3E3E3E' : othis.menu.mouse_hover ? '#4890DA' : 'transparent';
+				return othis.menu.focus ? '#3E3E3E' : othis.menu.hover ? '#4890DA' : 'transparent';
 			},
 		}));
 		
@@ -1536,7 +1485,7 @@ ui.bar = class ui_bar extends ui.rect {
 			type: 'inset',
 			size: 1,
 			get color(){
-				return othis.menu.focused ? '#3E3E3E' : othis.menu.mouse_hover ? '#2D557F' : 'transparent';
+				return othis.menu.focus ? '#3E3E3E' : othis.menu.hover ? '#2D557F' : 'transparent';
 			},
 		}));
 		
@@ -1548,7 +1497,7 @@ ui.bar = class ui_bar extends ui.rect {
 			y: '100%', // hanging menu
 			color: '#FFF',
 			get visible(){
-				return othis.menu.focused;
+				return othis.menu.focus;
 			},
 		}));
 		
@@ -1563,67 +1512,69 @@ ui.bar = class ui_bar extends ui.rect {
 		
 		// WINDOWS OPEN
 		this.open.forEach((data, ind, arr) => {
-			if(!data.icon){
-				data.icon = this.append(new ui.rect({
-					get x(){
-						var icon_ind = arr.findIndex(ele => ele.icon.uuid == data.icon.uuid),
-							prev = arr.find((ele, ind) => ind == icon_ind - 1) || { icon: { x: 0, width: 0 } };
-						
-						return prev.icon.x + prev.icon.width;
-					},
-					width: 30,
-					height: '100%',
-					offset: {
-						get x(){
-							return (othis.menu.fixed || { width: 0 }).width;
-						},
-					},
-					steal_focus: false,
-					get color(){
-						return (data.element && !data.element.deleted && data.element.active)
-							? this.mouse_hover
-								? '#474747'
-								: '#333333'
-							: this.mouse_hover
-								? '#272727'
-								: 'transparent';
-					},
-				}));
-				
-				data.icon.image = data.icon.append(new ui.image({
-					x: ui.align.middle,
-					y: ui.align.middle,
-					width: '75%',
-					height: '75%',
-					path: data.icon_path || '/usr/share/missing.png',
-					interact: false,
-				}));
-				
-				data.icon.on('click', event => {
-					if(data.element && !data.element.deleted)data.element.active ? data.element.hide() : data.element.bring_front();
-					else {
-						data.element = ui.open_app(data.path, {}, false);
-					};
-				});
-				
-				data.icon.open_indicator = data.icon.append(new ui.rect({
-					x: ui.align.middle,
-					get width(){
-						return (data.element && data.element.visible || data.icon.mouse_hover) ? '100%' : '75%';
-					},
-					height: 2,
-					color: '#60B0D5',
-					get visible(){
-						return !!data.element;
-					},
-					interact: false,
-				}));
+			if(data.element && data.element.deleted){
+				if(!data.pinned){
+					data.icon.deleted = true;
+					this.open.splice(ind, 1);
+				}else data.element = null;
 			}
 			
-			if(data.element && data.element.deleted){
-				if(!data.pinned)return data.icon.deleted = true, this.open.splice(ind, 1);
-				else data.element = null;
-			}
+			if(data.icon)return;
+			
+			data.icon = this.append(new ui.rect({
+				get x(){
+					var icon_ind = arr.findIndex(ele => ele.icon.uuid == data.icon.uuid),
+						prev = arr.find((ele, ind) => ind == icon_ind - 1) || { icon: { x: 0, width: 0 } };
+					
+					return prev.icon.x + prev.icon.width;
+				},
+				width: 30,
+				height: '100%',
+				offset: {
+					get x(){
+						return (othis.menu.fixed || { width: 0 }).width;
+					},
+				},
+				steal_focus: false,
+				get color(){
+					return (data.element && !data.element.deleted && data.element.active)
+						? this.hover
+							? '#474747'
+							: '#333333'
+						: this.hover
+							? '#272727'
+							: 'transparent';
+				},
+			}));
+			
+			data.icon.image = data.icon.append(new ui.image({
+				x: ui.align.middle,
+				y: ui.align.middle,
+				width: '75%',
+				height: '75%',
+				path: data.icon_path || '/usr/share/missing.png',
+				interact: false,
+			}));
+			
+			data.icon.on('click', event => {
+				if(data.element && !data.element.deleted)data.element.active ? data.element.hide() : data.element.bring_front();
+				else {
+					data.element = ui.open_app(data.path, {}, false);
+				};
+			});
+			
+			data.icon.open_indicator = data.icon.append(new ui.rect({
+				x: ui.align.middle,
+				get width(){
+					return (data.element && data.element.visible || data.icon.hover) ? '100%' : '75%';
+				},
+				height: 2,
+				color: '#60B0D5',
+				get visible(){
+					return !!data.element;
+				},
+				interact: false,
+			}));
 		});
 		
 		// APPLICATIONS MENU
@@ -1636,7 +1587,7 @@ ui.bar = class ui_bar extends ui.rect {
 						height: 30,
 						y: ind * 30,
 						get color(){
-							return this.mouse_pressed ? '#2766A8' : this.mouse_hover ? '#287CD5' : 'transparent';
+							return this.mouse_pressed ? '#2766A8' : this.hover ? '#287CD5' : 'transparent';
 						},
 						steal_focus: !data.contents,
 						toggle_focus: true,
@@ -1645,7 +1596,7 @@ ui.bar = class ui_bar extends ui.rect {
 					data.container.border = data.container.append(new ui.border({
 						size: 1,
 						get color(){
-							return (data.container.mouse_hover || data.container.mouse_pressed) ? '#3B90E8' : '#828282';
+							return (data.container.hover || data.container.mouse_pressed) ? '#3B90E8' : '#828282';
 						},
 					}));
 					
@@ -1671,7 +1622,7 @@ ui.bar = class ui_bar extends ui.rect {
 						text: data.title,
 						interact: false,
 						get color(){
-							return (data.container.mouse_hover || data.container.mouse_pressed) ? '#FFF' : '#000';
+							return (data.container.hover || data.container.mouse_pressed) ? '#FFF' : '#000';
 						},
 						size: 13,
 					}));
@@ -1686,14 +1637,14 @@ ui.bar = class ui_bar extends ui.rect {
 							y: 0,
 							color: '#FFF',
 							get visible(){
-								return data.container.should_be_focused;
+								return data.container.should_be_focus;
 							},
 						}));
 						
 						if(data.contents.length)data.container.tick = data.container.append(new ui.image({
 							path: `data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500"><path stroke="%23000" d="M.5.866l459 265.004L.5 530.874z"/></svg>`,
 							get filter(){
-								return (data.container.mouse_hover || data.container.mouse_pressed) ? 'contrast(0) brightness(2)' : '';
+								return (data.container.hover || data.container.mouse_pressed) ? 'contrast(0) brightness(2)' : '';
 							},
 							width: 7,
 							height: 7,
@@ -1825,7 +1776,7 @@ ui.context_menu = class ui_context_menu extends ui.element {
 		this.layer = 1e10 + 5;
 		
 		Object.defineProperties(this, {
-			visible: { get: _ => this.focused },
+			visible: { get: _ => this.focus },
 			height: { get: _ => this.items.length * 26 }
 		}),
 		
@@ -1835,7 +1786,7 @@ ui.context_menu = class ui_context_menu extends ui.element {
 			this.x = mouse.x;
 			this.y = mouse.y;
 			
-			this.focused = true;
+			this.focus = true;
 		}));
 		
 		this.border = this.append(new ui.border({
@@ -1863,7 +1814,7 @@ ui.context_menu = class ui_context_menu extends ui.element {
 					return prev.container.y + (prev.container.fixed || alt_fixed).height;
 				},
 				get color(){
-					return this.mouse_hover ? '#FFF' : 'transparent';
+					return this.hover ? '#FFF' : 'transparent';
 				},
 				offset: {
 					x: 4,
@@ -1892,7 +1843,7 @@ ui.context_menu = class ui_context_menu extends ui.element {
 			})) : null;
 			
 			data.container.on('click', () => {
-				this.focused = false;
+				this.focus = false;
 				
 				ui.open_app(data.path, {}, true);
 			});
@@ -1938,7 +1889,7 @@ ui.scroll_box = class ui_scroll_box extends ui.element {
 		
 		this.grip = this.bar.append(new ui.rect({
 			get color(){
-				return this.mouse_pressed ? '#787878' : this.mouse_hover ? '#A8A8A8' : '#C1C1C1';
+				return this.mouse_pressed ? '#787878' : this.hover ? '#A8A8A8' : '#C1C1C1';
 			},
 			width: 13,
 			height: 17,
@@ -2012,7 +1963,7 @@ ui.desktop = class ui_desktop extends ui.element {
 				width: 75,
 				height: 70,
 				get color(){
-					return data.con.focused ? '#C4E0F6' : data.con.mouse_hover ? '#EBF5FC' : 'transparent';
+					return data.con.focus ? '#C4E0F6' : data.con.hover ? '#EBF5FC' : 'transparent';
 				},
 				x: previ.width + previ.x + 1,
 				y: 5,
@@ -2047,7 +1998,7 @@ ui.desktop = class ui_desktop extends ui.element {
 					size: 1,
 				},
 				get color(){
-					return data.con.focused ? '#D3E8F8' : this.mouse_hover ? '#F0F7FD' : 'transparent';
+					return data.con.focus ? '#D3E8F8' : this.hover ? '#F0F7FD' : 'transparent';
 				},
 			}));
 			
@@ -2057,3 +2008,105 @@ ui.desktop = class ui_desktop extends ui.element {
 		});
 	}
 }
+
+var used = window.used = {};
+
+ui.template = (type, data) => {
+	switch(type){
+		case'info':
+			break;
+		case'error':
+			var win = web.screen.layers.append(new ui.window({
+				width: 300,
+				height: 200,
+				title: 'Error',
+				x: ui.align.middle,
+				y: ui.align.middle,
+				icon: '/usr/share/status/error.png',
+				show_in_bar: true,
+				show_close: false,
+				show_min: false,
+			})),
+			icon = win.content.append(new ui.image({
+				path: '/usr/share/status/error.png',
+				width: 32,
+				height: 32,
+				x: 24,
+				y: 24,
+			})),
+			text = win.content.append(new ui.text({
+				text: 'System encountered an error:\n@' + data.at + '\n' + data.err.toString(),
+				x: 70,
+				y: 24,
+				width: '50%',
+				color: '#000',
+			})),
+			submit = win.content.append(new ui.button({
+				text: 'Submit Bug',
+				x: ui.align.middle,
+				y: ui.align.bottom,
+				auto_width: false,
+				width: 75,
+				offset: {
+					x: -50,
+					y: -10,
+				},
+			})),
+			ignore = win.content.append(new ui.button({
+				text: 'Ignore',
+				x: ui.align.middle,
+				y: ui.align.bottom,
+				auto_width: false,
+				width: 75,
+				offset: {
+					x: 50,
+					y: -10,
+				},
+			}));
+		
+		submit.on('click', () => {
+			// add some fetch logic here to usbmit bug report
+			win.close();
+		});
+		
+		ignore.on('click', () => win.close());
+		
+		win.bring_front();
+		
+		break;
+	}
+};
+
+Object.keys(ui).filter(key => ui[key] instanceof Function).forEach(key => {
+	used[key] = {
+		perf: 0,
+		calls: 0,
+	};
+	
+	ui[key] = new Proxy(ui[key], {
+		construct(target, argArray){
+			var start_perf = performance.now(),
+				ret = null;
+			
+			used[key].calls += 1;
+			
+			try{ ret = Reflect.construct(target, argArray) }catch(err){ ui.template('error', { at: key, err: err }) };
+			
+			used[key].perf = start_perf - performance.now();
+			
+			return ret;
+		 },
+		apply(target, thisArg, argArray){
+			var start_perf = performance.now(),
+				ret = null;
+			
+			used[key].calls += 1;
+			
+			try{ ret = Reflect.apply(target, thisArg, argArray) }catch(err){ ui.template('error', { at: key, err: err }) };
+			
+			used[key].perf = start_perf - performance.now();
+			
+			return ret;
+		},
+	});
+});

@@ -3,7 +3,9 @@ var screen = web.screen = module.exports = {
 		state: 'none',
 		append_layers(...elements){
 			screen.layers.push(...elements);
-				
+			
+			elements.forEach(element => element.append_state = screen.state);
+			
 			return elements[0];
 		},
 		get layers(){
@@ -53,7 +55,7 @@ var fs = require('fs'),
 	mouse = web.mouse = Object.assign(new events(), {
 		buttons: {},
 		previous: {},
-		focused: [],
+		focus: [],
 		cursor: 'pointer',
 		handler(event){
 			mouse.previous.x = mouse.x || 0;
@@ -74,11 +76,8 @@ var fs = require('fs'),
 				'right',
 			])[event.which];
 			
-			if(event.type == 'mousedown'){
-				mouse.buttons[which] = true;
-				mouse.emit('mousedown', event, mouse);
-			}
-			
+			mouse.buttons[which] = true;
+			 
 			var all_elements = [],
 				add_elements = (arr, dims, start_opts = {}) => arr.filter(element => element.visible && element.interact).forEach(element => {
 					// only_contents flag exists for interact
@@ -108,27 +107,20 @@ var fs = require('fs'),
 			
 			var target = all_elements.find(element => screen.element_in_mouse(element, element.dims)) || { emit(){}, cursor: 'pointer', };
 			
-			target.mouse_hover = true;
+			target.hover = true;
 			
 			mouse.cursor = target.cursor;
 			
 			if(event.type == 'mousedown' && mouse.buttons.left)mouse.target = target;
-						
-			mouse.target_hover = target;
 			
-			if(event.type == 'mousedown' && mouse.buttons.left)target.mouse_left = true;
-			else if(event.type == 'mousedown' && mouse.buttons.right)target.mouse_right = true;
-			else if(event.type == 'mousedown' && mouse.buttons.middle)target.mouse_middle = true;
-			else if(event.type == 'mouseup')target.mouse_left = target.mouse_right = false;
+			if(event.type == 'mousedown')target['mouse_' + which] = true;
 			
 			all_elements.filter(element => element.uuid != target.uuid).forEach(element => {
 				element.click_count = 0;
-				element.mouse_left = element.mouse_right = element.mouse_middle = element.mouse_hover = element.mouse_pressed = false;
+				element.mouse_left = element.mouse_right = element.mouse_middle = element.hover = element.mouse_pressed = false;
 			});
 			
-			target.emit(event.type, event, mouse);
-			
-			if(mouse.buttons.left && mouse.target.uuid == target.uuid && event.type == 'mouseup'){
+			if(mouse.buttons.left && mouse.target && mouse.target.uuid == target.uuid && event.type == 'mouseup'){
 				target.click_count++;
 				
 				if(target.click_count >= 2){
@@ -141,7 +133,7 @@ var fs = require('fs'),
 			
 			if(event.type == 'mouseup')mouse.target = null;
 			
-			target.mouse_pressed = mouse.buttons.left;
+			target.mouse_pressed = mouse.buttons.left && event.type != 'mouseup';
 			
 			if(mouse.target)mouse.target.mouse_pressed = mouse.buttons.left ? true : false;
 			
@@ -151,10 +143,6 @@ var fs = require('fs'),
 				mouse.target.drag.offset.x += mouse.movement.x;
 				mouse.target.drag.offset.y += mouse.movement.y;
 			}
-			
-			all_elements.forEach(element => {
-				if(element.includes(target))element.emit('sub-' + event.type, event, mouse);
-			});
 			
 			if(event.type == 'mousedown'){
 				var wins = all_elements.filter(element => element instanceof ui.window).sort((ele, pele) => ele.layer - pele.layer),
@@ -172,21 +160,23 @@ var fs = require('fs'),
 					target_win.active = true;
 				}else if(target.steal_focus)wins.forEach(element => element.active = false);
 				
-				mouse.focused = [];
+				mouse.focus = [];
 				all_elements.forEach(element => {
 					if(element.includes(target)){
-						mouse.focused.push(element);
-						element.focused = target.steal_focus ? element.toggle_focus ? !element.focused : true : element.focused;
+						mouse.focus.push(element);
+						element.focus = target.steal_focus ? element.toggle_focus ? !element.focus : true : element.focus;
 						
-						element.should_be_focused = element.toggle_focus ? !element.should_be_focused : true;
-					}else element.focused = element.should_be_focused = false;
+						element.should_be_focus = element.toggle_focus ? !element.should_be_focus : true;
+					}else element.focus = element.should_be_focus = false;
 				});
-			}else if(event.type == 'mousedown')target.focused = target.toggle_focus ? !target.focused : true;
+			}else if(event.type == 'mousedown')target.focus = target.toggle_focus ? !target.focus : true;
 			
 			if(event.type == 'mouseup'){
 				mouse.buttons[which] = false;
 				mouse.emit('mouseup', event, mouse);
 			}
+			
+			target.emit(event.type, event, mouse);
 		},
 	}),
 	keyboard = web.keyboard = Object.assign(new events(), {
@@ -194,21 +184,11 @@ var fs = require('fs'),
 			// event.preventDefault();
 			
 			keyboard.emit(event.type, event);
-			
-			// if(!screen.mouse.target_hover)return;
-			
-			/*screen.mouse.all_elements.forEach(element => {
-				if(element.includes(screen.mouse.target))element.focused = true;
-				else element.focused = false;
-			});
-			
-			// console.log(screen.mouse.target_hover, event.type);
-			.emit(event.type, event);*/
 		},
 		paste(event){
 			var data = (event.clipboardData || window.clipboardData).getData('text');
 			
-			mouse.focused.forEach(ele => ele.emit('paste', { text: data, event: event }));
+			mouse.focus.forEach(ele => ele.emit('paste', { text: data, event: event }));
 		},
 	});
 
@@ -243,9 +223,7 @@ screen.render = () => {
 	canvas.height = screen.dims.height;
 	
 	
-	var render_through = (elements, dims, start_opts = {}) => {
-		var start_opts = Object.assign({}, start_opts); // new opts
-		
+	var render_through = (elements, dims, start_opts) => {
 		elements.filter(ele => !ele.visible).forEach(element => element.emit('not_visible'));
 		
 		elements.filter(ele => ele.visible).sort((ele, pele) => ele.layer - pele.layer).forEach(element => {
@@ -253,6 +231,10 @@ screen.render = () => {
 				var ind = elements.findIndex(pele => pele.uuid == element.uuid);
 				
 				if(ind != null)elements.splice(ind, 1);
+				
+				Object.keys(element).forEach(key => key != 'deleted' && Reflect.deleteProperty(element, key));
+				
+				return;
 			}
 			
 			ctx.save();
@@ -316,19 +298,15 @@ screen.render = () => {
 				ctx.clip(region, 'evenodd');
 			}
 			
-			var temp = Object.assign({}, element.offset);
-			
 			element.draw(ctx, dims, screen);
 			
 			ctx.restore();
 			
-			element.offset = temp;
-			
-			render_through(element.elements, ui.fixed_sp(element, dims), start_opts);
+			render_through(element.elements, ui.fixed_sp(element, dims), Object.assign({}, start_opts));
 		});
 	};
 	
-	render_through(screen.layers, screen.dims);
+	render_through(screen.layers, screen.dims, {});
 	
 	canvas.style.cursor = 'url("' + fs.data_uri('/usr/share/cursor/' + mouse.cursor + '.cur') + '"), none';
 	
@@ -350,9 +328,9 @@ screen.element_in_mouse = element => {
 			sy: start_opts.clip.y,
 			mx: start_opts.clip.x + start_opts.clip.width,
 			my: start_opts.clip.y + start_opts.clip.height,
-		} : null;
+		} : null,
+		mouse_in_region = region.sx <= mouse.x && region.sy <= mouse.y && region.mx >= mouse.x && region.my >= mouse.y,
+		region_in_clip = mouse_in_region && start_opts.clip && region.sx >= cregion.sx && region.sy >= cregion.sy && region.mx <= cregion.mx && region.my <= cregion.my;
 	
-	if(region.sx <= mouse.x && region.sy <= mouse.y && region.mx >= mouse.x && region.my >= mouse.y)return cregion
-	? (cregion.sx <= mouse.x && cregion.sy <= mouse.y && cregion.mx >= mouse.x && cregion.my >= mouse.y)
-	: true;
+	return start_opts.clip ? region_in_clip : mouse_in_region;
 }
