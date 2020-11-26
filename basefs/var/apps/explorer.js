@@ -67,9 +67,7 @@ var ui = require('/lib/ui.js'),
 					})),
 				};
 			
-			container.on('doubleclick', () => {
-				if(stats.isDirectory())create_folders(loc);
-			});
+			if(stats.isDirectory())container.on('doubleclick', () => create_folders(loc));
 			
 			return data;
 		},
@@ -92,6 +90,8 @@ var ui = require('/lib/ui.js'),
 		});
 	},
 	create_folders = (dir, element) => {
+		exp.sidebar.set_scroll(0);
+		exp.contents.set_scroll(0);
 		exp.sidebar.content.elements.forEach(ele => ele.deleted = true);
 		
 		create_contents(dir);

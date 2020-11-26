@@ -838,7 +838,10 @@ ui.window = class ui_window extends ui.element {
 	}
 	bring_front(){
 		var all_elements = [],
-			add_elements = (arr, dims) => arr.filter(element => element.visible && element.interact).forEach(element => {
+			add_elements = (arr, dims) => arr.forEach(element => {
+				if(!element.visible || !element.interact)return;
+				
+				
 				var fixed = ui.fixed_sp(element, dims);
 				
 				element.fixed = fixed;
@@ -1894,8 +1897,7 @@ ui.scroll_box = class ui_scroll_box extends ui.element {
 		});
 		
 		this.movement = (mouse, event) => {
-			var rel = mouse.y - this.content.fixed.y,
-				new_pos = this.grip.offset.y + mouse.movement.y,
+			var new_pos = this.grip.offset.y + mouse.movement.y,
 				content_ratio = +this.inner_height / this.fixed.height;
 			
 			if(new_pos < 0)new_pos = 0;
@@ -1955,6 +1957,18 @@ ui.scroll_box = class ui_scroll_box extends ui.element {
 				y: event.deltaY / 10,
 			},
 		}), event));
+	}
+	set_scroll(perc){
+		if(!this.fixed)return;
+		
+		var new_pos = (perc / this.inner_height) * 100,
+			content_ratio = +this.inner_height / this.fixed.height;
+		
+		if(new_pos < 0)new_pos = 0;
+		if((new_pos + this.grip.fixed.height) > this.fixed.height)new_pos = this.fixed.height - this.grip.fixed.height;
+		
+		this.content.translate.y = (perc / this.inner_height) * 100;
+		this.grip.offset.y = new_pos;
 	}
 	draw(ctx, dims){
 		var fixed = ui.fixed_sp(this, dims),
