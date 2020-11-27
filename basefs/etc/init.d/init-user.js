@@ -97,4 +97,4 @@ desktop.context_menu = screen.layers.append(new ui.context_menu({
 	}],
 }));
 
-ui.template('error', { at: __filename, err: new Error('testing') });
+// ui.template('error', { at: __filename, err: new Error('testing') });

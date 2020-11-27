@@ -2090,7 +2090,7 @@ Object.keys(ui).filter(key => ui[key] instanceof Function).forEach(key => {
 			
 			used[key].calls += 1;
 			
-			try{ ret = Reflect.construct(target, argArray) }catch(err){ ui.template('error', { at: key, err: err }) };
+			try{ ret = Reflect.construct(target, argArray) }catch(err){ console.error(err); ui.template('error', { at: key, err: err }) };
 			
 			used[key].perf = start_perf - performance.now();
 			
@@ -2102,7 +2102,7 @@ Object.keys(ui).filter(key => ui[key] instanceof Function).forEach(key => {
 			
 			used[key].calls += 1;
 			
-			try{ ret = Reflect.apply(target, thisArg, argArray) }catch(err){ ui.template('error', { at: key, err: err }) };
+			try{ ret = Reflect.apply(target, thisArg, argArray) }catch(err){ console.error(err); ui.template('error', { at: key, err: err }) };
 			
 			used[key].perf = start_perf - performance.now();
 			

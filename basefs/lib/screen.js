@@ -144,6 +144,8 @@ var fs = require('fs'),
 				mouse.target.drag.offset.y += mouse.movement.y;
 			}
 			
+			all_elements.filter(ele => ele.includes(target)).forEach(ele => ele.emit('sub-' + event.type, event, mouse));
+			
 			if(event.type == 'mousedown'){
 				var wins = all_elements.filter(element => element instanceof ui.window).sort((ele, pele) => ele.layer - pele.layer),
 					target_win = wins.find(element => element.includes(target));

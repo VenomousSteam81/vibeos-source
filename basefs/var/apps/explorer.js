@@ -2,6 +2,12 @@
 var ui = require('/lib/ui.js'),
 	fs = require('fs'),
 	path = require('path'),
+	image_aliases = {
+		'/lost+found': '/usr/share/places/emptytrash.png',
+	},
+	ext_icons = {
+		'.js': '/usr/share/mimes/shell.png'
+	},
 	win = new ui.window({
 		title: 'Explorer',
 		x: ui.align.middle, 
@@ -77,14 +83,26 @@ var ui = require('/lib/ui.js'),
 		
 		var prev = { container: { y: 0, fixed: { height: 0 } } };
 		
-		fs.readdirSync(dir).slice(2).sort(file => fs.statSync(path.join(dir, file)).isDirectory() ? -10 : 10).forEach(file => {
-			var val = exp.add_entry(path.join(dir, file), exp.contents.content, prev);
+		fs.readdirSync(dir).slice(2).sort(file => fs.statSync(path.join(dir, file)).isDirectory() ? -10 : 10).map(file => ({
+			name: file,
+			path: path.join(dir, file),
+		})).forEach(file => {
+			var val = exp.add_entry(file.path, exp.contents.content, prev);
 			
 			val.border.assign_object({
 				get color(){
 					return val.container.focus ? '#99D1FF' : 'transparent';
 				},
 			});
+			
+			file.is_dir = fs.statSync(file.path).isDirectory();
+			file.ext = path.extname(file.path);
+			
+			val.icon.path = file.is_dir
+				? '/usr/share/places/folder.png'
+				: ext_icons[file.ext] || image_aliases[path.join(dir, file)] || '/usr/share/mimes/exec.png';
+			
+			val.text.text = file.name;
 			
 			prev = val;
 		});
@@ -109,7 +127,7 @@ var ui = require('/lib/ui.js'),
 			name: 'Desktop',
 			path: path.join(require.user.home, 'Desktop'),
 		}].concat(fs.readdirSync(dir).filter(file => fs.statSync(path.join(dir, file)).isDirectory()).slice(1).map(file => ({
-			icon: '/usr/share/places/folder.png',
+			icon: image_aliases[path.join(dir, file)] || '/usr/share/places/folder.png',
 			name: file,
 			path: path.join(dir, file),
 		}))).forEach(file => {
