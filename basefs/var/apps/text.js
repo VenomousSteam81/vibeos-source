@@ -28,7 +28,6 @@ var ui = require('/lib/ui.js'),
 					if(win.help && !win.help.deleted)win.help.bring_to_front();
 					else win.help = ui.parse_xml(`
 <?xml version='1.0' encoding='utf8'?>
-
 <app>
 	<meta>
 		<title>TEST FROM BAR</title>

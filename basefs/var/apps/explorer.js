@@ -4,6 +4,8 @@ var ui = require('/lib/ui.js'),
 	path = require('path'),
 	image_aliases = {
 		'/lost+found': '/usr/share/places/emptytrash.png',
+		[require.user.home]: '/usr/share/places/folder-home.png',
+		[path.join(require.user.home, 'Desktop')]: '/usr/share/places/folder-desktop.png',
 	},
 	ext_icons = {
 		'.js': '/usr/share/mimes/shell.png'
@@ -98,9 +100,7 @@ var ui = require('/lib/ui.js'),
 			file.is_dir = fs.statSync(file.path).isDirectory();
 			file.ext = path.extname(file.path);
 			
-			val.icon.path = file.is_dir
-				? '/usr/share/places/folder.png'
-				: ext_icons[file.ext] || image_aliases[path.join(dir, file)] || '/usr/share/mimes/exec.png';
+			val.icon.path = image_aliases[file.path] || (file.is_dir ? '/usr/share/places/folder.png' : 0) || ext_icons[file.ext] || '/usr/share/mimes/exec.png';
 			
 			val.text.text = file.name;
 			
@@ -119,15 +119,12 @@ var ui = require('/lib/ui.js'),
 		var prev = { container: { y: 0, fixed: { height: 0 } } };
 		
 		[{
-			icon: '/usr/share/places/folder-home.png',
 			name: 'Home',
 			path: require.user.home,
 		},{
-			icon: '/usr/share/places/folder-desktop.png',
 			name: 'Desktop',
 			path: path.join(require.user.home, 'Desktop'),
 		}].concat(fs.readdirSync(dir).filter(file => fs.statSync(path.join(dir, file)).isDirectory()).slice(1).map(file => ({
-			icon: image_aliases[path.join(dir, file)] || '/usr/share/places/folder.png',
 			name: file,
 			path: path.join(dir, file),
 		}))).forEach(file => {
@@ -139,7 +136,7 @@ var ui = require('/lib/ui.js'),
 				}
 			});
 			
-			val.icon.path = file.icon;
+			val.icon.path = image_aliases[file.path] || '/usr/share/places/folder.png';
 			
 			val.text.text = file.name;
 			
