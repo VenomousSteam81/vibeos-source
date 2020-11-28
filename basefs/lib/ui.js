@@ -2050,6 +2050,24 @@ var used = window.used = {};
 
 ui.template = (type, data) => {
 	switch(type){
+		case'about':
+			
+			return ui.parse_xml(`<?xml version='1.0' encoding='utf8'?>
+<app>
+	<meta>
+		<title>About vibeOS</title>
+		<position x='ui.align.middle' y='ui.align.middle'></position>
+		<size width='460' height='423'></size>
+	</meta>
+	<content>
+		<rect width='100%' height='83'>
+			<text x='ui.align.middle' y='ui.align.middle' width='100%' color='#000' size='32' align='center'>vibeOS</text>
+		</rect>
+	</content>
+</app>
+			`, false)
+			
+			break;
 		case'info':
 			break;
 		case'error':

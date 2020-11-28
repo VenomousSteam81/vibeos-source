@@ -26,20 +26,9 @@ var ui = require('/lib/ui.js'),
 			},
 			Help: {
 				'About Notepad'(){
-					if(win.help && !win.help.deleted)win.help.bring_front();
-					else win.help = screen.layers.append(ui.parse_xml(`<?xml version='1.0' encoding='utf8'?>
-<app>
-	<meta>
-		<title>TEST FROM BAR</title>
-		<icon src='https://github.com/vibeOS/vibeos-legacy/blob/master/tango/apps/32/internet-web-browser.png?raw=true'></icon>
-		<position x='ui.align.middle' y='ui.align.middle'></position>
-		<size width='400' height='400'></size>
-	</meta>
-	<content>
-		<text>hi</text>
-	</content>
-</app>
-					`, false));
+					if(!win.help || win.help.deleted)win.help = screen.layers.append(ui.template('about', 'notepad'));
+					
+					win.help.bring_front();
 				},
 			},
 		},
