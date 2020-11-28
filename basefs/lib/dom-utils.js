@@ -1,8 +1,10 @@
-exports.add_ele = add_ele = (node_name, parent, attributes) => Object.assign(parent.appendChild(document.createElement(node_name)), attributes);
+var ut = exports;
 
-exports.sanatize_buffer = exports.add_ele('div', document.body, { style: 'display: none' });
+ut.add_ele = add_ele = (node_name, parent, attributes) => Object.assign(parent.appendChild(document.createElement(node_name)), attributes);
 
-exports.sanatize = str => {
+ut.sanatize_buffer = ut.add_ele('div', document.body, { style: 'display: none' });
+
+ut.sanatize = str => {
 	sanatize_buffer.appendChild(document.createTextNode(str));
 	var clean = sanatize_buffer.innerHTML;
 	
@@ -11,7 +13,7 @@ exports.sanatize = str => {
 	return clean;
 };
 
-exports.unsanatize = str => {
+ut.unsanatize = str => {
 	sanatize_buffer.innerHTML = str;
 	var clean = sanatize_buffer.textContent;
 	
@@ -19,3 +21,13 @@ exports.unsanatize = str => {
 	
 	return clean;
 };
+
+/*ut.text_buffer = ut.add_ele('div', document.body, { style: 'display: none' });
+
+ut.canvas_text_measure = data => {
+	var result = {};
+	
+	ut.text_buffer.textContent = data.text;
+	ut.text_buffer.style.verticalAlign = 'baseline';
+	
+};*/

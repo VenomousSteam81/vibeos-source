@@ -1,5 +1,6 @@
 // TEXT EDITOR
 var ui = require('/lib/ui.js'),
+	screen = require('/lib/screen.js'),
 	win = new ui.window({
 		title: 'Text Editor',
 		x: ui.align.middle, 
@@ -25,21 +26,20 @@ var ui = require('/lib/ui.js'),
 			},
 			Help: {
 				'About Notepad'(){
-					if(win.help && !win.help.deleted)win.help.bring_to_front();
-					else win.help = ui.parse_xml(`
-<?xml version='1.0' encoding='utf8'?>
+					if(win.help && !win.help.deleted)win.help.bring_front();
+					else win.help = screen.layers.append(ui.parse_xml(`<?xml version='1.0' encoding='utf8'?>
 <app>
 	<meta>
 		<title>TEST FROM BAR</title>
 		<icon src='https://github.com/vibeOS/vibeos-legacy/blob/master/tango/apps/32/internet-web-browser.png?raw=true'></icon>
 		<position x='ui.align.middle' y='ui.align.middle'></position>
-		<size width='400px' height='400px'></size>
+		<size width='400' height='400'></size>
 	</meta>
 	<content>
-		<webview width='100%' height='100%' src='https://example.com'></webview>
+		<text>hi</text>
 	</content>
 </app>
-					`, false);
+					`, false));
 				},
 			},
 		},

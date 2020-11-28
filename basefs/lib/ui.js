@@ -77,95 +77,102 @@ var fs = require('fs'),
 		return merge_deep(target, ...sources);
 	};
 
-ui.align = {
-	left: Symbol(),
-	right: Symbol(),
-	top: Symbol(),
-	bottom: Symbol(),
-	middle: Symbol(),
-};
+Object.assign(ui, {
+	align: {
+		left: Symbol(),
+		right: Symbol(),
+		top: Symbol(),
+		bottom: Symbol(),
+		middle: Symbol(),
+	},
+	gen_uuid: () => [...Array(4)].map(() => {
+		var d0 = Math.random() * 0xffffffff | 0;
+		return ('' + (d0 & 0xff).toString(16)).padStart(2, 0) + ('' + (d0 >> 8 & 0xff).toString(16)).padStart(2, 0) + ('' + (d0 >> 16 & 0xff).toString(16)).padStart(2, 0) + ('' + (d0 >> 24 & 0xff).toString(16)).padStart(2, 0)
+	}).join('-').toUpperCase(),
+	percentage: (perc, full) => (perc * full) / 100,
+	fixed_sp: (data, dims) => {
+		var parse_data = {
+				x: data.x,
+				y: data.y,
+				width: data.width,
+				height: data.height,
+			},
+			correct = {
+				width: 0,
+				height: 0,
+				x: 0,
+				y: 0,
+			},
+			proc = (val, cor) => {
+				var type = ((val || 0) + '').replace(/[^a-z%]/gi, '') || 'px', // get exact type (%, px, rem, etc..)
+					actu = Number((val + '').replace(/[a-z%]/gi, '')); // remote types or characters
+				
+				// use switch statements when more unit s added
+				if(type == '%')actu = (actu * cor) / 100;
+				
+				return actu;
+			};
+		
+		Object.entries(ui.align).forEach(([ key, val ]) => {
+			if(parse_data.x == 'ui.align.' + key)parse_data.x = val;
+			if(parse_data.y == 'ui.align.' + key)parse_data.y = val;
+		});
+		
+		correct.width = proc(parse_data.width, dims.width);
+		correct.height = proc(parse_data.height, dims.inner_height || dims.height);
+		
+		switch(parse_data.x){
+			case ui.align.middle:
+				parse_data.x = (dims.width / 2) - (correct.width / 2);
+				break;
+			case ui.align.right:
+				parse_data.x = dims.width - correct.width;
+				break;
+			case ui.align.left:
+				parse_data.x = correct.width;
+				break;
+		}
+		
+		switch(parse_data.y){
+			case ui.align.middle:
+				parse_data.y = (dims.height / 2) - (correct.height / 2);
+				break;
+			case ui.align.top:
+				parse_data.y = correct.height;
+				break;
+			case ui.align.bottom:
+				parse_data.y = dims.height - correct.height;
+				break;
+		}
+		
+		correct.x = dims.x + proc(parse_data.x, dims.width) + (data.offset.x || 0);
+		correct.y = dims.y + proc(parse_data.y, dims.height) + (data.offset.y || 0);
+		
+		if(dims.translate && dims.translate.enabled){
+			correct.x += dims.translate.x;
+			correct.y += dims.translate.y;
+		}
+		
+		correct.width += data.offset.width || 0;
+		correct.height += data.offset.height || 0;
+		
+		correct.offset = data.offset;
+		correct.clip = data.clip;
+		correct.translate = data.translate;
+		
+		return correct;
+	},
+	last_layer: 0,
+	// caching metrics for ui.text saves  a TON of resources
+	metric_c: {},
+	metric_expires: 1000,
+});
 
-ui.gen_uuid = () => [...Array(4)].map(() => {
-	var d0 = Math.random() * 0xffffffff | 0;
-	return ('' + (d0 & 0xff).toString(16)).padStart(2, 0) + ('' + (d0 >> 8 & 0xff).toString(16)).padStart(2, 0) + ('' + (d0 >> 16 & 0xff).toString(16)).padStart(2, 0) + ('' + (d0 >> 24 & 0xff).toString(16)).padStart(2, 0)
-}).join('-').toUpperCase();
-
-ui.percentage = (perc, full) => (perc * full) / 100;
-
-ui.fixed_sp = (data, dims) => {
-	var parse_data = {
-			x: data.x,
-			y: data.y,
-			width: data.width,
-			height: data.height,
-		},
-		correct = {
-			width: 0,
-			height: 0,
-			x: 0,
-			y: 0,
-		},
-		proc = (val, cor) => {
-			var type = ((val || 0) + '').replace(/[^a-z%]/gi, '') || 'px', // get exact type (%, px, rem, etc..)
-				actu = Number((val + '').replace(/[a-z%]/gi, '')); // remote types or characters
-			
-			// use switch statements when more unit s added
-			if(type == '%')actu = (actu * cor) / 100;
-			
-			return actu;
-		};
-	
-	Object.entries(ui.align).forEach(([ key, val ]) => {
-		if(parse_data.x == 'ui.align.' + key)parse_data.x = val;
-		if(parse_data.y == 'ui.align.' + key)parse_data.y = val;
-	});
-	
-	correct.width = proc(parse_data.width, dims.width);
-	correct.height = proc(parse_data.height, dims.inner_height || dims.height);
-	
-	switch(parse_data.x){
-		case ui.align.middle:
-			parse_data.x = (dims.width / 2) - (correct.width / 2);
-			break;
-		case ui.align.right:
-			parse_data.x = dims.width - correct.width;
-			break;
-		case ui.align.left:
-			parse_data.x = correct.width;
-			break;
-	}
-	
-	switch(parse_data.y){
-		case ui.align.middle:
-			parse_data.y = (dims.height / 2) - (correct.height / 2);
-			break;
-		case ui.align.top:
-			parse_data.y = correct.height;
-			break;
-		case ui.align.bottom:
-			parse_data.y = dims.height - correct.height;
-			break;
-	}
-	
-	correct.x = dims.x + proc(parse_data.x, dims.width) + (data.offset.x || 0);
-	correct.y = dims.y + proc(parse_data.y, dims.height) + (data.offset.y || 0);
-	
-	if(dims.translate && dims.translate.enabled){
-		correct.x += dims.translate.x;
-		correct.y += dims.translate.y;
-	}
-	
-	correct.width += data.offset.width || 0;
-	correct.height += data.offset.height || 0;
-	
-	correct.offset = data.offset;
-	correct.clip = data.clip;
-	correct.translate = data.translate;
-	
-	return correct;
-}
-
-ui.last_layer = 0;
+// clear metrics to prevent memory die
+setInterval(() => Object.keys(ui.metric_c).filter(key => Date.now() - ui.metric_c[key][0] >= ui.metric_expires).forEach(key => {
+	// console.log(Date.now() - ui.metric_c[key][0], key);
+	delete ui.metric_c[key];
+}), 2000);
 
 /**
 * @class
@@ -390,80 +397,127 @@ ui.text = class ui_text extends ui.element {
 			size: 16,
 			family: 'Calibri',
 			text: 'Placeholder',
-			align: 'start',
+			align: 'middle',
 			color: '#FFF',
-			baseline: 'middle',
 			wrap: true,
 			auto_width: true,
+			// debug: true,
 		});
 	}
 	apply_style(ctx){
 		ctx.save();
 		ctx.fillStyle = this.color;
-		ctx.textAlign = this.align;
-		ctx.textBaseline = this.baseline;
+		ctx.textBaseline = 'hanging';
 		ctx.font = (this.weight ? this.weight + ' ' : '') + this.size + 'px ' + this.family;
 	}
-	measure(ctx, dims){
+	metrics(ctx, dims, str){
 		this.apply_style(ctx);
 		
-		var ret = ctx.measureText(this.text);
+		var sval = str || this.text,
+			metrics = ui.metric_c[sval] ? ui.metric_c[sval][1] : (ui.metric_c[sval] = [Date.now(), ctx.measureText(sval)])[1];
 		
-		ret.height = ret.actualBoundingBoxAscent + ret.actualBoundingBoxDescent;
+		ui.metric_c[sval][0] = Date.now(); // set last accessed
+		
+		metrics.height = metrics.fontBoundingBoxAscent + metrics.fontBoundingBoxDescent;
+		metrics.actual_height = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
 		
 		ctx.restore();
 		
-		return ret;
+		return metrics;
 	}
 	draw(ctx, dims){
 		ctx.fillStyle = this.color;
 		ctx.textAlign = this.align;
-		ctx.textBaseline = this.baseline;
+		ctx.textBaseline = 'middle';
 		ctx.font = (this.weight ? this.weight + ' ' : '') + this.size + 'px ' + this.family;
 		
-		var measured = this.measure(ctx);
+		var metrics = this.metrics(ctx),
+			fixed = ui.fixed_sp(this, dims);
 		
-		this.width = measured.width;
-		this.height = measured.height;
-		
-		var fixed = ui.fixed_sp(this, dims);
+		if(this.debug){
+			ctx.globalAlpha = 0.6;
+			ctx.fillStyle = 'red';
+			ctx.fillRect(fixed.x, fixed.y, fixed.width, fixed.height);
+			
+			ctx.globalAlpha = 0.2;
+			ctx.fillStyle = 'blue';
+			ctx.fillRect(dims.x, dims.y, dims.width, dims.height);
+			
+			var line = { size: 2 };
+			
+			// DIMS
+			
+			ctx.fillStyle = 'green';
+			ctx.globalAlpha = 0.5;
+			
+			// X AXIS
+			ctx.fillRect(dims.x, dims.y + ((dims.height / 2) - (line.size / 2)), dims.width, line.size);
+			
+			// Y AXIS
+			ctx.fillRect(dims.x + ((dims.width / 2) - (line.size / 2)), dims.y, line.size, dims.height);
+			
+			// RELATIVE POS
+			
+			ctx.fillStyle = 'yellow';
+			ctx.globalAlpha = 0.5;
+			
+			// X AXIS
+			ctx.fillRect(fixed.x, fixed.y + ((fixed.height / 2) - (line.size / 2)), fixed.width, line.size);
+			
+			// Y AXIS
+			ctx.fillRect(fixed.x + ((fixed.width / 2) - (line.size / 2)), fixed.y, line.size, fixed.height);
+			
+			ctx.globalAlpha = 1;
+			ctx.fillStyle = this.color;
+		}
 		
 		if(this.wrap){
-			var tmp_line = 0,
-				lines = this.text.split('\n').flatMap(line => {
-					var ret = [],
-						width = 0;
+			var prev = { width: 0, height: 0, y: 0 },
+				parse = str => str.split('\n').flatMap(line => {
+					var width  = 0,
+						line_out = [];
 					
 					line.split(' ').forEach(word => {
-						width = width + ctx.measureText(word + ' ').width;
+						var metrics = this.metrics(ctx, dims, word);
 						
-						if(width * 1.4 >= dims.width){
+						width += metrics.width;
+						
+						if(width * 1.5 >= dims.width){
 							width = 0;
 							word = '\n' + word;
 						}
 						
-						ret.push(word);
+						line_out.push(word);
 					});
 					
-					return ret.join(' ').split('\n');
+					return line_out.join(' ').split('\n');
 				}),
-				bigg_width = 0;
+				lines = parse(this.text).map(line => {
+					// console.log(line);
+					
+					var metrics = this.metrics(ctx, dims, line);
+					
+					return prev = {
+						width: metrics.width,
+						height: metrics.height,
+						y: (prev.height || metrics.height / 2) + prev.y,
+						text: line,
+					};
+				});
 			
-			lines.forEach(line => {
-				var measured = ctx.measureText(line);
-				
-				if(measured.width > bigg_width)bigg_width = measured.width;
-				
-				ctx.fillText(line, fixed.x, fixed.y + tmp_line);
-				
-				tmp_line = tmp_line + Number(this.size);
-			});
+			this.width = lines.sort((data, prev) => prev.width - data.width)[0].width;
+			this.height = 0;
+			lines.forEach(data => this.height += data.height)
 			
-			if(this.auto_width)this.width = bigg_width;
+			fixed = ui.fixed_sp(this, dims);
+			
+			lines.forEach(data => ctx.fillText(data.text, fixed.x, fixed.y + data.y));
 		}else{
-			ctx.fillText(this.text, fixed.x, fixed.y);
+			this.width = metrics.width;
+			this.height = metrics.height;
 			
-			if(this.auto_width)this.width = ctx.measureText(this.text).width;
+			fixed = ui.fixed_sp(this, dims);
+			ctx.fillText(this.text, fixed.x, fixed.y + (this.height / 2));
 		}
 	}
 }
@@ -682,12 +736,10 @@ ui.window = class ui_window extends ui.element {
 			}
 		}));
 		
-		this.title_text = this.title_bar.append(new ui.text({
+		this.title_bar.text = this.title_bar.append(new ui.text({
 			x: this.icon ? 32 : 8,
-			y: 16,
+			y: ui.align.middle,
 			size: 14,
-			baseline: 'middle',
-			height: '100%',
 			get text(){
 				// dynamic title
 				return othis.title;
@@ -701,7 +753,7 @@ ui.window = class ui_window extends ui.element {
 		if(this.show_close)this.gen_close();
 		if(this.show_min)this.gen_min();
 		
-		if(this.icon)this.title_image = this.title_bar.append(new ui.image({
+		if(this.icon)this.title_bar.icon = this.title_bar.append(new ui.image({
 			path: this.icon,
 			width: 16,
 			height: 16,
@@ -765,6 +817,9 @@ ui.window = class ui_window extends ui.element {
 			});
 		}
 	}
+	set_icon(path){
+		this.title_bar.icon.path = path;
+	}
 	gen_close(){
 		var othis = this;
 		
@@ -789,7 +844,7 @@ ui.window = class ui_window extends ui.element {
 		
 		this.buttons.close.text = this.buttons.close.append(new ui.text({
 			x: ui.align.middle,
-			y: 15,
+			y: ui.align.middle,
 			size: 14,
 			baseline: 'middle',
 			width: '100%',
@@ -928,10 +983,9 @@ ui.button = class ui_button extends ui.rect {
 		
 		this.text = this.append(new ui.text({
 			x: ui.align.middle,
-			y: '50%',
+			y: ui.align.middle,
 			size: 14,
 			color: '#000',
-			baseline: 'middle',
 			width: 50,
 			height: '100%',
 			text: this.text,
@@ -944,10 +998,10 @@ ui.button = class ui_button extends ui.rect {
 			},
 		}));
 		
-		this.width = this.auto_width ? this.text.measure(web.ctx).width + 20 : this.width;
+		this.width = this.auto_width ? this.text.metrics(web.ctx).width + 20 : this.width;
 	}
 	draw(ctx, dims){
-		this.width = this.auto_width ? this.text.measure(ctx).width + 20 : this.width;
+		this.width = this.auto_width ? this.text.metrics(ctx).width + 20 : this.width;
 		
 		return Reflect.apply(ui.rect.prototype.draw, this, [ ctx, dims ]);
 	}
@@ -989,12 +1043,10 @@ ui.menu_button = class ui_button extends ui.rect {
 		
 		this.text = this.append(new ui.text({
 			x: this.icon ? 32 : 8,
-			y: '50%',
+			y: ui.align.middle,
 			size: 14,
 			color: '#000',
-			baseline: 'middle',
 			width: 50,
-			height: '100%',
 			text: this.text,
 			interact: false,
 			wrap: false,
@@ -1047,7 +1099,7 @@ ui.menu_button = class ui_button extends ui.rect {
 			
 			added.text = added.append(new ui.text({
 				x: 32,
-				y: '50%',
+				y: ui.align.middle,
 				size: 14,
 				color: '#000',
 				baseline: 'middle',
@@ -1071,7 +1123,7 @@ ui.menu_button = class ui_button extends ui.rect {
 	draw(ctx, dims){
 		if(!this.focus && this.toggle)this.toggle = 0;
 		
-		this.width = this.auto_width ? this.text.measure(ctx).width + 20 : this.width;
+		this.width = this.auto_width ? this.text.metrics(ctx).width + 20 : this.width;
 		
 		return Reflect.apply(ui.rect.prototype.draw, this, [ ctx, dims ]);
 	}
@@ -1112,9 +1164,8 @@ ui.input = class ui_input extends ui.rect {
 			value: '',
 			submit: true,
 			cursor: 'text',
+			cursor_pos: (opts.value || '').length,
 		}, opts);
-		
-		this.cursor_pos = (this.value || '').length;
 		
 		this.border = this.append(new ui.border({
 			size: 1,
@@ -1134,7 +1185,7 @@ ui.input = class ui_input extends ui.rect {
 			},
 			width: '100%',
 			color: '#000',
-			y: '50%',
+			y: ui.align.middle,
 			interact: false,
 			offset: {
 				x: 7,
@@ -1174,7 +1225,7 @@ ui.input = class ui_input extends ui.rect {
 			if(!this.focus || !blink_bool(this.uuid))return;
 			
 			ctx.fillStyle = '#000';
-			ctx.fillRect(this.text.fixed.x + ctx.measureText(this.text.text.slice(0, this.cursor_pos)).width, this.text.fixed.y - (this.fixed.height / 4), 2, 16);
+			ctx.fillRect(this.text.fixed.x + ctx.measureText(this.text.text.slice(0, this.cursor_pos)).width, this.text.fixed.y, 2, 16);
 		}
 		
 		this.on('paste', data => {
@@ -1337,28 +1388,17 @@ ui.open_app = (app_path, args, show_in_bar) => {
 ui.parse_xml = (xml, show_in_bar = true) => {
 	var dom_parser = new DOMParser(),
 		parsed = dom_parser.parseFromString(xml, 'application/xml'),
-		position = parsed.querySelector('meta > position'),
-		size = parsed.querySelector('meta > size');
-	
-	if(position)position = {
-		x: position.getAttribute('x'),
-		y: position.getAttribute('y'),
-	};
-	
-	if(size)size = {
-		width: size.getAttribute('width'),
-		height: size.getAttribute('height'),
-	}
-	
-	var win = new ui.window({
+		position = parsed.querySelector('meta > position') || { x: ui.align.middle, y: ui.align.middle, getAttribute(v){ return this[v] } },
+		size = parsed.querySelector('meta > size') || { width: 200, height: 200, getAttribute(v){ return this[v] } },
+		win = new ui.window({
 			resizable: !!parsed.querySelector('content[resizable]'),
 			show_in_bar: show_in_bar,
 			title: (parsed.querySelector('meta > title') || {}).textContent || 'Untitled app',
 			icon: (parsed.querySelector('meta > icon') || { getAttribute(){} }).getAttribute('src'),
-			x: position.x || ui.align.middle,
-			y: position.y || ui.align.middle,
-			width: size.width || 200,
-			height: size.height || 200,
+			x: position.getAttribute('x'),
+			y: position.getAttribute('y'),
+			width: size.getAttribute('width'),
+			height: size.getAttribute('height'),
 		}),
 		contents = parsed.querySelectorAll('content > *'),
 		proc_node = (node, append_to) => {
@@ -1456,17 +1496,11 @@ ui.bar = class ui_bar extends ui.rect {
 		
 		this.menu.text = this.menu.append(new ui.text({
 			text: 'Applications',
-			x: '50%',
+			x: 58,
 			y: ui.align.middle,
-			height: '50%',
-			auto_width: false,
 			size: 13,
 			align: 'center',
-			baseline: 'hanging',
 			interact: false,
-			offset: {
-				x: 8,
-			},
 		}));
 		
 		this.menu.border = this.menu.append(new ui.border({
@@ -1617,7 +1651,8 @@ ui.bar = class ui_bar extends ui.rect {
 					
 					data.container.text = data.container.append(new ui.text({
 						x: 30,
-						y: '50%',
+						y: ui.align.middle,
+						baseline: 'middle',
 						wrap: false,
 						text: data.title,
 						interact: false,
@@ -1829,7 +1864,7 @@ ui.context_menu = class ui_context_menu extends ui.element {
 				text: data.title,
 				color: '#000',
 				x: 35,
-				y: '50%',
+				y: ui.align.middle,
 				wrap: false,
 			}));
 			
@@ -2090,7 +2125,7 @@ Object.keys(ui).filter(key => ui[key] instanceof Function).forEach(key => {
 			
 			used[key].calls += 1;
 			
-			try{ ret = Reflect.construct(target, argArray) }catch(err){ console.error(err); ui.template('error', { at: key, err: err }) };
+			try{ ret = Reflect.construct(target, argArray) }catch(err){ console.log(err.lineNumber); console.error(err); ui.template('error', { at: key, err: err }) };
 			
 			used[key].perf = start_perf - performance.now();
 			

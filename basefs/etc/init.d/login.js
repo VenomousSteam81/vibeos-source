@@ -10,8 +10,9 @@ var login_rect = screen.layers.append(new ui.rect({ width: '100%', height: '100%
 		time: login_rect.append(new ui.text({
 			x: 20,
 			y: ui.align.bottom,
-			offset: { y: -20 },
+			offset: { y: -40 },
 			size: 45,
+			cursor: 'text',
 			family: 'Verdana',
 			get text(){
 				var now = new Date(),
@@ -46,10 +47,9 @@ var login_rect = screen.layers.append(new ui.rect({ width: '100%', height: '100%
 			y: ui.align.middle,
 			height: 25,
 			width: 150,
-			auto_width: false,
 			text: 'login',
 			offset: {
-				y: 50,
+				y: 60,
 			},
 		})),
 	};

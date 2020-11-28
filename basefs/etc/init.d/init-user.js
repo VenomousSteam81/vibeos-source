@@ -72,8 +72,8 @@ web.bar.menu.open = [{
 var desktop = screen.layers.append(new ui.desktop({
 	y: web.bar.height,
 	open: [{
-		title: 'Recycle Bin',
-		icon: '/usr/share/categ/internet.png',
+		title: 'Trash',
+		icon: '/usr/share/places/emptytrash.png',
 		path: '/var/apps/explorer.js',
 		args: {
 			flags: {

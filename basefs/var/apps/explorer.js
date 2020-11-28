@@ -68,7 +68,7 @@ var ui = require('/lib/ui.js'),
 					})),
 					text: container.append(new ui.text({
 						x: 24,
-						y: '50%',
+						y: ui.align.middle,
 						color: '#000',
 						text: path.basename(loc),
 						interact: false,
@@ -115,6 +115,7 @@ var ui = require('/lib/ui.js'),
 		create_contents(dir);
 		
 		win.title = dir;
+		win.set_icon(image_aliases[dir] || '/usr/share/places/folder.png');
 		
 		var prev = { container: { y: 0, fixed: { height: 0 } } };
 		

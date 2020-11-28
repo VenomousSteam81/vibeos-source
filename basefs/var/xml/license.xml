@@ -11,14 +11,17 @@
         <!--Header-->
         <image path='/usr/share/logo.png' width='100' height='100'></image>
         <text color='#000' x='100' y='25' size='30'>vibeOS License</text>
-		<text color='#000' x='100' y='50' size='15'>
-Introduced: November 24, 2020 | Last Revised: November 24, 2020
+		<text color='#000' x='100' y='55' size='15'>Introduced: November 24, 2020 | Last Revised: November 24, 2020
 Adapted for OSDV on November 17, 2020 by ctaetcsh
 		</text>
 		
 		<scroll_box x='25' y='110' width='450' height='350' inner_height='600'>
-			<text baseline='top' color='#000' size='15'>
-Attention! The vibeOS License included in OSDV as of 11/24/2020 is classified as Revision 2.
+			<text baseline='top' color='#000' size='15'>Attention! The vibeOS License included in OSDV as of 11/24/2020 is classified as Revision 2.
+test
+
+test
+testtes
+tesa1
 
 vibeOS is licensed under the BSD 4-Clause License or "Original" License. vibeOS Development Team is the organization which develops and maintains the vibeOS Source Code.
 
