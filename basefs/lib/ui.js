@@ -232,6 +232,7 @@ setInterval(() => Object.keys(ui.metric_c).filter(key => Date.now() - ui.metric_
 * @property {boolean} mouse_right if right mouse button is pressing this element
 * @property {boolean} mouse_pressed if the left mouse is pressing this button (alt)
 * @property {boolean} focus if this element has recieved focus
+* @property {boolean} debug enabled debugging features (console or visual?) IF the element supports it
 * @property {string} uuid  unique identifier assigned to element
 * @property {array} elements an array of appended elements (see element.append)
 * @return {element} base ui element
