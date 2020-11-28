@@ -401,7 +401,7 @@ ui.text = class ui_text extends ui.element {
 			color: '#FFF',
 			wrap: true,
 			auto_width: true,
-			// debug: true,
+			debug: false,
 		});
 	}
 	apply_style(ctx){
@@ -413,17 +413,18 @@ ui.text = class ui_text extends ui.element {
 	metrics(ctx, dims, str){
 		this.apply_style(ctx);
 		
-		var sval = str || this.text,
-			metrics = ui.metric_c[sval] ? ui.metric_c[sval][1] : (ui.metric_c[sval] = [Date.now(), ctx.measureText(sval)])[1];
+		var sval = str || this.text;
+		
+		if(!ui.metric_c[sval])ui.metric_c[sval] = [Date.now(), ctx.measureText(sval)];
 		
 		ui.metric_c[sval][0] = Date.now(); // set last accessed
 		
-		metrics.height = metrics.fontBoundingBoxAscent + metrics.fontBoundingBoxDescent;
-		metrics.actual_height = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
+		ui.metric_c[sval][1].height = ui.metric_c[sval][1].fontBoundingBoxAscent + ui.metric_c[sval][1].fontBoundingBoxDescent;
+		ui.metric_c[sval][1].actual_height = ui.metric_c[sval][1].actualBoundingBoxAscent + ui.metric_c[sval][1].actualBoundingBoxDescent;
 		
 		ctx.restore();
 		
-		return metrics;
+		return ui.metric_c[sval][1];
 	}
 	draw(ctx, dims){
 		ctx.fillStyle = this.color;
@@ -499,8 +500,8 @@ ui.text = class ui_text extends ui.element {
 					
 					return prev = {
 						width: metrics.width,
-						height: metrics.height,
-						y: (prev.height || metrics.height / 2) + prev.y,
+						height: metrics.height || metrics.actual_height,
+						y: (prev.height || (metrics.height || metrics.actual_height) / 2) + prev.y,
 						text: line,
 					};
 				});
@@ -514,7 +515,7 @@ ui.text = class ui_text extends ui.element {
 			lines.forEach(data => ctx.fillText(data.text, fixed.x, fixed.y + data.y));
 		}else{
 			this.width = metrics.width;
-			this.height = metrics.height;
+			this.height = metrics.height || metrics.actual_height;
 			
 			fixed = ui.fixed_sp(this, dims);
 			ctx.fillText(this.text, fixed.x, fixed.y + (this.height / 2));
