@@ -1,6 +1,13 @@
 {
-	"name": "webos builder",
-	"version": "1.0.0",
+	"name": "vibeos_builder",
+	"version": "2.0.0",
+	"author": "vibeOS Development Team",
+	"description": "vibeOS",
+	"license": "BSD-4",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/vibeOS/vibeos-source/"
+	},
 	"dependencies": {
 		"documentation": "^13.1.0",
 		"terser": "^5.4.0"
