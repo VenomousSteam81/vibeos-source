@@ -507,8 +507,8 @@ ui.text = class ui_text extends ui.element {
 					
 					return prev = {
 						width: metrics.width,
-						height: metrics.height || metrics.actual_height,
-						y: (prev.height || (metrics.height || metrics.actual_height) / 2) + prev.y,
+						height: metrics.height,
+						y: (prev.height || metrics.height / 2) + prev.y,
 						text: line,
 					};
 				});
@@ -522,7 +522,7 @@ ui.text = class ui_text extends ui.element {
 			lines.forEach(data => ctx.fillText(data.text, fixed.x, fixed.y + data.y));
 		}else{
 			this.width = metrics.width;
-			this.height = metrics.height || metrics.actual_height;
+			this.height = metrics.height;
 			
 			fixed = ui.fixed_sp(this, dims);
 			ctx.fillText(this.text, fixed.x, fixed.y + (this.height / 2));
