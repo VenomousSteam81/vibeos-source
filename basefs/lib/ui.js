@@ -90,7 +90,7 @@ Object.assign(ui, {
 		return ('' + (d0 & 0xff).toString(16)).padStart(2, 0) + ('' + (d0 >> 8 & 0xff).toString(16)).padStart(2, 0) + ('' + (d0 >> 16 & 0xff).toString(16)).padStart(2, 0) + ('' + (d0 >> 24 & 0xff).toString(16)).padStart(2, 0)
 	}).join('-').toUpperCase(),
 	percentage: (perc, full) => (perc * full) / 100,
-	fixed_sp: (data, dims) => {
+	fixed_sp(data, dims){
 		var parse_data = {
 				x: data.x,
 				y: data.y,
@@ -402,7 +402,6 @@ ui.text = class ui_text extends ui.element {
 			color: '#FFF',
 			wrap: true,
 			auto_width: true,
-			debug: false,
 		});
 	}
 	apply_style(ctx){
@@ -1898,6 +1897,24 @@ ui.scroll_box = class ui_scroll_box extends ui.element {
 			track_size: 80,
 		});
 		
+		this.content = this.append(new ui.rect({
+			width: '100%',
+			height: '100%',
+			color: 'transparent',
+			offset: {
+				get width(){
+					return -(othis.grip.fixed || { width: 10 }).width
+				},
+			},
+			translate: {
+				enabled: true,
+				x: 0,
+				y: 0,
+				width: 0,
+				height: 0,
+			},
+		}));
+		
 		this.movement = (mouse, event) => {
 			var new_pos = this.grip.offset.y + mouse.movement.y,
 				content_ratio = +this.inner_height / this.fixed.height;
@@ -1931,24 +1948,6 @@ ui.scroll_box = class ui_scroll_box extends ui.element {
 			width: 13,
 			height: 17,
 			x: ui.align.middle,
-		}));
-		
-		this.content = this.append(new ui.rect({
-			width: '100%',
-			height: '100%',
-			color: 'transparent',
-			offset: {
-				get width(){
-					return -(othis.grip.fixed || { width: 10 }).width
-				},
-			},
-			translate: {
-				enabled: true,
-				x: 0,
-				y: 0,
-				width: 0,
-				height: 0,
-			},
 		}));
 		
 		this.grip.on('drag', this.movement);

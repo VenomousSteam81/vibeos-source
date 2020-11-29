@@ -334,5 +334,5 @@ screen.element_in_mouse = element => {
 		mouse_in_region = region.sx <= mouse.x && region.sy <= mouse.y && region.mx >= mouse.x && region.my >= mouse.y,
 		region_in_clip = mouse_in_region && start_opts.clip && region.sx >= cregion.sx && region.sy >= cregion.sy && region.mx <= cregion.mx && region.my <= cregion.my;
 	
-	return start_opts.clip ? region_in_clip : mouse_in_region;
+	return start_opts.clip ? false : mouse_in_region;
 }
