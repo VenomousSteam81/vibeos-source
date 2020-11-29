@@ -413,14 +413,21 @@ ui.text = class ui_text extends ui.element {
 	metrics(ctx, dims, str){
 		this.apply_style(ctx);
 		
-		var sval = str || this.text;
+		var sval = str || this.text,
+			gv = () => ui.metric_c[sval][1];
 		
 		if(!ui.metric_c[sval])ui.metric_c[sval] = [Date.now(), ctx.measureText(sval)];
 		
 		ui.metric_c[sval][0] = Date.now(); // set last accessed
 		
-		ui.metric_c[sval][1].height = ui.metric_c[sval][1].fontBoundingBoxAscent + ui.metric_c[sval][1].fontBoundingBoxDescent;
-		ui.metric_c[sval][1].actual_height = ui.metric_c[sval][1].actualBoundingBoxAscent + ui.metric_c[sval][1].actualBoundingBoxDescent;
+		if(gv().fontBoundingBoxAscent == null)gv().fontBoundingBoxAscent = gv().actualBoundingBoxAscent;
+		if(gv().fontBoundingBoxDescent == null)gv().fontBoundingBoxDescent = gv().actualBoundingBoxDescent * 1.5;
+		
+		
+		gv().height = gv().fontBoundingBoxAscent + gv().fontBoundingBoxDescent;
+		gv().actual_height = gv().actualBoundingBoxAscent + gv().actualBoundingBoxDescent;
+		
+		window.cuck = gv();
 		
 		ctx.restore();
 		
