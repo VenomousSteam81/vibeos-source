@@ -1,4 +1,4 @@
-// 'use strict';
+'use strict';
 var fs = require('fs'),
 	path = require('path'),
 	events = require('events'),
@@ -2069,7 +2069,7 @@ ui.template = (type, data) => {
 		<rect width='100%' height='83'>
 			<text x='ui.align.middle' y='ui.align.middle' width='100%' color='#000' size='32' align='center'>vibeOS</text>
 		</rect>
-		<rect x='ui.align.middle' y='ui.align.bottom' width='92%' height='2' color='#AAA'></rect>
+		<rect x='ui.align.middle' y='83' width='92%' height='2' color='#AAA'></rect>
 	</content>
 </app>
 			`, false);
