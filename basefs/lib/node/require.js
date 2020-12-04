@@ -4,6 +4,11 @@ var path = require('path'),
 	buffer = require('buffer'),
 	web = {};
 
+exports.parse = (code, spath) => {
+	return code + '\n//# sourceURL=' + spath;
+	// return code.replace(/(?:\(.*?\)|\w+)\s*?=>|function\s*?\S*?\s*?\(/g, 'async $&');
+};
+
 exports.cache = {};
 
 /**
@@ -82,7 +87,7 @@ exports.init = (fs, base_dir, user, stack = 'main') => {
 		
 		args.require.user = require.user;
 		
-		new Function(Object.keys(args).concat(Object.keys(options.args)), script)(...Object.values(args).concat(Object.values(options.args)));
+		new Function(Object.keys(args).concat(Object.keys(options.args)), exports.parse(script, file))(...Object.values(args).concat(Object.values(options.args)));
 		
 		return options.cache ? exports.cache[file] = _exports : _exports;
 	};

@@ -1,8 +1,10 @@
 var path = require('path'),
 	Buffer = require('buffer').Buffer,
-	fs = require('/lib/node/fs.js').mount('/', 'object', base_fs_data),
+	fs = window.fs = require('/lib/node/fs.js').mount('/', 'object', base_fs_data),
 	init_require = require('/lib/node/require.js'),
 	_require = init_require.init(fs, '/');
+
+document.body.innerHTML = '';
 
 init_require.cache = {
 	fs: fs,

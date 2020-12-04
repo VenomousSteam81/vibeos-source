@@ -194,14 +194,14 @@ var fs = require('fs'),
 		},
 	});
 
-canvas.addEventListener('mousemove', mouse.handler);
-canvas.addEventListener('mousedown', mouse.handler);
-canvas.addEventListener('mouseup', mouse.handler);
-canvas.addEventListener('wheel', mouse.handler);
+canvas.addEventListener('mousemove', mouse.handler, { passive: true });
+canvas.addEventListener('mousedown', mouse.handler, { passive: true });
+canvas.addEventListener('mouseup', mouse.handler, { passive: true });
+canvas.addEventListener('wheel', mouse.handler, { passive: true });
 canvas.addEventListener('contextmenu', event => (event.preventDefault(), mouse.handler(event)));
-canvas.addEventListener('mouseleave', () => mouse.buttons = {});
+canvas.addEventListener('mouseleave', () => mouse.buttons = {}, { passive: true });
 
-window.addEventListener('paste', keyboard.paste);
+window.addEventListener('paste', keyboard.paste, { passive: true });
 window.addEventListener('keydown', keyboard.handler);
 window.addEventListener('keyup', keyboard.handler);
 

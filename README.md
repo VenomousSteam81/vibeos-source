@@ -24,4 +24,4 @@ Check ```./basefs/var/docs/```
 
 See https://devdocs.io/jsdoc/tags-example for format
 
-To add a file, add the path in docs.json
+To add a file, add the path in build.json => docs

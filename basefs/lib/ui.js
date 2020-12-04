@@ -66,15 +66,14 @@ var fs = require('fs'),
 		return blinking[uuid];
 	},
 	ui = exports,
-	is_object = item => item && typeof item == 'object' && !Array.isArray(item),
-	merge_deep = (target, ...sources) => {
-		if(!sources.length)return target;
-		var source = sources.shift();
-
-		if(is_object(target) && is_object(source))for(const key in source)if(is_object(source[key]))!target[key] && Object.assign(target, { [key]: {} }), merge_deep(target[key], source[key]);
-		else Object.assign(target, { [key]: source[key] });
-
-		return merge_deep(target, ...sources);
+	proc = (val, cor) => {
+		var type = ((val || 0) + '').replace(/[^a-z%]/gi, '') || 'px', // get exact type (%, px, rem, etc..)
+			actu = Number((val + '').replace(/[a-z%]/gi, '')); // remote types or characters
+		
+		// use switch statements when more unit s added
+		if(type == '%')actu = (actu * cor) / 100;
+		
+		return actu;
 	};
 
 Object.assign(ui, {
@@ -102,21 +101,12 @@ Object.assign(ui, {
 				height: 0,
 				x: 0,
 				y: 0,
-			},
-			proc = (val, cor) => {
-				var type = ((val || 0) + '').replace(/[^a-z%]/gi, '') || 'px', // get exact type (%, px, rem, etc..)
-					actu = Number((val + '').replace(/[a-z%]/gi, '')); // remote types or characters
-				
-				// use switch statements when more unit s added
-				if(type == '%')actu = (actu * cor) / 100;
-				
-				return actu;
 			};
 		
-		Object.entries(ui.align).forEach(([ key, val ]) => {
-			if(parse_data.x == 'ui.align.' + key)parse_data.x = val;
-			if(parse_data.y == 'ui.align.' + key)parse_data.y = val;
-		});
+		for(var key in ui.align){
+			if(parse_data.x == 'ui.align.' + key)parse_data.x = ui.align[key];
+			if(parse_data.y == 'ui.align.' + key)parse_data.y = ui.align[key];
+		}
 		
 		correct.width = proc(parse_data.width, dims.width);
 		correct.height = proc(parse_data.height, dims.inner_height || dims.height);
@@ -167,6 +157,8 @@ Object.assign(ui, {
 	metric_c: {},
 	metric_expires: 1000,
 });
+
+ui.align.entries = Object.entries(ui.align);
 
 // clear metrics to prevent memory die
 setInterval(() => Object.keys(ui.metric_c).filter(key => Date.now() - ui.metric_c[key][0] >= ui.metric_expires).forEach(key => {
@@ -2139,7 +2131,7 @@ ui.template = (type, data) => {
 	}
 };
 
-Object.keys(ui).filter(key => ui[key] instanceof Function).forEach(key => {
+/*Object.keys(ui).filter(key => ui[key] instanceof Function).forEach(key => {
 	used[key] = {
 		perf: 0,
 		calls: 0,
@@ -2171,4 +2163,4 @@ Object.keys(ui).filter(key => ui[key] instanceof Function).forEach(key => {
 			return ret;
 		},
 	});
-});
+});*/

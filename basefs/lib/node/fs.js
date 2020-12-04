@@ -15,36 +15,30 @@ var path = require('path'),
 	},
 	filesys = class {
 		constructor(name){
-			var dyn = JSON.parse(localStorage.getItem(name) || '{}');
-			
 			this.dynamic = {};
 			this.static = {};
 			
-			Object.assign(this.dynamic, dyn);
-			Object.assign(this.static, dyn);
+			Object.keys(localStorage).forEach(key => {
+				if(!key.startsWith(name))return;
+				
+				var ke = key.substr(name.length),
+					def = obj => Object.defineProperty(obj, ke, {
+						get: _ => JSON.parse(localStorage.getItem(key)),
+						set: v => (delete obj[ke], obj[ke] = v),
+						configurable: true,
+						enumerable: true,
+					});
+				
+				
+				
+				def(this.dynamic);
+				def(this.static);
+			});
 			
 			this.name = name;
 		}
 		update(){
-			localStorage.setItem(this.name, JSON.stringify(this.dynamic));
-		}
-		walk_file_dynamic(file){
-			var arr = path.resolve(file).split('/').filter(file => file),
-				depth = this.dynamic;
-			
-			arr.forEach(val => depth = depth[val] || (depth[val] = {}));
-			
-			return depth;			
-		}
-		walk_file(file){
-			var arr = path.resolve(file).split('/').filter(file => file),
-				depth = this.static;
-			
-			arr.forEach(val => depth = depth[val] == null ? errors.enoent(file) : depth[val]);
-			
-			if(depth instanceof Error)throw depth;
-			
-			return depth;
+			Object.entries(this.dynamic).forEach(([ key, val ]) => localStorage.setItem(this.name + key, JSON.stringify(val)));
 		}
 		mount(mount_point, type, data){
 			var parsed = data;
@@ -63,68 +57,75 @@ var path = require('path'),
 			
 			return module.exports;
 		}
+		overview(file){
+			var res = path.resolve(file);
+			
+			if(!this.static[res])throw errors.enoent(res);
+			
+			return this.static[res];
+		}
 		stat(file){
-			var depth = this.walk_file(path.resolve(file));
+			var [ data, stat ] = this.overview(path.resolve(file));
 			
 			return {
-				isDirectory: () => typeof depth != 'string',
-				ctimeMs: () => Date.now(),
-				atimeMs: () => Date.now(),
-				mtimeMs: () => Date.now(),
+				isDirectory: () => typeof data != 'string',
+				atimeMs: stat.a,
+				mtimeMs: stat.m,
+				ctimeMs: stat.c,
+				birthtimeMs: stat.b,
+				blksize: stat.bl,
+				blocks: stat.bo,
+				nlink: stat.n,
+				mode: stat.mo,
+				ino: stat.i,
+				dev: stat.dev,
 			};
 		}
 		exists(file){
-			try{
-				this.walk_file(file);
-				return true;
-			}catch(err){}
+			var res = path.resolve(file);
 			
-			return false;
+			return !!this.static[res];
 		}
 		read(file, encoding){
-			var depth = this.walk_file(file);
+			var overview = this.overview(file);
 			
 			if(this.stat(file).isDirectory())throw errors.eisdir('read', file);
 			
-			var data = Buffer.from(lzutf8.decompress(depth, { inputEncoding: 'Base64' }), 'base64');
+			var data = Buffer.from(lzutf8.decompress(overview[0], { inputEncoding: 'Base64' }), 'base64');
 			
 			return encoding ? data.toString(encoding) : data
 		}
 		read_dir(file){
-			var depth = this.walk_file(file);
-			 
-			return ['.', '..'].concat(Object.keys(depth));
+			var res = path.resolve(file);
+			
+			return ['.', '..'].concat(Object.keys(this.static).filter((key, h) => (h = path.dirname(key)) && key != res && h == res).map(de => path.relative(file, de)));
 		}
 		write(file, data, options){
 			if(typeof data != 'string' && !(data instanceof Buffer) && !Array.isArray(data))throw errors.invalid_arg_type('data', ['Buffer', 'TypedArray', 'DataView'], typeof data);
 			
 			if(this.exists(file) && this.stat(file).isDirectory())return errors.eisdir('open', file);
 			
-			var resolved = path.resolve(file),
-				resolved_split = resolved.split('/').filter(file => file),
-				dirname = path.dirname(file),
-				basename = path.basename(file),
-				depth = this.walk_file(dirname),
-				depth_dyn = this.walk_file_dynamic(dirname),
-				compressed = lzutf8.compress(Buffer.from(data).toString('base64'), { outputEncoding: 'Base64' });
+			var res = path.resolve(file),
+				compressed = lzutf8.compress(Buffer.from(data).toString('base64'), { outputEncoding: 'Base64' }),
+				prevs = this.exists(file) ? this.stat(file) : { c: Date.now(), m: Date.now(), a: Date.now() };
 			
-			depth[basename] = compressed;
-			depth_dyn[basename] = compressed;
+			this.static[res] = this.dynamic[res] = [compressed, Object.assign(prevs, {
+				m: Date.now(),
+				a: Date.now(),
+			})];
 			
 			this.update();
 		}
 		mkdir(dir){
 			if(this.exists(dir))return errors.eexists('mkdir', dir);
 			
-			var resolved = path.resolve(dir),
-				resolved_split = resolved.split('/').filter(dir => dir),
-				dirname = path.dirname(dir),
-				basename = path.basename(dir),
-				depth = this.walk_file(dirname),
-				depth_dyn = this.walk_file_dynamic(dirname);
+			var res = path.resolve(dir),
+				prevs = this.exists(dir) ? this.stat(dir) : { c: Date.now(), m: Date.now(), a: Date.now() };
 			
-			depth[basename] = {};
-			depth_dyn[basename] = {};
+			this.static[res] = this.dynamic[res] = [null, Object.assign(prevs, {
+				m: Date.now(),
+				a: Date.now(),
+			})];
 			
 			this.update();
 		}
@@ -155,7 +156,7 @@ var path = require('path'),
 			URL.revokeObjectURL(object_url);
 		}
 	},
-	filesystem = new filesys('__fs_1.0.0'),
+	filesystem = new filesys('fs2'),
 	errors = {
 		eexists(operation, dir){
 			return new TypeError('EEXIST: file already exists, ' + operation + ' \'' + dir + '\'')
@@ -175,6 +176,7 @@ var path = require('path'),
 	};
 
 module.exports = {
+	fs: filesystem,
 	readFile(file, ...args){
 		var options = args.find(arg => typeof arg == 'object') || {},
 			callback = args.find(arg => typeof arg == 'function') || {},
