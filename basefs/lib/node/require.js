@@ -15,7 +15,6 @@ exports.cache = {};
 * @param {object} fs filesystem to read and search from
 * @param {object} base_dir directory that non-absolute paths are resolved from
 * @param {object} user user account to assign to output
-* @param {object} stack module that is initating 
 * @property {object} user user account data
 * @property {function} exec execute scripts
 * @example
@@ -29,29 +28,29 @@ exports.cache = {};
 * @return {function} require
 */
 
-exports.init = (fs, base_dir, user, stack = 'main') => {
+exports.init = (fs, base_dir, user) => {
 	var require = (dire, options) => {
 		var file = path.resolve(dire);
 		
-		if(/^[^\.\/\\]/g.test(dire) && exports.cache[dire])return exports.cache[dire];
+		if(!path.isAbsolute(dire) && exports.cache[dire])return exports.cache[dire];
 		
 		// add js extension if missing
 		if(!path.extname(file))file = file + '.js';
 		
 		if(!fs.existsSync(file))file = path.join(base_dir, file);
 		
-		if(!fs.existsSync(file))throw new TypeError('Cannot find module \'' + file + '\' <' + stack + '>');
+		if(!fs.existsSync(file))throw new TypeError('Cannot find module \'' + file + '\'');
 		
 		if(exports.cache[file])return exports.cache[file];
 		
-		return require.exec(fs.readFileSync(file), file, options);
+		return require.exec(fs, file, options).init();
 	};
 	
 	require.user = { name: '', home: '' };
 	
 	/**
-	* @param {string} script text content of script to execute
-	* @param {string} file filename of script being executed (for adding to cache)
+	* @param {string} fs filesystem to read/write from
+	* @param {string} file filename of script being executed
 	* @param {object} options options when processing
 	* @param {object} options.cache if the output should be added to cache
 	* @param {object} options.args additional args to pass to function
@@ -62,34 +61,51 @@ exports.init = (fs, base_dir, user, stack = 'main') => {
 	* @return {function} exec
 	*/
 	
-	require.exec = (script, file, options = { cache: true, args: {} }) => {
-		if(mime.getType(file) == 'application/json')return JSON.parse(file);
+	require.exec = (fs, file, options = {}) => {
+		if(mime.getType(file) == 'application/json')return JSON.parse(fs.readFileSync(file, 'utf8'));
 		
-		var _exports = {},
-			_module = {
-				get exports(){
-					return _exports;
+		options = Object.assign({
+			cache: true,
+			args: {},
+			func: Function,
+		}, options);
+		
+		var args = Object.assign({
+				module: {
+					get exports(){
+						return args.exports;
+					},
+					set exports(v){
+						return args.exports = v;
+					},
 				},
-				set exports(v){
-					_exports = v;
-					return true;
-				},
-			},
-			args = {
-				module: _module,
-				exports: _exports,
-				require: exports.init(fs, path.dirname(file), require.user, file),
+				exports: {},
+				require: exports.init(fs, path.dirname(file), require.user),
 				Buffer: buffer.Buffer,
+				process: Object.assign(process, {
+					pid: process.last_pid + 1,
+					platform:'linux',
+					arch: 'x32',
+					cwd:_=> path.dirname(file),
+				}),
 				__filename: file,
 				__dirname: path.dirname(file),
 				web: web,
-			};
+			}, options.args),
+			script = fs.readFileSync(file, 'utf8');
 		
 		args.require.user = require.user;
 		
-		new Function(Object.keys(args).concat(Object.keys(options.args)), exports.parse(script, file))(...Object.values(args).concat(Object.values(options.args)));
-		
-		return options.cache ? exports.cache[file] = _exports : _exports;
+		return {
+			args: args,
+			init(){
+				var func = new options.func(Object.keys(args), exports.parse(script, file));
+				
+				Reflect.apply(func, args.exports, Object.values(args));
+				
+				return options.cache ? exports.cache[file] = args.exports : args.exports;
+			},
+		};
 	};
 	
 	return require;

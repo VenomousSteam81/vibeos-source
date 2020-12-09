@@ -1,6 +1,6 @@
 var ut = exports;
 
-ut.add_ele = add_ele = (node_name, parent, attributes) => Object.assign(parent.appendChild(document.createElement(node_name)), attributes);
+ut.add_ele = (node_name, parent, attributes) => Object.assign(parent.appendChild(document.createElement(node_name)), attributes);
 
 ut.sanatize_buffer = ut.add_ele('div', document.body, { style: 'display: none' });
 

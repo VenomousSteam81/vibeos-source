@@ -1,7 +1,7 @@
 var path = require('path'),
 	Buffer = require('buffer').Buffer,
-	fs = window.fs = require('/lib/node/fs.js').mount('/', 'object', base_fs_data),
-	init_require = require('/lib/node/require.js'),
+	fs = require('fs').mount('/', 'object', a),
+	init_require = require('require'),
 	_require = init_require.init(fs, '/');
 
 document.body.innerHTML = '';
@@ -11,6 +11,7 @@ init_require.cache = {
 	path: path,
 	mime: require('mime'),
 	buffer: require('Buffer'),
+	events: _require.exec(fs, '/lib/node/events.js').init(),
 };
 
 _require.user = {
@@ -18,5 +19,4 @@ _require.user = {
 	home: '/root',
 };
 
-_require.exec(fs.readFileSync('/lib/node/events.js', 'utf8'), 'events');
 _require('/boot/init.js');

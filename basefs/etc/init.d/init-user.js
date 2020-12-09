@@ -3,11 +3,20 @@ var screen = require('/lib/screen.js'),
 	fs = require('fs'),
 	path = require('path'),
 	bar_data_path = path.join(require.user.home, 'bar.json'),
-	folders = ['Desktop', 'Documents', 'Downloads', 'Music', 'Pictures', 'Videos'];
+	folders = ['Desktop', 'Documents', 'Downloads', 'Music', 'Pictures', 'Videos'],
+	user = web.users[require.user.alias] || (web.users[require.user.alias] = {});
 
 if(!fs.existsSync(require.user.home))fs.mkdirSync(require.user.home);
 folders.filter(folder => !fs.existsSync(path.join(require.user.home, folder))).forEach(folder => fs.mkdirSync(path.join(require.user.home, folder)));
 if(!fs.existsSync(bar_data_path))fs.writeFileSync(bar_data_path, '[]');
+
+user.bg = user.state.append(new ui.image({
+	width: '100%',
+	height: '100%',
+	path: '/usr/share/wallpaper/default.png',
+}));
+
+user.bar = user.state.append(new ui.bar({}));
 
 [{
 	icon_path: '/usr/share/categ/development.png',
@@ -16,9 +25,9 @@ if(!fs.existsSync(bar_data_path))fs.writeFileSync(bar_data_path, '[]');
 },{
 	path: '/var/xml/license.xml',
 	pinned: true,
-}].concat(JSON.parse(fs.readFileSync(bar_data_path, 'utf8'))).forEach(entry => web.bar.open.push(entry));
+}].concat(JSON.parse(fs.readFileSync(bar_data_path, 'utf8'))).forEach(entry => user.bar.open.push(entry));
 
-web.bar.menu.open = [{
+user.bar.menu.open = [{
 	icon_path: '/usr/share/categ/configuration.png',
 	title: 'Settings',
 	contents: [],
@@ -70,7 +79,7 @@ web.bar.menu.open = [{
 }];
 
 var desktop = screen.layers.append(new ui.desktop({
-	y: web.bar.height,
+	y: user.bar.height,
 	open: [{
 		title: 'Trash',
 		icon: '/usr/share/places/emptytrash.png',
@@ -85,7 +94,7 @@ var desktop = screen.layers.append(new ui.desktop({
 }));
 
 desktop.context_menu = screen.layers.append(new ui.context_menu({
-	triggers: [ web.bg, desktop ],
+	triggers: [ user.bg, desktop ],
 	items: [{
 		title: 'browser test',
 		icon: '/usr/share/categ/multimedia.png',

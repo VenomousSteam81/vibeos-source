@@ -419,8 +419,6 @@ ui.text = class ui_text extends ui.element {
 		gv().height = gv().fontBoundingBoxAscent + gv().fontBoundingBoxDescent;
 		gv().actual_height = gv().actualBoundingBoxAscent + gv().actualBoundingBoxDescent;
 		
-		window.cuck = gv();
-		
 		ctx.restore();
 		
 		return ui.metric_c[sval][1];
@@ -429,7 +427,7 @@ ui.text = class ui_text extends ui.element {
 		ctx.fillStyle = this.color;
 		ctx.textAlign = this.align;
 		ctx.textBaseline = 'middle';
-		ctx.font = (this.weight ? this.weight + ' ' : '') + this.size + 'px ' + this.family;
+		ctx.font = this.font || (this.weight ? this.weight + ' ' : '') + this.size + 'px ' + this.family;
 		
 		var metrics = this.metrics(ctx),
 			fixed = ui.fixed_sp(this, dims);
@@ -493,8 +491,6 @@ ui.text = class ui_text extends ui.element {
 					return line_out.join(' ').split('\n');
 				}),
 				lines = parse(this.text).map(line => {
-					// console.log(line);
-					
 					var metrics = this.metrics(ctx, dims, line);
 					
 					return prev = {
@@ -507,17 +503,39 @@ ui.text = class ui_text extends ui.element {
 			
 			this.width = lines.sort((data, prev) => prev.width - data.width)[0].width;
 			this.height = 0;
+			
 			lines.forEach(data => this.height += data.height)
 			
 			fixed = ui.fixed_sp(this, dims);
 			
 			lines.forEach(data => ctx.fillText(data.text, fixed.x, fixed.y + data.y));
 		}else{
-			this.width = metrics.width;
-			this.height = metrics.height;
+			this.height = 0;
 			
-			fixed = ui.fixed_sp(this, dims);
-			ctx.fillText(this.text, fixed.x, fixed.y + (this.height / 2));
+			var prev = {},
+				offset_height = 0,
+				fixed = ui.fixed_sp(this, dims),
+				lines = this.text.split('\n').map(line => {
+					var metric = this.metrics(ctx, dims, line);
+					
+					if(metric.width > this.width)this.width = metric.width;
+					
+					this.height += metric.height;
+					
+					metric.text = line;
+					
+					prev = metric;
+					
+					return metric;
+				});
+			
+			this.width = lines.sort((data, prev) => prev.width - data.width)[0].width;
+			
+			lines.forEach(metric => {
+				ctx.fillText(metric.text, fixed.x, fixed.y + offset_height);
+				
+				offset_height += metric.height;
+			});
 		}
 	}
 }
@@ -789,7 +807,7 @@ ui.window = class ui_window extends ui.element {
 			},
 		}));
 		
-		if(this.show_in_bar)web.bar.open.push({
+		if(this.show_in_bar)web.screen.user.bar.open.push({
 			element: this,
 			icon_path: this.icon,
 		});
@@ -1236,7 +1254,7 @@ ui.input = class ui_input extends ui.rect {
 			this.cursor_pos += data.text.length;
 		});
 		
-		web.keyboard.on('keydown', event => {
+		web.screen.keyboard.on('keydown', event => {
 			if(!this.focus)return;
 			
 			blink_bool(this.uuid, 1000, true);
@@ -1290,6 +1308,21 @@ ui.input = class ui_input extends ui.rect {
 * @param {string} opts.window REQUIRED, parent window element that this goes in
 * @param {string} opts.silence_warnings silences errors about overall usage of webviews
 * @return {ui_webview} webview element
+* @example
+* // creates window that draws rectangle relative to cursor
+* var window = screen.layers.append(new ui.window({
+* 		title: 'canvs demo',
+* 		x: ui.align.middle,
+* 		y: ui.align.middle,
+* 	})),
+* 	webview = window.content.append(new ui.webview({
+* 		width: '100%',
+* 		height: '100%',
+* 		src: 'https://ldm.sys32.dev/https://www.google.com/',
+* 		window: window,
+* 	}));
+* 
+* // success
 */
 
 ui.webview = class ui_webview extends ui.rect {

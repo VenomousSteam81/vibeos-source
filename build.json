@@ -44,19 +44,25 @@
 		{
 			"path": ["basefs", "lib", "node", "require.js"],
 			"options": {
-				"expose": "/lib/node/require.js"
+				"expose": "require"
+			}
+		},
+		{
+			"path": ["basefs", "lib", "node", "spawn.js"],
+			"options": {
+				"expose": "spawn"
 			}
 		},
 		{
 			"path": ["basefs", "lib", "lzutf8.js"],
 			"options": {
-				"expose": "/lib/lzutf8.js"
+				"expose": "lzutf8"
 			}
 		},
 		{
 			"path": ["basefs", "lib", "node", "fs.js"],
 			"options": {
-				"expose": "/lib/node/fs.js"
+				"expose": "fs"
 			}
 		}
 	]

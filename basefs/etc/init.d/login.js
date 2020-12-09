@@ -55,17 +55,18 @@ var login_rect = screen.layers.append(new ui.rect({ width: '100%', height: '100%
 	};
 
 login.login_button.on('click', event => {
-	web.bar.visible = true;
-	
 	// change this to be dynamic soon
 	require.user.alias = 'vibeOS';
 	require.user.home = '/home/vibeOS';
 	
-	screen.state = require.user.alias;
+	if(!web.users[require.user.alias])web.users[require.user.alias] = {
+		state: Object.assign(screen.states[require.user.alias] = [], { append: screen.append_layers }),
+	};
+	
+	var user = web.users[require.user.alias];
+	
+	screen.state = user.state;
+	screen.user =  user;
+	
 	require('./init-user.js');
 });
-
-web.bar.visible = false;
-
-// begin rendering
-screen.render();

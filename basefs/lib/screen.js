@@ -9,7 +9,7 @@ var screen = web.screen = module.exports = {
 			return elements[0];
 		},
 		get layers(){
-			if(!screen.states[screen.state])screen.states[screen.state] = [ web.bg, web.bar ];
+			if(!screen.states[screen.state])screen.states[screen.state] = [];
 			
 			return Object.assign(screen.states[screen.state], { append: screen.append_layers });
 		},
@@ -19,9 +19,8 @@ var screen = web.screen = module.exports = {
 			width: 1000,
 			height: 600,
 		},
-	};
-
-var fs = require('fs'),
+	},
+	fs = require('fs'),
 	dom_utils = require('./dom-utils.js'),
 	ui = require('./ui.js'),
 	events = require('events'),
@@ -131,7 +130,7 @@ var fs = require('fs'),
 				target.emit('click', event, mouse);
 			}else if(mouse.buttons.right && event.type == 'mouseup')target.emit('contextmenu', event, mouse);
 			
-			if(event.type == 'mouseup')mouse.target = null;
+			if(event.type == 'mouseup' && mouse.buttons.left != mouse.buttons.right)mouse.target = null;
 			
 			target.mouse_pressed = mouse.buttons.left && event.type != 'mouseup';
 			
@@ -181,11 +180,16 @@ var fs = require('fs'),
 			target.emit(event.type, event, mouse);
 		},
 	}),
-	keyboard = web.keyboard = Object.assign(new events(), {
+	keyboard = screen.keyboard = Object.assign(new events(), {
+		keys: {},
 		handler(event){
 			// event.preventDefault();
 			
+			event.func = /F\d+/g.test(event.code);
+			
 			keyboard.emit(event.type, event);
+			
+			keyboard.keys[event.code] = event.type == 'keydown' ? true : false;
 		},
 		paste(event){
 			var data = (event.clipboardData || window.clipboardData).getData('text');
@@ -208,14 +212,6 @@ window.addEventListener('keyup', keyboard.handler);
 document.body.style = 'margin: 0px; background: #000;';
 
 var ctx = web.ctx = canvas.getContext('2d');
-
-web.bg = new ui.image({
-	width: '100%',
-	height: '100%',
-	path: '/usr/share/wallpaper/default.png',
-});
-
-web.bar = new ui.bar({});
 
 screen.render = () => {
 	container.style.width = screen.dims.width + 'px';

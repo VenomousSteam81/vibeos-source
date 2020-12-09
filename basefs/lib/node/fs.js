@@ -1,7 +1,7 @@
 'use strict';
 var path = require('path'),
 	mime = require('mime'),
-	lzutf8 = require('/lib/lzutf8.js'),
+	lzutf8 = require('lzutf8'),
 	Buffer = require('buffer').Buffer,
 	is_object = item => item && typeof item == 'object' && !Array.isArray(item),
 	merge_deep = (target, ...sources) => {
