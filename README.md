@@ -28,4 +28,12 @@ To add a file, add the path in build.json => docs
 
 ## todo:
 
-convert .png files to .webp automatically + routing .png files to .webp in filesystem
+- convert .png files to .webp automatically + routing .png files to .webp in filesystem
+
+## FS
+
+https://nodejs.org/api/fs.html
+
+### todo:
+
+- [https://nodejs.org/api/fs.html#fs_fs_watch_filename_options_listener](fs.watch)
