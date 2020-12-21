@@ -27,6 +27,9 @@ var fs = require('fs'),
 				is_dir = stats.isDirectory(),
 				ind = path.posix.join('/', prefix, sub_dir);
 			
+			// going to use image converter tool soon
+			// if(full_dir.endsWith('.png'))console.warn('vibeOS: .png files take a toll on file size, consider using .webp ( ' + full_dir + ' )');
+			
 			files[ind] = [ compact_stats(stats) ];
 			
 			if(!is_dir)files[ind][1] = lzutf8.compress(fs.readFileSync(full_dir, 'base64'), { outputEncoding: 'Base64' });
