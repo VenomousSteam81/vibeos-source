@@ -2,7 +2,26 @@
 var path = require('path'),
 	mime = require('mime'),
 	buffer = require('buffer'),
-	web = {};
+	natives = {
+		DOM: document,
+		WINDOW: window,
+	},
+	perms = {
+		'/lib/dom-utils.js': ['DOM'],
+		'/lib/screen.js': ['DOM', 'WINDOW'],
+		'/etc/init.d/shell.js': ['DOM'],
+		'/var/lib/rasterize-html.js': ['NO-SANDBOX'],
+		'/var/apps/web.js': ['DOM'],
+	},
+	web = {},
+	safe_global = [
+		"Object","Function","Array","Number","parseFloat","parseInt","Infinity","NaN","undefined","Boolean","String","Symbol","Date","Promise","RegExp","Error","EvalError","RangeError","ReferenceError","SyntaxError","TypeError","URIError","globalThis","JSON","Math","console","Intl","ArrayBuffer","Uint8Array","Int8Array","Uint16Array","Int16Array","Uint32Array","Int32Array","Float32Array","Float64Array","Uint8ClampedArray","BigUint64Array","BigInt64Array","DataView","Map","BigInt","Set","WeakMap","WeakSet","Proxy","Reflect","decodeURI","decodeURIComponent","encodeURI","encodeURIComponent","escape","unescape","eval","isFinite","isNaN","global","process","Buffer","URL","URLSearchParams","TextEncoder","TextDecoder","AbortController","AbortSignal","EventTarget","Event","MessageChannel","MessagePort","MessageEvent","clearInterval","clearTimeout","setInterval","setTimeout","queueMicrotask","clearImmediate","setImmediate","SharedArrayBuffer","Atomics","AggregateError","FinalizationRegistry","WeakRef","WebAssembly",
+		'FontFace',
+		'Image',
+		'Path2D',
+		'DOMParser',
+		'XMLSerializer',
+	];
 
 exports.parse = (code, spath) => {
 	return code + '\n//# sourceURL=' + spath;
@@ -70,7 +89,7 @@ exports.init = (fs, base_dir, user) => {
 			func: Function,
 		}, options);
 		
-		var args = Object.assign({
+		var args = Object.assign(perms[file] && perms[file].includes('NO-SANDBOX') ? {} : Object.fromEntries(Object.getOwnPropertyNames(global).filter(key => !key.startsWith('WebGL') && !safe_global.includes(key)).map(key => [ key, undefined ])), {
 				module: {
 					get exports(){
 						return args.exports;
@@ -91,6 +110,16 @@ exports.init = (fs, base_dir, user) => {
 				__filename: file,
 				__dirname: path.dirname(file),
 				web: web,
+				global: web,
+				request_native(label){
+					if(!perms[file])throw new TypeError('no native permissions granted!');
+					
+					if(!perms[file].includes(label))throw new TypeError('permission for ' + JSON.stringify([ label ]).slice(1, -1) + ' not granted!');
+					
+					return natives[label];
+				},
+				// proxy later
+				fetch: fetch,
 			}, options.args),
 			script = fs.readFileSync(file, 'utf8');
 		

@@ -2086,7 +2086,7 @@ ui.desktop = class ui_desktop extends ui.element {
 	}
 }
 
-var used = window.used = {};
+var used = {};
 
 ui.template = (type, data) => {
 	switch(type){

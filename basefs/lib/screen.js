@@ -1,3 +1,4 @@
+'use strict';
 var screen = web.screen = module.exports = {
 		states: {},
 		state: 'none',
@@ -24,8 +25,9 @@ var screen = web.screen = module.exports = {
 	dom_utils = require('./dom-utils.js'),
 	ui = require('./ui.js'),
 	events = require('events'),
-	request_frame = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || (func => setTimeout(func, 1000 / 60)),
-	container = screen.container = dom_utils.add_ele('div', document.body, {
+	dom = request_native('DOM'),
+	win = request_native('WINDOW'),
+	container = screen.container = dom_utils.add_ele('div', dom.body, {
 		width: screen.dims.width,
 		height: screen.dims.height,
 		style: `
@@ -207,11 +209,11 @@ canvas.addEventListener('wheel', mouse.handler, { passive: true });
 canvas.addEventListener('contextmenu', event => (event.preventDefault(), mouse.handler(event)));
 canvas.addEventListener('mouseleave', () => mouse.buttons = {}, { passive: true });
 
-window.addEventListener('paste', keyboard.paste, { passive: true });
-window.addEventListener('keydown', keyboard.handler);
-window.addEventListener('keyup', keyboard.handler);
+win.addEventListener('paste', keyboard.paste, { passive: true });
+win.addEventListener('keydown', keyboard.handler);
+win.addEventListener('keyup', keyboard.handler);
 
-document.body.style = 'margin: 0px; background: #000;';
+dom.body.style = 'margin: 0px; background: #000;';
 
 var ctx = web.ctx = canvas.getContext('2d');
 
@@ -310,7 +312,7 @@ screen.render = () => {
 	
 	canvas.style.cursor = 'url("' + fs.data_uri('/usr/share/cursor/' + mouse.cursor + '.cur') + '"), none';
 	
-	request_frame(screen.render);
+	process.nextTick(screen.render);
 };
 
 screen.element_in_mouse = element => {

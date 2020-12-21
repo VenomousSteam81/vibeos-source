@@ -1,6 +1,7 @@
 var ui = require('/lib/ui.js'),
 	dom_utils = require('/lib/dom-utils.js'),
 	rasterize_html = require('/var/lib/rasterize-html.js'),
+	dom = request_native('DOM'),
 	browser_win = new ui.window({
 		x: ui.align.middle,
 		y: ui.align.middle,
@@ -30,7 +31,7 @@ var ui = require('/lib/ui.js'),
 				data = await fetch(/^https?:\/{2}/.test(vurl) ? 'https://ldm.sys32.dev/' + vurl : vurl).then(res => res.text()).catch(err =>
 					`<p>error visiting ${vurl}:</p>\n<pre>${err}</pre>`
 				),
-				buf = dom_utils.add_ele('canvas', document.body, { style: 'display: none' });
+				buf = dom_utils.add_ele('canvas', dom.body, { style: 'display: none' });
 			
 			// https://github.com/cburgmer/rasterizeHTML.js/wiki/API
 			

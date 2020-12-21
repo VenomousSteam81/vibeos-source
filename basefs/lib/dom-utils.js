@@ -1,11 +1,12 @@
-var ut = exports;
+var ut = exports,
+	dom = request_native('DOM');
 
-ut.add_ele = (node_name, parent, attributes) => Object.assign(parent.appendChild(document.createElement(node_name)), attributes);
+ut.add_ele = (node_name, parent, attributes) => Object.assign(parent.appendChild(dom.createElement(node_name)), attributes);
 
-ut.sanatize_buffer = ut.add_ele('div', document.body, { style: 'display: none' });
+ut.sanatize_buffer = ut.add_ele('div', dom.body, { style: 'display: none' });
 
 ut.sanatize = str => {
-	sanatize_buffer.appendChild(document.createTextNode(str));
+	sanatize_buffer.appendChild(dom.createTextNode(str));
 	var clean = sanatize_buffer.innerHTML;
 	
 	sanatize_buffer.innerHTML = '';
@@ -22,7 +23,7 @@ ut.unsanatize = str => {
 	return clean;
 };
 
-/*ut.text_buffer = ut.add_ele('div', document.body, { style: 'display: none' });
+/*ut.text_buffer = ut.add_ele('div', dom.body, { style: 'display: none' });
 
 ut.canvas_text_measure = data => {
 	var result = {};

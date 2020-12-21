@@ -6,7 +6,7 @@ var ui = require('/lib/ui.js'),
 		x: ui.align.middle, 
 		y: ui.align.middle,
 		width: 300,
-		height: 500,
+		height: 400,
 		icon: 'https://raw.githubusercontent.com/vibeOS/vibeos-legacy/master/tango/categories/32/applications-graphics.png',
 		menu: {
 			File: {
@@ -14,35 +14,28 @@ var ui = require('/lib/ui.js'),
 					win.close();
 				},
 			},
+			Game: {
+				Reset(){
+					// todo
+				},
+			},
 		},
 		show_in_bar: show_in_bar,
 	}),
 	game = {
-		bg_color: {
-			"2": "#eee4da",
-			"4": "#ede0c8",
-			"8": "#f2b179",
-			"16": "#f59563",
-			"32": "#f67c5f",
-			"64": "#f65e3b",
-			"128": "#edcf72",
-			"256": "#edcc61",
-			"512": "#edc850",
-			"1024": "#edc53f",
-			"2048": "#edc22e"
-		},
-		text_color: {
-			"2": "#776e65",
-			"4": "#776e65",
-			"8": "#f9f6f2",
-			"16": "#f9f6f2",
-			"32": "#f9f6f2",
-			"64": "#f9f6f2",
-			"128": "#f9f6f2",
-			"256": "#f9f6f2",
-			"512": "#f9f6f2",
-			"1024": "#f9f6f2",
-			"2048": "#f9f6f2"
+		color: {
+			// BG | TEXT
+			2: ["#eee4da", "#776e65"],
+			4: ["#ede0c8", "#776e65"],
+			8: ["#f2b179", "#f9f6f2"],
+			16: ["#f59563", "#f9f6f2"],
+			32: ["#f67c5f", "#f9f6f2"],
+			64: ["#f65e3b", "#f9f6f2"],
+			128: ["#edcf72", "#f9f6f2"],
+			256: ["#edcc61", "#f9f6f2"],
+			512: ["#edc850", "#f9f6f2"],
+			1024: ["#edc53f", "#f9f6f2"],
+			2048: ["#edc22e", "#f9f6f2"],
 		},
 		con: win.content.append(new ui.rect({
 			color: '#BAA',
@@ -87,16 +80,9 @@ var ui = require('/lib/ui.js'),
 					get height(){
 						return (game.con.fixed.height / game.grid) - (this.margin * 2);
 					},
-					draw(ctx, dims){
-						ctx.fillStyle = this.color;
-						ctx.fillRect(this.fixed.x, this.fixed.y, this.fixed.width, this.fixed.height);
-					},
-					get color(){
-						return game.bg_color[this.count];
-					},
 					grid_x: x,
 					grid_y: y,
-					count: 0,
+					count: 2,
 					get visible(){
 						return this.count;
 					},
@@ -111,14 +97,21 @@ var ui = require('/lib/ui.js'),
 						return thise.count;
 					},
 					get color(){
-						return game.text_color[thise.count];
+						return game.color[thise.count][1];
 					},
+					weight: 'bold',
 				}));
 			}
+			draw(ctx, dims){
+				ctx.fillStyle = game.color[this.count][0];
+				
+				ctx.fillRect(this.fixed.x, this.fixed.y, this.fixed.width, this.fixed.height);
+			}
+		},
+		over(){
+			
 		},
 		add_cell(){
-			if(game.cells.filter(cell => cell.count) == game.grid)return alert('game over!');
-			
 			var shuffled = [];
 			
 			for (var i = game.cells.length - 1; i > 0; i--) {
@@ -129,37 +122,53 @@ var ui = require('/lib/ui.js'),
 				shuffled[j] = temp;
 			}
 			
-			for(var cell in shuffled){
-				if(!shuffled[cell].count){
-					shuffled[cell].count = 2;
-					break;
-				}else continue;
-			}
+			var grid_spaces = game.grid_spaces();
+			
+			if(!grid_spaces.length)return game.over();
+			
+			var space = grid_spaces[~~(Math.random() * grid_spaces.length)],
+				cell = game.con.append(new game.cell(space[0], space[1]));
+			
+			game.cells.push(cell);
+			
+			return cell;
+		},
+		max_cells(){
+			return Array.from(Array(this.grid * this.grid)).map((val, ind) => [ ind % 4, ~~(ind / 4) ]);
+		},
+		grid_spaces(){
+			var max_cells = this.max_cells();
+			
+			return max_cells.filter(([ x, y ]) => !this.get_cell(x, y));
 		},
 		key(dir){
-			game.add_cell();
-			
 			var change = {
 				x: dir == 'left' ? -1 : dir == 'right' ? 1 : 0,
 				y: dir == 'up' ? -1 : dir == 'down' ? 1 : 0,
 			};
 			
-			game.cells.forEach(cell => {
+			Array.from(Array(game.grid)).forEach((x, ind) => game.cells.forEach(cell => {
 				var inc_x = Math.min(Math.max(cell.grid_x + change.x, 0), game.grid - 1),
 					inc_y = Math.min(Math.max(cell.grid_y + change.y, 0), game.grid - 1),
-					intersect = game.get_cell(inc_x, inc_y);
-				
-				console.log(intersect, cell);
+					intersect = game.cells.find(fe => fe.grid_x == inc_x && fe.grid_y == inc_y && fe.count);
 				
 				if(intersect && intersect != cell && intersect.count == cell.count){
 					intersect.count *= 2;
 					
-					cell.count = 0;
-				}else if(!intersect){
+					var in_arr = game.cells.findIndex(c => c == cell);
+					
+					if(in_arr != -1)game.cells.splice(in_arr, 1);
+					
+					cell.deleted = true;
+				}
+				
+				if(!intersect){
 					cell.grid_x = inc_x;
 					cell.grid_y = inc_y;
 				}
-			});
+			}));
+			
+			game.add_cell();
 		},
 	};
 
@@ -167,15 +176,10 @@ win.content.on('keydown', event => {
 	if(game.dirs[event.code])game.key(game.dirs[event.code]);
 });
 
-Array.from(Array(game.grid)).forEach((_, row) => {
-	Array.from(Array(game.grid)).forEach((_, ind) => {
-		var cell = game.con.append(new game.cell(ind, row));
-		
-		game.cells.push(cell);
-	});
-});
-
 game.add_cell();
+game.add_cell();
+game.add_cell();
+
 
 win.content.color = '#FFE';
 

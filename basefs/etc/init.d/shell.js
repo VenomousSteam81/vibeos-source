@@ -1,12 +1,13 @@
 var fs = require('fs'),
 	ui = require('/lib/ui'),
-	screen = require('/lib/screen');
+	screen = require('/lib/screen'),
+	dom = request_native('DOM');
 
 new FontFace('vga', fs.readFileSync('/usr/local/share/fonts/vga.ttf')).loaded.then(font => {
 	screen.render();
 	screen.state = 'shell';
 	
-	document.fonts.add(font);
+	dom.fonts.add(font);
 	
 	var shell = screen.layers.append(new ui.text({
 		family: 'vga',
