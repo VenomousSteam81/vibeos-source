@@ -2,11 +2,11 @@
 var path = require('path'),
 	mime = require('mime'),
 	buffer = require('buffer'),
-	natives = {
+	natives = { // accessible from scripts
 		DOM: document,
 		WINDOW: window,
 	},
-	perms = {
+	perms = { // script permissions defined above
 		'/lib/dom-utils.js': ['DOM'],
 		'/lib/screen.js': ['DOM', 'WINDOW'],
 		'/etc/init.d/shell.js': ['DOM'],

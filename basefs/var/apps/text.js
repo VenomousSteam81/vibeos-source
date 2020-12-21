@@ -1,5 +1,6 @@
 // TEXT EDITOR
-var ui = require('/lib/ui.js'),
+var fs = require('fs'),
+	ui = require('/lib/ui.js'),
 	screen = require('/lib/screen.js'),
 	win = new ui.window({
 		title: 'Text Editor',
@@ -33,13 +34,37 @@ var ui = require('/lib/ui.js'),
 			},
 		},
 	}),
+	margin = 6,
 	text = {
+		scroll: win.content.append(new ui.scroll_box({
+			width: '100%',
+			height: '100%',
+			get inner_height(){
+				return text.elem.height;
+			},
+		})),
+		elem: new ui.text({
+			text: '',
+			color: '#000',
+			offset: {
+				width: margin * -2,
+				height: margin * -2,
+				x: margin,
+				y: margin,
+			},
+			wrap: true,
+			cursor: 'text',
+		}),
 		open_file(loc){
 			win.title = 'Text Editor - ' + loc;
 			
+			var utf8 = fs.readFileSync(loc, 'utf8');
 			
+			text.elem.text = utf8;
 		}
 	};
+
+text.scroll.content.append(text.elem);
 
 if(flags.file)text.open_file(flags.file);
 
