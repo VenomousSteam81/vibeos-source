@@ -36,8 +36,10 @@ https://nodejs.org/api/fs.html
 
 ### todo:
 
-- (https://nodejs.org/api/fs.html#fs_fs_watch_filename_options_listener)[fs.watch]
+- [fs.watch](https://nodejs.org/api/fs.html#fs_fs_watch_filename_options_listener)
 
-- (https://nodejs.org/api/fs.html#fs_fs_watchfile_filename_options_listener)[fs.watchFile]
+- [fs.watchFile](https://nodejs.org/api/fs.html#fs_fs_watchfile_filename_options_listener)
 
 - most of filesystem classes
+
+- [fs.promises](https://nodejs.org/api/fs.html#fs_fs_promises_api)
