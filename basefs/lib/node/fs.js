@@ -34,6 +34,8 @@ var path = require('path'),
 				def(this.dynamic);
 				def(this.static);
 			});
+			
+			this.url_cache = {};
 		}
 		emit(event, file){
 			// TODO:
@@ -107,6 +109,8 @@ var path = require('path'),
 			
 			if(this.stat(file).isDirectory())throw errors.eisdir('read', file);
 			
+			console.log('[FS] READ ' + file + ', ' + encoding);
+			
 			var data = Buffer.from(lzutf8.decompress(overview[1], { inputEncoding: 'Base64' }), 'base64');
 			
 			return encoding ? data.toString(encoding) : data
@@ -159,7 +163,12 @@ var path = require('path'),
 			return ret;
 		}
 		data_uri(file){
-			return 'data:' + mime.getType(file) + ';base64,' + this.read(file, 'base64');
+			// USE BLOB AND URL OBJECT INSTEAD
+			// CACHE IT TOO
+			
+			if(this.url_cache[file])return this.url_cache[file];
+			
+			return (this.url_cache[file] = URL.createObjectURL(new Blob([ this.read(file) ], { type: mime.getType(file) })));
 		}
 		download(file){
 			var object_url = URL.createObjectURL(new Blob([ this.read(file) ])),

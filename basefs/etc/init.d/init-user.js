@@ -4,7 +4,10 @@ var screen = require('/lib/screen.js'),
 	path = require('path'),
 	bar_data_path = path.join(require.user.home, 'bar.json'),
 	folders = ['Desktop', 'Documents', 'Downloads', 'Music', 'Pictures', 'Videos'],
-	user = web.users[require.user.alias] || (web.users[require.user.alias] = {});
+	app_reg = require('/usr/bin/app-reg.js'),
+	user = web.users[require.user.alias] || (web.users[require.user.alias] = {
+		app_reg: new app_reg(),
+	});
 
 if(!fs.existsSync(require.user.home))fs.mkdirSync(require.user.home);
 folders.filter(folder => !fs.existsSync(path.join(require.user.home, folder))).forEach(folder => fs.mkdirSync(path.join(require.user.home, folder)));
