@@ -521,7 +521,7 @@ ui.text = class ui_text extends ui.element {
 			var prev = {},
 				offset_height = 0,
 				fixed = ui.fixed_sp(this, dims),
-				lines = this.text.split('\n').map(line => {
+				lines = (this.text + '').split('\n').map(line => {
 					var metric = this.metrics(ctx, dims, line);
 					
 					if(metric.width > this.width)this.width = metric.width;

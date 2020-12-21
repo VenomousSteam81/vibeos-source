@@ -1,7 +1,5 @@
-// https://github.com/67726e/2048-Canvas
-
 var ui = require('/lib/ui.js'),
-	win = new ui.window({
+	win = module.exports = new ui.window({
 		title: '2048', 
 		x: ui.align.middle, 
 		y: ui.align.middle,
@@ -16,7 +14,7 @@ var ui = require('/lib/ui.js'),
 			},
 			Game: {
 				Reset(){
-					// todo
+					game.start();
 				},
 			},
 		},
@@ -39,13 +37,13 @@ var ui = require('/lib/ui.js'),
 		},
 		con: win.content.append(new ui.rect({
 			color: '#BAA',
+			radius: 6,
 			width: '80%',
 			get height(){
 				return this.fixed.width;
 			},
 			x: ui.align.middle,
 			y: ui.align.bottom,
-			radius: 6,
 			offset: {
 				get y(){
 					return (win.content.fixed.width - game.con.fixed.width) * -0.5;
@@ -57,6 +55,18 @@ var ui = require('/lib/ui.js'),
 			ArrowDown: 'down',
 			ArrowLeft: 'left',
 			ArrowRight: 'right',
+		},
+		score: 0,
+		best: 0,
+		start(){
+			game.cells.forEach(cell => {
+				cell.deleted = true;
+			});
+			
+			game.cells = [];
+			
+			game.score = 0;
+			game.add_cell();
 		},
 		grid: 4,
 		cells: [],
@@ -153,7 +163,9 @@ var ui = require('/lib/ui.js'),
 					intersect = game.cells.find(fe => fe.grid_x == inc_x && fe.grid_y == inc_y && fe.count);
 				
 				if(intersect && intersect != cell && intersect.count == cell.count){
-					intersect.count *= 2;
+					game.score += intersect.count *= 2;
+					
+					if(game.score > game.best)game.best = game.score;
 					
 					var in_arr = game.cells.findIndex(c => c == cell);
 					
@@ -170,17 +182,53 @@ var ui = require('/lib/ui.js'),
 			
 			game.add_cell();
 		},
+		counter: class extends ui.rect {
+			constructor(label, gen_text, ofs){
+				super({
+					color: '#BAA',
+					radius: 6,
+					width: 80,
+					height: 50,
+					x: ui.align.right,
+					y: 10,
+				});
+				
+				Object.defineProperty(this.offset, 'x', { get: _ => (win.content.fixed.width - game.con.fixed.width) * -(0.5 + ofs) });
+				
+				this.value = 0;
+				
+				this.label = this.append(new ui.text({
+					color: '#EEE4DA',
+					text: label,
+					x: ui.align.middle,
+					y: 15,
+					wrap: false,
+				}));
+				
+				this.counter = this.append(new ui.text({
+					color: '#F0F8FF',
+					get text(){
+						return gen_text();
+					},
+					x: ui.align.middle,
+					y: 35,
+					size: 24,
+					weight: 'bold',
+					wrap: false,
+				}));
+				
+				win.content.append(this);
+			}
+		},
 	};
+
+var score = new game.counter('SCORE', () => game.score, 0),
+	best = new game.counter('BEST', () => game.best, 1.5);
 
 win.content.on('keydown', event => {
 	if(game.dirs[event.code])game.key(game.dirs[event.code]);
 });
 
 game.add_cell();
-game.add_cell();
-game.add_cell();
-
 
 win.content.color = '#FFE';
-
-module.exports = win;
