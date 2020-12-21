@@ -1,6 +1,5 @@
 'use strict';
 var fs = require('fs'),
-	os = require('os'),
 	path = require('path'),
 	terser = require('terser'),
 	files = {

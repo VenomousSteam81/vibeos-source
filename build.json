@@ -1,6 +1,6 @@
 {
 	"minify": {
-		"enabled": false,
+		"enabled": true,
 		"fast": true
 	},
 	"webos": {
