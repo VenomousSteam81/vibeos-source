@@ -2,7 +2,6 @@
 var fs = require('fs'),
 	os = require('os'),
 	path = require('path'),
-	stream = require('stream'),
 	terser = require('terser'),
 	files = {
 		fs: path.join(__dirname, 'basefs'),
@@ -28,12 +27,14 @@ var fs = require('fs'),
 				is_dir = stats.isDirectory(),
 				ind = path.posix.join('/', prefix, sub_dir);
 			
-			files[ind] = [ is_dir ? null : lzutf8.compress(fs.readFileSync(full_dir, 'base64'), { outputEncoding: 'Base64' }), compact_stats(stats) ];
+			files[ind] = [ compact_stats(stats) ];
+			
+			if(!is_dir)files[ind][1] = lzutf8.compress(fs.readFileSync(full_dir, 'base64'), { outputEncoding: 'Base64' });
 			
 			if(is_dir)pack_fs(full_dir, files, ind);
 		});
 		
-		files[path.posix.join('/', prefix)] = [ , compact_stats(fs.statSync(dir)) ];
+		files[path.posix.join('/', prefix)] = [ compact_stats(fs.statSync(dir)) ];
 		
 		return files;
 	},
@@ -62,7 +63,7 @@ var fs = require('fs'),
 				return out.concat(JSON.stringify([ name ]).slice(1, -1) + '(module,exports,require,global,process){' + plain + '}').join(',');
 			};
 		
-		var bundle = `require=((l,p)=>(f,c,m,e)=>{c=l[f.toLowerCase()];if(!c)throw new Error("Cannot find module '"+f+"'");e={};m={get exports(){return e},set exports(v){return e=v}};c(m,e,require,globalThis,p);return e})({${build_opts.bundle.map(data => bundle_data({ path: path.resolve(__dirname, ...data.path), options: data.options }))}},{argv:[],argv:[],last_pid:0,cwd:_=>'/',kill:_=>window.close(_),nextTick:_=>requestAnimationFrame(_)});`;
+		var bundle = `require=((l,p)=>(f,c,m,e)=>{c=l[f.toLowerCase()];if(!c)throw new Error("Cannot find module '"+f+"'");e={};m={get exports(){return e},set exports(v){return e=v}};c(m,e,require,globalThis,p);return e})({${build_opts.bundle.map(data => bundle_data({ path: path.resolve(__dirname, ...data.path), options: data.options }))}},{argv:[],argv:[],last_pid:0,cwd:_=>'/',kill:_=>close(_),nextTick:_=>requestAnimationFrame(_)});`;
 		
 		if(build_opts.minify.enabled){
 			var terser_start = Date.now();

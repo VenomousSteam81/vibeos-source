@@ -17,11 +17,12 @@ var path = require('path'),
 		constructor(name){
 			this.dynamic = {};
 			this.static = {};
+			this.name = 'fs' + name;
 			
 			Object.keys(localStorage).forEach(key => {
-				if(!key.startsWith(name))return;
+				if(!key.startsWith(this.name))return localStorage.removeItem(key);
 				
-				var ke = key.substr(name.length),
+				var ke = key.substr(this.name.length),
 					def = obj => Object.defineProperty(obj, ke, {
 						get: _ => JSON.parse(localStorage.getItem(key)),
 						set: v => (delete obj[ke], obj[ke] = v),
@@ -29,13 +30,9 @@ var path = require('path'),
 						enumerable: true,
 					});
 				
-				
-				
 				def(this.dynamic);
 				def(this.static);
 			});
-			
-			this.name = name;
 		}
 		update(){
 			Object.entries(this.dynamic).forEach(([ key, val ]) => localStorage.setItem(this.name + key, JSON.stringify(val)));
@@ -65,10 +62,10 @@ var path = require('path'),
 			return this.static[res];
 		}
 		stat(file){
-			var [ data, stat ] = this.overview(path.resolve(file));
+			var [ stat, data ] = this.overview(path.resolve(file));
 			
 			return {
-				isDirectory: () => typeof data != 'string',
+				isDirectory: () => !data,
 				atimeMs: stat.a,
 				mtimeMs: stat.m,
 				ctimeMs: stat.c,
@@ -91,7 +88,7 @@ var path = require('path'),
 			
 			if(this.stat(file).isDirectory())throw errors.eisdir('read', file);
 			
-			var data = Buffer.from(lzutf8.decompress(overview[0], { inputEncoding: 'Base64' }), 'base64');
+			var data = Buffer.from(lzutf8.decompress(overview[1], { inputEncoding: 'Base64' }), 'base64');
 			
 			return encoding ? data.toString(encoding) : data
 		}
@@ -109,10 +106,10 @@ var path = require('path'),
 				compressed = lzutf8.compress(Buffer.from(data).toString('base64'), { outputEncoding: 'Base64' }),
 				prevs = this.exists(file) ? this.stat(file) : { c: Date.now(), m: Date.now(), a: Date.now() };
 			
-			this.static[res] = this.dynamic[res] = [compressed, Object.assign(prevs, {
+			this.static[res] = this.dynamic[res] = [ Object.assign(prevs, {
 				m: Date.now(),
 				a: Date.now(),
-			})];
+			}), compressed ];
 			
 			this.update();
 		}
@@ -122,10 +119,10 @@ var path = require('path'),
 			var res = path.resolve(dir),
 				prevs = this.exists(dir) ? this.stat(dir) : { c: Date.now(), m: Date.now(), a: Date.now() };
 			
-			this.static[res] = this.dynamic[res] = [null, Object.assign(prevs, {
+			this.static[res] = this.dynamic[res] = [ Object.assign(prevs, {
 				m: Date.now(),
 				a: Date.now(),
-			})];
+			}), 0 ];
 			
 			this.update();
 		}
@@ -156,7 +153,7 @@ var path = require('path'),
 			URL.revokeObjectURL(object_url);
 		}
 	},
-	filesystem = new filesys('fs2'),
+	filesystem = new filesys('3'),
 	errors = {
 		eexists(operation, dir){
 			return new TypeError('EEXIST: file already exists, ' + operation + ' \'' + dir + '\'')
@@ -175,7 +172,7 @@ var path = require('path'),
 		},
 	};
 
-module.exports = {
+module.exports = window.fs = {
 	fs: filesystem,
 	readFile(file, ...args){
 		var options = args.find(arg => typeof arg == 'object') || {},
