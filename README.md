@@ -40,6 +40,10 @@ https://nodejs.org/api/fs.html
 
 - [fs.watchFile](https://nodejs.org/api/fs.html#fs_fs_watchfile_filename_options_listener)
 
-- most of filesystem classes
+- [fs.rename](https://nodejs.org/api/fs.html#fs_fs_rename_oldpath_newpath_callback)
+
+- filesystem classes
+
+- streams
 
 - [fs.promises](https://nodejs.org/api/fs.html#fs_fs_promises_api)

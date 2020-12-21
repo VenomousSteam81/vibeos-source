@@ -190,6 +190,8 @@ var screen = web.screen = module.exports = {
 			keyboard.emit(event.type, event);
 			
 			keyboard.keys[event.code] = event.type == 'keydown' ? true : false;
+			
+			mouse.focus.forEach(element => element.emit(event.type, event));
 		},
 		paste(event){
 			var data = (event.clipboardData || window.clipboardData).getData('text');

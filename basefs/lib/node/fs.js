@@ -1,6 +1,7 @@
 'use strict';
 var path = require('path'),
 	mime = require('mime'),
+	events = require('events'),
 	lzutf8 = require('lzutf8'),
 	Buffer = require('buffer').Buffer,
 	is_object = item => item && typeof item == 'object' && !Array.isArray(item),
@@ -33,6 +34,13 @@ var path = require('path'),
 				def(this.dynamic);
 				def(this.static);
 			});
+		}
+		emit(event, file){
+			// TODO:
+			// emit to fs watcher stuff
+		}
+		stat_change(prev, curr){
+			// emit to fs.watchFile
 		}
 		update(){
 			Object.entries(this.dynamic).forEach(([ key, val ]) => localStorage.setItem(this.name + key, JSON.stringify(val)));
@@ -82,6 +90,17 @@ var path = require('path'),
 			var res = path.resolve(file);
 			
 			return !!this.static[res];
+		}
+		watch(dir, ...args){
+			var options = args.find(arg => typeof arg == 'object') || {},
+				callback = args.find(arg => typeof arg == 'function') || {};
+			
+			if(!fs.statSync(dir).isDirectory())throw errors.enotdir(dir);
+			
+			// finish soon
+		}
+		watchFile(file, ...args){
+			
 		}
 		read(file, encoding){
 			var overview = this.overview(file);

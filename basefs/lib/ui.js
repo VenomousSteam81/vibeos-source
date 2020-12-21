@@ -273,6 +273,12 @@ ui.element = class extends events {
 				max_width: 600,
 				max_height: 600,
 			},
+			fixed: {
+				x: 0,
+				y: 0,
+				width: 0,
+				height: 0,
+			},
 		});
 		if(addon)this.assign_object(addon);
 		else console.warn('ui.element: no addon specified, was this intended?');
@@ -471,7 +477,7 @@ ui.text = class ui_text extends ui.element {
 		
 		if(this.wrap){
 			var prev = { width: 0, height: 0, y: 0 },
-				parse = str => str.split('\n').flatMap(line => {
+				parse = str => (str + '').split('\n').flatMap(line => {
 					var width  = 0,
 						line_out = [];
 					
@@ -1402,6 +1408,8 @@ ui.open_app = (app_path, args, show_in_bar) => {
 		}) }));
 	}
 	
+	if(!(win instanceof ui.window))return console.error('rejecting ' + app_path + ', recieved value was not a ui window');
+	
 	win.bring_front();
 	
 	return win;
@@ -2026,7 +2034,7 @@ ui.desktop = class ui_desktop extends ui.element {
 		this.open.forEach(data => {
 			if(data.con)return;
 			
-			var previ = prev || { width: 0, x: 0 };
+			var previ = prev || { con: { width: 0, x: 0 } };
 			
 			data.con = this.append(new ui.rect({
 				width: 75,
@@ -2034,7 +2042,7 @@ ui.desktop = class ui_desktop extends ui.element {
 				get color(){
 					return data.con.focus ? '#C4E0F6' : data.con.hover ? '#EBF5FC' : 'transparent';
 				},
-				x: previ.width + previ.x + 1,
+				x: previ.con.width + previ.con.x + 1,
 				y: 5,
 				alpha: 0.6,
 			}));

@@ -90,6 +90,12 @@ var desktop = screen.layers.append(new ui.desktop({
 			},
 		},
 		context_menu: null,
+	},{
+		title: '2048',
+		icon: '/usr/share/mimes/archive.png',
+		path: '/var/apps/2048.js',
+		args: { flags: {} },
+		context_menu: null,
 	}]
 }));
 
