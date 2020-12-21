@@ -1205,6 +1205,7 @@ ui.input = class ui_input extends ui.rect {
 			color: '#000',
 			y: ui.align.middle,
 			interact: false,
+			wrap: false,
 			offset: {
 				x: 7,
 			},
@@ -1249,7 +1250,7 @@ ui.input = class ui_input extends ui.rect {
 		this.on('paste', data => {
 			data.event.preventDefault();
 			
-			this.value = this.value.slice(0, this.cursor_pos) + data.text + this.value.slice(this.cursor_pos);
+			this.value = this.value.slice(0, this.cursor_pos) + data.text.replace(/\n/g, '') + this.value.slice(this.cursor_pos);
 			
 			this.cursor_pos += data.text.length;
 		});

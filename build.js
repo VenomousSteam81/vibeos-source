@@ -33,12 +33,11 @@ var fs = require('fs'),
 			if(is_dir)pack_fs(full_dir, files, ind);
 		});
 		
-		files[path.posix.join('/', prefix)] = [ null, compact_stats(fs.statSync(dir)) ];
+		files[path.posix.join('/', prefix)] = [ , compact_stats(fs.statSync(dir)) ];
 		
 		return files;
 	},
 	building = false,
-	require_reg = /(^|[^a-zA-Z_])require\(([`'"])([\s\S]*?)\2\)/g,
 	build = async () => {
 		if(building)return;
 		
@@ -62,8 +61,6 @@ var fs = require('fs'),
 				
 				return out.concat(JSON.stringify([ name ]).slice(1, -1) + '(module,exports,require,global,process){' + plain + '}').join(',');
 			};
-		
-		
 		
 		var bundle = `require=((l,p)=>(f,c,m,e)=>{c=l[f.toLowerCase()];if(!c)throw new Error("Cannot find module '"+f+"'");e={};m={get exports(){return e},set exports(v){return e=v}};c(m,e,require,globalThis,p);return e})({${build_opts.bundle.map(data => bundle_data({ path: path.resolve(__dirname, ...data.path), options: data.options }))}},{argv:[],argv:[],last_pid:0,cwd:_=>'/',kill:_=>window.close(_),nextTick:_=>requestAnimationFrame(_)});`;
 		
