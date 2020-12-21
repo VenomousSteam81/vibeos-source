@@ -25,3 +25,7 @@ Check ```./basefs/var/docs/```
 See https://devdocs.io/jsdoc/tags-example for format
 
 To add a file, add the path in build.json => docs
+
+## todo:
+
+convert .png files to .webp automatically + routing .png files to .webp in filesystem
