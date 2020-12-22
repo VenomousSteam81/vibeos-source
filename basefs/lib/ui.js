@@ -363,7 +363,7 @@ ui.element = class extends events {
 				seen.add(val);
 				return val.uuid == element.uuid || in_arr(val.elements);
 			});
-			
+		
 		return this.uuid == element.uuid || in_arr(this.elements);
 	}
 	delete_uuid(uuid){

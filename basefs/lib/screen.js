@@ -224,9 +224,11 @@ screen.render = () => {
 	
 	
 	var render_through = (elements, dims, start_opts) => {
-		elements.filter(ele => !ele.visible).forEach(element => element.emit('not_visible'));
+		elements.forEach(element => element.visible && element.emit('not_visible'));
 		
-		elements.filter(ele => ele.visible).sort((ele, pele) => ele.layer - pele.layer).forEach(element => {
+		elements.sort((ele, pele) => ele.layer - pele.layer).forEach(element => {
+			if(!element.visible)return;
+			
 			if(element.deleted){
 				var ind = elements.findIndex(pele => pele.uuid == element.uuid);
 				
