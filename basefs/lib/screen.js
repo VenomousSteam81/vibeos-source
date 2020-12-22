@@ -25,9 +25,7 @@ var screen = web.screen = module.exports = {
 	dom_utils = require('./dom-utils.js'),
 	ui = require('./ui.js'),
 	events = require('events'),
-	dom = request_native('DOM'),
-	win = request_native('WINDOW'),
-	container = screen.container = dom_utils.add_ele('div', dom.body, {
+	container = screen.container = dom_utils.add_ele('div', document.body, {
 		width: screen.dims.width,
 		height: screen.dims.height,
 		style: `
@@ -209,11 +207,11 @@ canvas.addEventListener('wheel', mouse.handler, { passive: true });
 canvas.addEventListener('contextmenu', event => (event.preventDefault(), mouse.handler(event)));
 canvas.addEventListener('mouseleave', () => mouse.buttons = {}, { passive: true });
 
-win.addEventListener('paste', keyboard.paste, { passive: true });
-win.addEventListener('keydown', keyboard.handler);
-win.addEventListener('keyup', keyboard.handler);
+window.addEventListener('paste', keyboard.paste, { passive: true });
+window.addEventListener('keydown', keyboard.handler);
+window.addEventListener('keyup', keyboard.handler);
 
-dom.body.style = 'margin: 0px; background: #000;';
+document.body.style = 'margin: 0px; background: #000;';
 
 var ctx = web.ctx = canvas.getContext('2d');
 

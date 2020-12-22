@@ -109,7 +109,7 @@ var path = require('path'),
 			
 			if(this.stat(file).isDirectory())throw errors.eisdir('read', file);
 			
-			console.log('[FS] READ ' + file + ', ' + encoding);
+			// console.log('[FS] READ ' + file + ', ' + encoding);
 			
 			var data = Buffer.from(lzutf8.decompress(overview[1], { inputEncoding: 'Base64' }), 'base64');
 			

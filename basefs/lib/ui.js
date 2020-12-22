@@ -675,6 +675,7 @@ ui.menu = class ui_menu extends ui.rect {
 						return preev.width + preev.x;
 					},
 					height: '100%',
+					window: this.window,
 				}, val));
 			
 			added.index = 1e10 - 2;
@@ -704,7 +705,7 @@ ui.menu = class ui_menu extends ui.rect {
 * @property {function} show changes visibility of the window
 * @property {function} hide changes visibility of the window
 * @property {function} bring_front brings the window to the top
-* @property {function} focus_win makes the window gain focus
+* @property {function} select makes the window gain focus
 * @property {function} blur makes the window lose focus
 * @property {function} close sets window.deleted to true, closing the window
 * @property {object} content ui_rect that all contents should be appended to
@@ -813,9 +814,9 @@ ui.window = class ui_window extends ui.element {
 			},
 		}));
 		
-		if(this.show_in_bar)web.screen.user.bar.open.push({
+		if(this.show_in_bar)require.user.bar.open.push({
 			element: this,
-			icon_path: this.icon,
+			icon: this.icon,
 		});
 		
 		if(this.resizable){
@@ -946,7 +947,7 @@ ui.window = class ui_window extends ui.element {
 		});
 		
 		this.show();
-		this.focus_win();
+		this.select();
 	}
 	show(){
 		this.visible = true;
@@ -955,7 +956,7 @@ ui.window = class ui_window extends ui.element {
 		this.visible = false;
 		this.active = false;
 	}
-	focus_win(){
+	select(){
 		this.active = true;
 	}
 	blur(){
@@ -1134,7 +1135,7 @@ ui.menu_button = class ui_button extends ui.rect {
 			}));
 			
 			added.on('click', () => {
-				val();
+				val(this.window);
 				
 				this.toggle = 0;
 			});
@@ -1590,19 +1591,21 @@ ui.bar = class ui_bar extends ui.rect {
 		this.open.forEach((data, ind, arr) => {
 			if(data.element && data.element.deleted){
 				if(!data.pinned){
-					data.icon.deleted = true;
+					data.con.icon.deleted = true;
 					this.open.splice(ind, 1);
 				}else data.element = null;
 			}
 			
-			if(data.icon)return;
+			if(!data.con)data.con = {};
 			
-			data.icon = this.append(new ui.rect({
+			if(data.con.icon)return;
+			
+			data.con.icon = this.append(new ui.rect({
 				get x(){
-					var icon_ind = arr.findIndex(ele => ele.icon.uuid == data.icon.uuid),
-						prev = arr.find((ele, ind) => ind == icon_ind - 1) || { icon: { x: 0, width: 0 } };
+					var icon_ind = arr.findIndex(ele => ele.con.icon.uuid == data.con.icon.uuid),
+						prev = arr.find((ele, ind) => ind == icon_ind - 1) || { con: { icon: { x: 0, width: 0 } } };
 					
-					return prev.icon.x + prev.icon.width;
+					return prev.con.icon.x + prev.con.icon.width;
 				},
 				width: 30,
 				height: '100%',
@@ -1623,26 +1626,28 @@ ui.bar = class ui_bar extends ui.rect {
 				},
 			}));
 			
-			data.icon.image = data.icon.append(new ui.image({
+			data.con.icon.append(new ui.image({
 				x: ui.align.middle,
 				y: ui.align.middle,
 				width: '75%',
 				height: '75%',
-				path: data.icon_path || '/usr/share/missing.png',
+				path: data.icon || '/usr/share/missing.png',
 				interact: false,
 			}));
 			
-			data.icon.on('click', event => {
+			data.con.icon.on('click', event => {
+				if(data.func)return data.func();
+				
 				if(data.element && !data.element.deleted)data.element.active ? data.element.hide() : data.element.bring_front();
 				else {
 					data.element = ui.open_app(data.path, {}, false);
 				};
 			});
 			
-			data.icon.open_indicator = data.icon.append(new ui.rect({
+			data.con.icon.open_indicator = data.con.icon.append(new ui.rect({
 				x: ui.align.middle,
 				get width(){
-					return (data.element && data.element.visible || data.icon.hover) ? '100%' : '75%';
+					return (data.element && data.element.visible || data.con.icon.hover) ? '100%' : '75%';
 				},
 				height: 2,
 				color: '#60B0D5',
@@ -1687,7 +1692,7 @@ ui.bar = class ui_bar extends ui.rect {
 						},
 						width: 30,
 						height: '100%',
-						path: data.icon_path || '/usr/share/missing.png',
+						path: data.icon || '/usr/share/missing.png',
 						interact: false,
 					}));
 					
@@ -1737,7 +1742,7 @@ ui.bar = class ui_bar extends ui.rect {
 					data.container.on('mousedown', event => {
 						if(data.contents)proc_menus(data.contents, data.items);
 						
-						if(data.path)ui.open_app(data.path, {}, false);
+						data.func ? data.func() : data.path ? ui.open_app(data.path, {}, false) : 0;
 					});
 				}
 			});
@@ -2079,7 +2084,9 @@ ui.desktop = class ui_desktop extends ui.element {
 				},
 			}));
 			
-			data.con.on('doubleclick', () => ui.open_app(data.path, data.args, true));
+			data.con.on('doubleclick', () => {
+				data.func ? data.func() : ui.open_app(data.path, data.args, true);
+			});
 			
 			prev = data;
 		});

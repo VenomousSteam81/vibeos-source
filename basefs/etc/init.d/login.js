@@ -59,14 +59,9 @@ login.login_button.on('click', event => {
 	require.user.alias = 'vibeOS';
 	require.user.home = '/home/vibeOS';
 	
-	if(!web.users[require.user.alias])web.users[require.user.alias] = {
-		state: Object.assign(screen.states[require.user.alias] = [], { append: screen.append_layers }),
-	};
-	
-	var user = web.users[require.user.alias];
+	user.state = Object.assign(screen.states[require.user.alias] = [], { append: screen.append_layers });
 	
 	screen.state = user.state;
-	screen.user =  user;
 	
 	require('./init-user.js');
 });
