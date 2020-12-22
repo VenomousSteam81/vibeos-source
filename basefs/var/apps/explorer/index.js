@@ -2,14 +2,17 @@
 var ui = require('/lib/ui.js'),
 	fs = require('fs'),
 	path = require('path'),
+	mime = require('mime'),
 	image_aliases = {
 		'/lost+found': '/usr/share/places/emptytrash.png',
 		[require.user.home]: '/usr/share/places/folder-home.png',
 		[path.join(require.user.home, 'Desktop')]: '/usr/share/places/folder-desktop.png',
 	},
 	ext_icons = {
-		'.js': '/usr/share/mimes/shell.png'
-	};
+		'application/': '/usr/share/mimes/shell.png',
+		'image/': '/usr/share/mimes/media.png',
+	},
+	ext_ent = Object.entries(ext_icons);
 
 exports.opts = {
 	x: ui.align.middle, 
@@ -28,7 +31,8 @@ exports.opts = {
 
 exports.open = (window, data) => {
 	var exp = {
-			editor: '/var/apps/text',
+			txt_editor: '/var/apps/text',
+			img_viewer: '/var/apps/image-viewer',
 			sidebar: window.content.append(new ui.scroll_box({
 				width: '30%',
 				height: '100%',
@@ -74,12 +78,22 @@ exports.open = (window, data) => {
 							text: path.basename(loc),
 							interact: false,
 						})),
+						mime: mime.getType(loc) || '',
 					};
 				
-				container.on('doubleclick', () => stats.isDirectory() ? create_folders(loc) : new user.apps.app(Object.assign(user.apps.manifest(path.join(exp.editor, '/manifest.json')), {
-					data: { file: loc },
-					places: [],
-				}), exp.editor).open());
+				container.on('doubleclick', () => {
+					stats.isDirectory()
+						? create_folders(loc)
+						: data.mime.startsWith('image')
+							? new user.apps.app(Object.assign(user.apps.manifest(path.join(exp.img_viewer, '/manifest.json')), {
+								data: { file: loc },
+								places: [],
+							}), exp.img_viewer).open()
+							: new user.apps.app(Object.assign(user.apps.manifest(path.join(exp.txt_editor, '/manifest.json')), {
+								data: { file: loc },
+								places: [],
+							}), exp.txt_editor).open();
+				});
 				
 				return data;
 			},
@@ -103,8 +117,12 @@ exports.open = (window, data) => {
 				
 				file.is_dir = fs.statSync(file.path).isDirectory();
 				file.ext = path.extname(file.path);
+				file.mime = mime.getType(file.path) || '';
 				
-				val.icon.path = image_aliases[file.path] || (file.is_dir ? '/usr/share/places/folder.png' : 0) || ext_icons[file.ext] || '/usr/share/mimes/exec.png';
+				val.icon.path = image_aliases[file.path] ||
+					(file.is_dir ? '/usr/share/places/folder.png' : 0) ||
+					(ext_ent.find(([ key ]) => file.mime.startsWith(key))||[])[1] ||
+					'/usr/share/mimes/exec.png';
 				
 				val.text.text = file.name;
 				

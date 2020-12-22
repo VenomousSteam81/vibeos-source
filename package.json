@@ -9,7 +9,9 @@
 		"url": "https://github.com/vibeOS/vibeos-source/"
 	},
 	"dependencies": {
-		"documentation": "^13.1.0",
 		"terser": "^5.4.0"
+	},
+	"devDependencies": {
+		"documentation": "^13.1.0"
 	}
 }
