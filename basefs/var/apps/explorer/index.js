@@ -31,7 +31,7 @@ exports.opts = {
 
 exports.open = (window, data) => {
 	var exp = {
-			txt_editor: '/var/apps/text',
+			txt_editor: '/var/apps/text-editor',
 			img_viewer: '/var/apps/image-viewer',
 			sidebar: window.content.append(new ui.scroll_box({
 				width: '30%',

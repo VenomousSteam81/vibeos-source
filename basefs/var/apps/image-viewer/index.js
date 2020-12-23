@@ -12,6 +12,9 @@ var ui = require('/lib/ui.js'),
 					y: ui.align.bottom,
 				};
 			
+			this.max_width = 350;
+			this.max_height = 350;
+			
 			this.image = '';
 			
 			this.folder = {
@@ -22,13 +25,8 @@ var ui = require('/lib/ui.js'),
 			this.main = window.content.append(new ui.image({
 				x: ui.align.middle,
 				y: 30,
-				width: '40%',
-				height: 0,
-				offset: {
-					get height(){
-						return thise.main.fixed.width;
-					}
-				}
+				width: this.max_width,
+				height: this.max_height,
 			}));
 			
 			this.label = window.content.append(new ui.text({
@@ -67,6 +65,13 @@ var ui = require('/lib/ui.js'),
 			this.back_bu.on('click', () => this.back());
 			
 			this.next_bu.on('click', () => this.next());
+			
+			this.main.on('load', () => {
+				var scale = Math.min(this.max_width / this.main.image.width, this.max_height / this.main.image.height);
+				
+				this.main.width = this.main.image.width * scale;
+				this.main.height = this.main.image.height * scale;
+			});
 		}
 		load(loca){
 			if(!fs.existsSync(loca))return console.error('error at image viewer, ' + loca + ' doesnt exist!');
@@ -94,7 +99,7 @@ var ui = require('/lib/ui.js'),
 exports.opts = {
 	x: ui.align.middle, 
 	y: ui.align.middle,
-	width: '600px',
+	width: '400px',
 	height: '400px',
 	menu: {
 		File: {

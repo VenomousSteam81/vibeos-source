@@ -400,6 +400,7 @@ ui.text = class ui_text extends ui.element {
 			color: '#FFF',
 			wrap: true,
 			auto_width: true,
+			max_width: 400,
 		});
 	}
 	apply_style(ctx){
@@ -486,7 +487,7 @@ ui.text = class ui_text extends ui.element {
 						
 						width += metrics.width;
 						
-						if(width * 1.5 >= dims.width){
+						if(width >= this.max_width){
 							width = 0;
 							word = '\n' + word;
 						}
@@ -634,6 +635,8 @@ ui.image = class ui_image extends ui.element {
 		this.image = Object.assign(new Image(), {
 			src: /^\w+:/.test(this.path) ? this.path : fs.data_uri(this.path),
 		});
+		
+		this.image.addEventListener('load', event => this.emit('load', event));
 	}
 	draw(ctx, dims){
 		var fixed = ui.fixed_sp(this, dims);

@@ -5,6 +5,6 @@
 	"description": "a",
 	"version": "0.0.1",
 	"icon": "/usr/share/mimes/media.png",
-	"places": [ "menu", "desktop" ],
-	"data": { "file": "/usr/share/categ/games.png" }
+	"places": [ "menu" ],
+	"data": { "file": "/usr/share/wallpaper/default.png" }
 }
