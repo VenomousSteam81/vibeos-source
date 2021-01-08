@@ -2,7 +2,7 @@
 	"main": "index.js",
 	"name": "2048",
 	"category": "games",
-	"description": "fun fun",
+	"description": "2048 Game",
 	"version": "0.0.1",
 	"icon": "app.webp",
 	"places": ["desktop", "menu"]
