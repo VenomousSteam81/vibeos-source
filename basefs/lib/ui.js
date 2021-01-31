@@ -923,7 +923,11 @@ ui.window = class ui_window extends ui.element {
 		this.buttons.minimize.on('mouseup', event => this.visible = false);
 	}
 	draw(ctx, dims){
-		Reflect.apply(ui.rect.prototype.draw, this, [ ctx, dims ]);
+		ctx.fillStyle = this.color;
+		
+		var fixed = ui.fixed_sp(this, dims);
+		
+		ctx.fillRect(fixed.x, fixed.y, fixed.width, fixed.height);
 	}
 	bring_front(){
 		var all_elements = [],

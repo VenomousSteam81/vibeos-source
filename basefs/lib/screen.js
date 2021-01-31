@@ -213,9 +213,14 @@ window.addEventListener('keyup', keyboard.handler);
 
 document.body.style = 'margin: 0px; background: #000;';
 
-var ctx = web.ctx = canvas.getContext('2d');
+var ctx = web.ctx = canvas.getContext('2d'),
+	frames = web.fps = 0;
+
+setInterval(() => (web.fps = frames, frames = 0), 1000);
 
 screen.render = () => {
+	frames++;
+	
 	container.style.width = screen.dims.width + 'px';
 	container.style.height = screen.dims.height + 'px';
 	
@@ -243,6 +248,7 @@ screen.render = () => {
 			
 			element.fixed = ui.fixed_sp(element, dims);
 			
+			if(dims.alpha)start_opts.alpha = dims.alpha;
 			if(dims.clip)start_opts.clip = dims;
 			
 			if(start_opts.clip && element.apply_clip){
@@ -254,7 +260,7 @@ screen.render = () => {
 			if(dims.translate && dims.translate.enabled)start_opts.translate = dims.translate;
 			
 			ctx.filter = element.filter;
-			ctx.globalAlpha = element.alpha;
+			ctx.globalAlpha = element.alpha || start_opts.alpha;
 			
 			if(element.radius){
 				var region = new Path2D(),

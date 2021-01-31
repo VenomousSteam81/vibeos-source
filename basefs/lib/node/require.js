@@ -93,8 +93,6 @@ exports.init = (fs, base_dir, user) => {
 			}, options.args),
 			script = fs.readFileSync(file, 'utf8');
 		
-		
-			
 		args.require.user = require.user;
 		
 		return {

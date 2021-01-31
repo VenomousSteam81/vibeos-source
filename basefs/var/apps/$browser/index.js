@@ -29,7 +29,7 @@ exports.open = (window, data) => {
 			},
 			render: async () => {
 				var vurl = browser.add_proto(browser.nav.url),
-					data = await fetch(/^https?:\/{2}/.test(vurl) ? 'https://ldm.sys32.dev/' + vurl : vurl).then(res => res.text()).catch(err =>
+					data = await fetch(/^https?:\/{2}/.test(vurl) ? 'https://ldm.sys32.dev/studyflow/' + vurl : vurl).then(res => res.text()).catch(err =>
 						`<p>error visiting ${vurl}:</p>\n<pre>${err}</pre>`
 					),
 					buf = dom_utils.add_ele('canvas', document.body, { style: 'display: none' });
