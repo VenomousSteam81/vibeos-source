@@ -1,5 +1,5 @@
 # vibeOS License Revision 2 (BSD 4-Clause)
-Introduced: November 24, 2020 | Last Revised: November 24, 2020
+Introduced: November 24, 2020 | Last Revised: Febuary 25, 2021
 
 vibeOS is licensed under the BSD 4-Clause License or "Original" License.
 vibeOS Development Team is the organization which develops and maintains the vibeOS Source Code.
@@ -8,7 +8,7 @@ The following are members of the vibeOS Development team as of the printed "Last
   * Divide
   * Nathan Mendenhall (ctaetcsh) <contact@ctaetcsh.xyz>
 
-Copyright 2020 vibeOS Development Team. All Rights Reserved.
+Copyright (C) 2021 vibeOS Development Team. All Rights Reserved.
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
