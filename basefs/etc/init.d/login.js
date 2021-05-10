@@ -10,7 +10,7 @@ var login_rect = screen.layers.append(new ui.rect({ width: '100%', height: '100%
 		time: login_rect.append(new ui.text({
 			x: 20,
 			y: ui.align.bottom,
-			offset: { y: -40 },
+			offset: { y: -8 },
 			size: 45,
 			cursor: 'text',
 			family: 'Verdana',
@@ -35,7 +35,7 @@ var login_rect = screen.layers.append(new ui.rect({ width: '100%', height: '100%
 		user_label: login_rect.append(new ui.text({
 			x: ui.align.middle,
 			y: ui.align.middle,
-			text: 'vibeOS',
+			text: 'Default User',
 			size: 16,
 			weight: 'Bold',
 			offset: {
@@ -47,7 +47,7 @@ var login_rect = screen.layers.append(new ui.rect({ width: '100%', height: '100%
 			y: ui.align.middle,
 			height: 25,
 			width: 150,
-			text: 'login',
+			text: 'Login',
 			offset: {
 				y: 60,
 			},

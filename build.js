@@ -77,7 +77,7 @@ var fs = require('fs'),
 		
 		var fs_string = JSON.stringify(pack_fs(files.fs));
 		
-		fs.writeFileSync(files.dist, `<!DOCTYPE HTML><html><head><meta charset='utf8'></head><body><script>\n/*  == WEBOS ==\n// BUILT ON ${new Date().toUTCString()}\n// DO NOT DISTRIBUTE!\n*/\n\ndocument.body.innerHTML='';var a=${fs_string},${bundle}require('webos');\n//# sourceURL=webOS_loader</script></body></html>`);
+		fs.writeFileSync(files.dist, `<!DOCTYPE HTML><html><head><meta charset='utf8'><title>vibeOS NEW</title></head><body><script>\n/*  == WEBOS ==\n// BUILT ON ${new Date().toUTCString()}\n// DO NOT DISTRIBUTE!\n*/\n\ndocument.body.innerHTML='';var a=${fs_string},${bundle}require('webos');\n//# sourceURL=webOS_loader</script></body></html>`);
 		
 		building = false;
 		console.log('build finished, output found at ' + files.dist);
