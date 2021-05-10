@@ -1,4 +1,5 @@
-# vibeos-source
+# vibeOS Development
+This repository contains the most current version of "new" vibeOS. This repository and the code within are private and not to be released until further notice. The following instructions are WIP by Divide.
 
 ## Building:
 

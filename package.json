@@ -3,7 +3,7 @@
 	"version": "2.0.0",
 	"author": "vibeOS Development Team",
 	"description": "vibeOS",
-	"license": "BSD-4",
+	"license": "vibeOS_License_R2",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/vibeOS/vibeos-source/"
