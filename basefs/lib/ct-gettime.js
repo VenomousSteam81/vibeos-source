@@ -11,23 +11,22 @@ exports.getTimeAsString = function(opt) { // Get system time as string. Example:
     switch(opt) {
         case "NoAMPM": // return as 1:30
             if (ctgtd.getHours() > 12) {
-                var dumbFuckingHour = ctgtd.getHours() - 12;
+                var gtasnap = ctgtd.getHours() - 12;
             } else {
-                var dumbFuckingHour = ctgtd.getHours();
+                var gtasnap = ctgtd.getHours();
             }
-            return dumbFuckingHour+":"+ctgtd.getMinutes(); 
+            return gtasnap+":"+ctgtd.getMinutes(); 
         case "24Hour": // return as 13:30
             return ctgtd.getHours()+":"+ctgtd.getMinutes();
         default:    // return as 1:30 pm
             if (ctgtd.getHours() > 12) {
-                var dumbFuckingHour = ctgtd.getHours() - 12;
-                var ampmindc = "PM"; // ampmindc is the AM/PM indicator
+                var gtasnap = ctgtd.getHours() - 12;
+                var gtasdapi = "PM";
             } else {
-                var dumbFuckingHour = ctgtd.getHours();
-                var ampmindc = "AM";
+                var gtasnap = ctgtd.getHours();
+                var gtasdapi = "AM";
             }
-            return dumbFuckingHour+":"+ctgtd.getMinutes()+space+ampmindc; 
-
+            return gtasnap+":"+ctgtd.getMinutes()+space+gtasdapi; 
     }
 }
 
