@@ -13,7 +13,7 @@ if(!fs.existsSync(bar_data_path))fs.writeFileSync(bar_data_path, '[]');
 user.bg = user.state.append(new ui.image({
 	width: '100%',
 	height: '100%',
-	path: '/usr/share/wallpaper/default.png',
+	path: '/usr/share/wallpaper/GardenTilesCT.png',
 }));
 
 user.bar = user.state.append(new ui.bar({}));
@@ -23,6 +23,7 @@ user.bar = user.state.append(new ui.bar({}));
 	path: '/var/apps/explorer.js',
 	pinned: true,
 },{
+	icon: '/usr/share/mimes/document.png',
 	path: '/var/xml/license.xml',
 	pinned: true,
 }].concat(JSON.parse(fs.readFileSync(bar_data_path, 'utf8'))).forEach(entry => user.bar.open.push(entry));
@@ -54,7 +55,13 @@ user.bar.menu.open = [{
 },{
 	icon: '/usr/share/categ/system.png',
 	title: 'System',
-	contents: [],
+	contents: [
+		{
+			icon: '/usr/share/mimes/document.png',
+			path: '/var/xml/license.xml',
+			title: 'vibeOS License'
+		}
+	],
 },{
 	icon: '/usr/share/categ/games.png',
 	title: 'Games',
@@ -64,6 +71,31 @@ user.bar.menu.open = [{
 	path: '/var/xml/about.xml',
 	title: 'About vibeOS',
 	pinned: true,
+},{
+	icon: '/usr/share/categ/development.png',
+	title: 'Development XML',
+	contents: [
+		{
+			icon: '/usr/share/categ/development.png',
+			path: '/var/xml/about.xml',
+			title: 'about.xml'
+		},
+		{
+			icon: '/usr/share/categ/development.png',
+			path: '/var/xml/chatbox.xml',
+			title: 'chatbox.xml [WILL CRASH VIBEOS]'
+		},
+		{
+			icon: '/usr/share/categ/development.png',
+			path: '/var/xml/test.xml',
+			title: 'test.xml [WILL CRASH ON EXIT]'
+		},
+		{
+			icon: '/usr/share/categ/development.png',
+			path: '/var/xml/webview_demo.xml.xml',
+			title: 'webview_demo.xml [DOES NOT LAUNCH]'
+		},
+	],
 }];
 
 user.desktop = screen.layers.append(new ui.desktop({

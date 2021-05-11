@@ -2,27 +2,26 @@
 
 ### Table of Contents
 
--   [init][1]
-    -   [Parameters][2]
-    -   [Properties][3]
-    -   [Examples][4]
--   [exec][5]
-    -   [Parameters][6]
-    -   [Examples][7]
+*   [init][1]
+    *   [Parameters][2]
+    *   [Properties][3]
+    *   [Examples][4]
+*   [exec][5]
+    *   [Parameters][6]
+    *   [Examples][7]
 
 ## init
 
 ### Parameters
 
--   `fs` **[object][8]** filesystem to read and search from
--   `base_dir` **[object][8]** directory that non-absolute paths are resolved from
--   `user` **[object][8]** user account to assign to output
--   `stack` **[object][8]** module that is initating (optional, default `'main'`)
+*   `fs` **[object][8]** filesystem to read and search from
+*   `base_dir` **[object][8]** directory that non-absolute paths are resolved from
+*   `user` **[object][8]** user account to assign to output
 
 ### Properties
 
--   `user` **[object][8]** user account data
--   `exec` **[function][9]** execute scripts
+*   `user` **[object][8]** user account data
+*   `exec` **[function][9]** execute scripts
 
 ### Examples
 
@@ -42,11 +41,12 @@ Returns **[function][9]** require
 
 ### Parameters
 
--   `script` **[string][10]** text content of script to execute
--   `file` **[string][10]** filename of script being executed (for adding to cache)
--   `options` **[object][8]** options when processing (optional, default `{cache:true,args:{}}`)
-    -   `options.cache` **[object][8]** if the output should be added to cache
-    -   `options.args` **[object][8]** additional args to pass to function
+*   `fs` **[string][10]** filesystem to read/write from
+*   `file` **[string][10]** filename of script being executed
+*   `options` **[object][8]** options when processing (optional, default `{}`)
+
+    *   `options.cache` **[object][8]** if the output should be added to cache
+    *   `options.args` **[object][8]** additional args to pass to function
 
 ### Examples
 

@@ -1,5 +1,7 @@
 var ctgtd = new Date();
 var space = " ";
+
+var weekdays = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
 // TODO
 // add seconds
 
@@ -42,38 +44,51 @@ exports.getMinuteAsInt = function() { // Get minute as integer. Example: 30
 }
 
 exports.getTimeAsInt = function() { // Get time as integer, will require additional code to parse. Example: 130. [HHMM]
-
+    if (ctgtd.getHours() > 12) {
+        return (ctgtd.getHours() - 12).toString() + ctgtd.getMinutes().toString();
+    } else {
+        return ctgtd.getHours() * 10 + ctgtd.getMinutes();
+    }
 }
 
 // Date Functions
 
-exports.getDateISOasString = function() {
-
-}
-
-exports.getDateISOasInt = function() {
-
-}
-
-exports.getYearasInt = function() {
-
-}
-
-exports.getMonthasInt = function() {
-
-}
-
-exports.getDayasInt = function() {
-
-}
-
-exports.getWeekDay = function(type) {
+exports.getDateISO = function(type) {
     switch(type) {
         case "Int": // If request is for integer
             return; // Return WeekDay as Int (1 thru 7)
 
         case "Str": // If request is for string
             return; // Return weekday as string (Monday,Tuesday,Etc.)
+
+        default: // If request is not int/str then
+            return "YOU'RE USING THIS WRONG"; // tell them they're stupid
+    }
+}
+
+exports.getDateasInt = function(type) {
+    switch(type) {
+        case "year":
+            return ctgtd.getFullYear(); 
+
+        case "month": 
+            return ctgtd.getMonth(); 
+
+        case "day": 
+            return ctgtd.getDate(); 
+
+        default: // If request is not above option then
+            return "YOU'RE USING THIS WRONG"; // tell them they're stupid
+    }
+}
+
+exports.getWeekDay = function(type) {
+    switch(type) {
+        case "Int": // If request is for integer
+            return ctgtd.getDay(); // Return WeekDay as Int (1 thru 7)
+
+        case "Str": // If request is for string
+            return weekdays[ctgtd.getDay()]; // Return weekday as string (Monday,Tuesday,Etc.)
 
         default: // If request is not int/str then
             return "YOU'RE USING THIS WRONG"; // tell them they're stupid

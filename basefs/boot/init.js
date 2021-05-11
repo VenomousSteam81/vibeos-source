@@ -1,5 +1,7 @@
 require('/etc/init.d/shell');
 
+// COMMENT OUT BEFORE COMMIT
+window.require = require;
 
 setTimeout(() => require('/etc/init.d/login.js'), 200);
 
