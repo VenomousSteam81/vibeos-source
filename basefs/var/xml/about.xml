@@ -8,10 +8,36 @@
 		<size width='500px' height='500px'></size>
 	</meta>
 	<content>
-		<text text='Welcome to vibeOS!' color='#000' x='ui.align.middle' y='20' size='25'></text>
-		<button x='ui.align.middle' y='ui.align.bottom' offset_y='-10' onmouseup='window.close()'>Close</button>
-		<image path='https://cdn.discordapp.com/emojis/608145920126746626.gif?v=1' width='50' height='50'></image>
-		<input placeholder='text here' y='ui.align.middle' offset_x='25' width='120' height='25' onsubmit='alert(this.value)'></input>
+		<!-- lmao divide what the fuck <text text='Welcome to vibeOS!' color='#000' x='ui.align.middle' y='20' size='25'></text>-->
+
+		<!-- Image Collage On Left -->
+		<image path='/usr/share/logo.png' width='100' height='100' x='20' y='20'></image>
+
+		<image path='/usr/share/xmlmedia/about/ctaetcsh.png' width='50' height='50' x='20' y='120'></image>
+		<image path='/usr/share/xmlmedia/placeholder/pfpplaceholder.png' width='50' height='50' x='70' y='120'></image>
+
+		<image path='/usr/share/xmlmedia/placeholder/pfpplaceholder.png' width='50' height='50' x='20' y='170'></image>
+		<image path='/usr/share/xmlmedia/placeholder/pfpplaceholder.png' width='50' height='50' x='70' y='170'></image>
+
+		<image path='/usr/share/xmlmedia/placeholder/pfpplaceholder.png' width='50' height='50' x='20' y='220'></image>
+		<image path='/usr/share/xmlmedia/placeholder/pfpplaceholder.png' width='50' height='50' x='70' y='220'></image>
+
+		<image path='/usr/share/xmlmedia/placeholder/pfpplaceholder.png' width='50' height='50' x='20' y='270'></image>
+		<image path='/usr/share/xmlmedia/placeholder/pfpplaceholder.png' width='50' height='50' x='70' y='270'></image>
+
+		<image path='/usr/share/xmlmedia/placeholder/pfpplaceholder.png' width='50' height='50' x='20' y='320'></image>
+		<image path='/usr/share/xmlmedia/placeholder/pfpplaceholder.png' width='50' height='50' x='70' y='320'></image>
+
+		<image path='/usr/share/xmlmedia/placeholder/pfpplaceholder.png' width='50' height='50' x='20' y='370'></image>
+		<image path='/usr/share/xmlmedia/placeholder/pfpplaceholder.png' width='50' height='50' x='70' y='370'></image>
+
+		<!-- End Image Collage -->
+
+		<rect height='430' width='3' y='20' x='140' color='#000'></rect>
+
+		<button x='ui.align.right' offset_x='-10' y='ui.align.bottom' offset_y='-10' onmouseup='window.close()'>Close</button>
+		<button x='ui.align.right' offset_x='-110' y='ui.align.bottom' offset_y='-10' onmouseup='window.close()'>Enviornment Information</button>
+		<!--<input placeholder='text here' y='ui.align.middle' offset_x='25' width='120' height='25' onsubmit='alert(this.value)'></input>-->
 		<rect clip='true' scroll='true' x='ui.align.middle' y='50' width='50' height='50' color='#F00'>
 			<rect width='25' height='25' color='#0F0'></rect>
 		</rect>
