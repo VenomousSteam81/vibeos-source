@@ -2,8 +2,8 @@
 
 <app>
 	<meta>
-		<title>Welcome to vibeOS</title>
-		<icon src='/usr/share/missing.png'></icon>
+		<title>About vibeOS</title>
+		<icon src='/usr/share/categ/system.png'></icon>
 		<position x='ui.align.middle' y='ui.align.middle'></position>
 		<size width='500px' height='500px'></size>
 	</meta>
@@ -13,33 +13,48 @@
 		<!-- Image Collage On Left -->
 		<image path='/usr/share/logo.png' width='100' height='100' x='20' y='20'></image>
 
-		<image path='/usr/share/xmlmedia/about/ctaetcsh.png' width='50' height='50' x='20' y='120'></image>
-		<image path='/usr/share/xmlmedia/placeholder/pfpplaceholder.png' width='50' height='50' x='70' y='120'></image>
+		<image path='/usr/share/xmlmedia/about/ctaetcsh.png' width='50' height='50' x='20' y='120'></image>             <!-- 1,1 : ctaetcsh -->
+		<image path='/usr/share/xmlmedia/about/divide.png' width='50' height='50' x='70' y='120'></image>               <!-- 1,2 : Divide -->
 
-		<image path='/usr/share/xmlmedia/placeholder/pfpplaceholder.png' width='50' height='50' x='20' y='170'></image>
-		<image path='/usr/share/xmlmedia/placeholder/pfpplaceholder.png' width='50' height='50' x='70' y='170'></image>
+		<image path='/usr/share/xmlmedia/placeholder/pfpplaceholder.png' width='50' height='50' x='20' y='170'></image> <!-- 2,1 : Unknown -->
+		<image path='/usr/share/xmlmedia/placeholder/pfpplaceholder.png' width='50' height='50' x='70' y='170'></image> <!-- 2,2 : Unknown -->
 
-		<image path='/usr/share/xmlmedia/placeholder/pfpplaceholder.png' width='50' height='50' x='20' y='220'></image>
-		<image path='/usr/share/xmlmedia/placeholder/pfpplaceholder.png' width='50' height='50' x='70' y='220'></image>
+		<image path='/usr/share/xmlmedia/placeholder/pfpplaceholder.png' width='50' height='50' x='20' y='220'></image> <!-- 3,1 : Unknown -->
+		<image path='/usr/share/xmlmedia/placeholder/pfpplaceholder.png' width='50' height='50' x='70' y='220'></image> <!-- 3,2 : Unknown -->
 
-		<image path='/usr/share/xmlmedia/placeholder/pfpplaceholder.png' width='50' height='50' x='20' y='270'></image>
-		<image path='/usr/share/xmlmedia/placeholder/pfpplaceholder.png' width='50' height='50' x='70' y='270'></image>
+		<image path='/usr/share/xmlmedia/placeholder/pfpplaceholder.png' width='50' height='50' x='20' y='270'></image> <!-- 4,1 : Unknown -->
+		<image path='/usr/share/xmlmedia/placeholder/pfpplaceholder.png' width='50' height='50' x='70' y='270'></image> <!-- 4,2 : Unknown -->
 
-		<image path='/usr/share/xmlmedia/placeholder/pfpplaceholder.png' width='50' height='50' x='20' y='320'></image>
-		<image path='/usr/share/xmlmedia/placeholder/pfpplaceholder.png' width='50' height='50' x='70' y='320'></image>
-
-		<image path='/usr/share/xmlmedia/placeholder/pfpplaceholder.png' width='50' height='50' x='20' y='370'></image>
-		<image path='/usr/share/xmlmedia/placeholder/pfpplaceholder.png' width='50' height='50' x='70' y='370'></image>
+		<image path='/usr/share/xmlmedia/placeholder/pfpplaceholder.png' width='50' height='50' x='20' y='320'></image> <!-- 5,1 : Unknown -->
+		<image path='/usr/share/xmlmedia/placeholder/pfpplaceholder.png' width='50' height='50' x='70' y='320'></image> <!-- 5,2 : Unknown -->
 
 		<!-- End Image Collage -->
 
-		<rect height='430' width='3' y='20' x='140' color='#000'></rect>
+		<rect height='350' width='3' y='20' x='140' color='#000'></rect>
 
 		<button x='ui.align.right' offset_x='-10' y='ui.align.bottom' offset_y='-10' onmouseup='window.close()'>Close</button>
-		<button x='ui.align.right' offset_x='-110' y='ui.align.bottom' offset_y='-10' onmouseup='window.close()'>Enviornment Information</button>
+		<button x='ui.align.right' offset_x='-71' y='ui.align.bottom' offset_y='-10' onmouseup='window.close()'>Enviornment Information</button>
 		<!--<input placeholder='text here' y='ui.align.middle' offset_x='25' width='120' height='25' onsubmit='alert(this.value)'></input>-->
-		<rect clip='true' scroll='true' x='ui.align.middle' y='50' width='50' height='50' color='#F00'>
-			<rect width='25' height='25' color='#0F0'></rect>
-		</rect>
+
+		<!-- Main Text Area -->
+
+		<text size='37' x='163' y='20' color='#000'>vibeOS Development</text>
+		<text size='20' x='163' y='65' color='#000'>Version:</text>
+		<text size='20' x='163' y='87' color='#000'>Built On:</text>
+		<text font='Courier New' size='25' x='243' y='63' color='#000'>IN DEV</text>
+		<text font='Courier New' size='25' x='243' y='85' color='#000'>NOT SET</text>
+
+		<text size='15' x='163' y='130' color='#000'>vibeOS was created by:</text>
+		<text size='15' x='163' y='145' color='#000'>Divide</text>
+		<text size='15' x='163' y='160' color='#000'>Nathan Ritchie (ctaetcsh)</text>
+
+		<text size='15' x='163' y='175' color='#000'>with help from:</text>
+		<text size='15' x='163' y='190' color='#000'>[Placeholder]</text>
+		<text size='15' x='163' y='205' color='#000'>[Placeholder]</text>
+
+		<text size='18' x='20' y='390' color='#000' wrap='false'>Copyright (C) 2021 vibeOS Development Group</text>
+		<text size='18' x='20' y='400' color='#000'>vibeOS is Open Source Software</text>
+
+
 	</content>
 </app>
