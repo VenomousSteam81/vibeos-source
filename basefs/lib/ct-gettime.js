@@ -21,12 +21,10 @@ exports.getTimeAsString = function(opt) { // Get system time as string. Example:
         default:    // return as 1:30 pm
             if (ctgtd.getHours() > 12) {
                 var gtasnap = ctgtd.getHours() - 12;
-                var gtasdapi = "PM";
             } else {
                 var gtasnap = ctgtd.getHours();
-                var gtasdapi = "AM";
             }
-            return gtasnap+":"+ctgtd.getMinutes()+space+gtasdapi; 
+            return gtasnap+":"+ctgtd.getMinutes()+space+(ctgtd.getHours() > 12 ? 'PM' : 'AM'); 
     }
 }
 

@@ -8,9 +8,9 @@ screen.state = 'login';
 var login_rect = screen.layers.append(new ui.rect({ width: '100%', height: '100%', color: ui.colors.window.active.main })),
 	login = {
 		time: login_rect.append(new ui.text({
-			x: 20,
+			x: 16,
 			y: ui.align.bottom,
-			offset: { y: -8 },
+			offset: { y: -27 },
 			size: 45,
 			cursor: 'text',
 			family: 'Verdana',
@@ -19,6 +19,31 @@ var login_rect = screen.layers.append(new ui.rect({ width: '100%', height: '100%
 					hour = (now.getHours() + '') % 12;
 				
 				return (hour == 0 ? 12 : hour) + ':' + (now.getMinutes() + '').padStart(2, 0) + ' ' + (hour > 12 ? 'PM' : 'AM');
+			},
+		})),
+		dateiso: login_rect.append(new ui.text({
+			x: 20,
+			y: ui.align.bottom,
+			offset: { y: -10 },
+			size: 20,
+			cursor: 'text',
+			family: 'Verdana',
+			get text(){
+				var llocaldate = new Date();
+
+				return llocaldate.getFullYear()+"-"+(llocaldate.getMonth()+1)+"-"+llocaldate.getDate();
+				                                                	// Added +1 here as getMonth() returns 0-11 instead of 1-12. Hopefully this bodge works.
+			},
+		})),
+		vibeosbadge: login_rect.append(new ui.text({
+			x: 60,
+			y: ui.align.top,
+			offset: { y: 15 },
+			size: 20,
+			cursor: 'text',
+			family: 'Courier New',
+			get text(){
+				return "VIBEOS DEVELOPMENT\nNOT FOR PUBLIC RELEASE";
 			},
 		})),
 		pfp: login_rect.append(new ui.image({
