@@ -1,7 +1,7 @@
 var ctgtd = new Date();
-var space = " ";
+const space = " ";
+const weekdays = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
 
-var weekdays = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
 // TODO
 // add seconds
 

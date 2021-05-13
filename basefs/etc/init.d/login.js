@@ -18,7 +18,7 @@ var login_rect = screen.layers.append(new ui.rect({ width: '100%', height: '100%
 				var now = new Date(),
 					hour = (now.getHours() + '') % 12;
 				
-				return (hour == 0 ? 12 : hour) + ':' + (now.getMinutes() + '').padStart(2, 0) + ' ' + (hour < 12 ? 'PM' : 'AM');
+				return (hour == 0 ? 12 : hour) + ':' + (now.getMinutes() + '').padStart(2, 0) + ' ' + (hour > 12 ? 'PM' : 'AM');
 			},
 		})),
 		pfp: login_rect.append(new ui.image({
