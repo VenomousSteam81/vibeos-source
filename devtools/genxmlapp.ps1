@@ -12,7 +12,7 @@ if ($sizewidth -notlike "*px") {
     $sizewidth = $sizewidth + "px"
 }
 if ($sizeheight -notlike "*px") {
-    $sizeheight = $sizewidth + "px"
+    $sizeheight = $sizeheight + "px"
 }
 
 

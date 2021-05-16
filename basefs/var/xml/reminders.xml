@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='utf8'?>
+
+<app>
+	<meta>
+		<title>Reminders</title>
+		<icon src='/usr/share/categ/office.png'></icon>
+		<position x='ui.align.middle' y='ui.align.middle'></position>
+		<size width='500px' height='500px'></size>
+	</meta>
+	<content>
+		
+	</content>
+</app>
