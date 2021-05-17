@@ -92,8 +92,13 @@ user.bar.menu.open = [{
 		},
 		{
 			icon: '/usr/share/categ/development.png',
-			path: '/var/xml/webview_demo.xml.xml',
+			path: '/var/xml/webview_demo.xml',
 			title: 'webview_demo.xml [DOES NOT LAUNCH]'
+		},
+		{
+			icon: '/usr/share/categ/development.png',
+			path: '/var/xml/reminders.xml',
+			title: 'reminders.xml'
 		},
 	],
 }];
