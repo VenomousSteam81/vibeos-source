@@ -2,54 +2,92 @@
 var fs = require('fs'),
 	path = require('path'),
 	terser = require('terser'),
-	files = {
-		fs: path.join(__dirname, 'basefs'),
-		dist: path.join(__dirname, 'dist.html'),
-	},
-	lzutf8 = require(path.join(files.fs, 'lib', 'lzutf8.js')),
-	compact_stats = s => ({
-		a: s.atimeMs, // accessed
-		m: s.mtimeMs, // modified
-		c: s.ctimeMs, // created
-		b: s.birthtimeMs,
-		bl: s.blksize,
-		bo: s.blocks,
-		n: s.nlink,
-		mo: s.mode,
-		i: s.ino,
-		d: s.dev,
-	}),
-	pack_fs = (dir, files = {}, prefix = '') => { // browse each directory => lzutf8 on files
-		fs.readdirSync(dir).forEach(sub_dir => {
-			var full_dir = path.join(dir, sub_dir),
-				stats = fs.statSync(full_dir),
-				is_dir = stats.isDirectory(),
-				ind = path.posix.join('/', prefix, sub_dir);
+	lzutf8 = require('./basefs/lib/lzutf8'),
+	Parser = require('./basefs/lib/parser');
+
+process.on('uncaughtException', err => console.log(err));
+
+class Builder {
+	constructor(config, fs, output){
+		this.fs = fs;
+		this.output = output;
+		this.config = config;
+		this.building = false;
+		this.parser = new Parser();
+	}
+	compact_stats(s){
+		return {
+			a: s.atimeMs, // accessed
+			m: s.mtimeMs, // modified
+			c: s.ctimeMs, // created
+			b: s.birthtimeMs,
+			bl: s.blksize,
+			bo: s.blocks,
+			n: s.nlink,
+			mo: s.mode,
+			i: s.ino,
+			d: s.dev,
+		};
+	}
+	// BETA:::::::::::
+	async pack_fs(dir, files = [], prefix = ''){
+		for(var file of await fs.promises.readdir(dir)){
+			var full = path.join(dir, file),
+				stats = await fs.promises.stat(full),
+				ind = path.posix.join('/', prefix, file),
+				type = stats.isDirectory() ? 'folder' : 'file';
 			
-			// going to use image converter tool soon
-			// if(full_dir.endsWith('.png'))console.warn('vibeOS: .png files take a toll on file size, consider using .webp ( ' + full_dir + ' )');
+			files.push({ name: ind, type: type, data: type == 'folder' ? undefined: await fs.promises.readFile(full)  });
 			
-			files[ind] = [ compact_stats(stats) ];
-			
-			if(!is_dir)files[ind][1] = lzutf8.compress(fs.readFileSync(full_dir, 'base64'), { outputEncoding: 'Base64' });
-			
-			if(is_dir)pack_fs(full_dir, files, ind);
-		});
+			if(type == 'folder')await this.pack_fs(full, files, ind);
+		}
 		
-		files[path.posix.join('/', prefix)] = [ compact_stats(fs.statSync(dir)) ];
+		files.push({ name: path.posix.join('/', prefix), data: '', type: 'folder' });
 		
 		return files;
-	},
-	building = false,
-	build = async () => {
-		if(building)return;
+	}
+	compress(data){
+		return new Promise((resolve, reject) => lzutf8.compressAsync(data, { outputEncoding: 'Base64' }, (data, err) => err ? reject(err) : resolve(data)))
+	}
+	async pack_fs_1(dir, files = {}, prefix = ''){ // browse each directory => lzutf8 on files
+		for(var file of await fs.promises.readdir(dir)){
+			var full = path.join(dir, file),
+				stats = await fs.promises.stat(full),
+				ind = path.posix.join('/', prefix, file);
+			
+			files[ind] = [ this.compact_stats(stats) ];
+			
+			if(!stats.isDirectory())files[ind][1] = await this.compress(await fs.promises.readFile(full, 'base64'));
+			
+			if(stats.isDirectory())await this.pack_fs_1(full, files, ind);
+		}
 		
-		console.log('building..');
-		building = true;
+		files[path.posix.join('/', prefix)] = [ this.compact_stats(await fs.promises.stat(dir)) ];
 		
-		var build_opts = JSON.parse(fs.readFileSync(path.join(__dirname, 'build.json'), 'utf8')),
-			terser_opts = {
-				compress: build_opts.fast ? false : true,
+		return files;
+	}
+	watch(callback){
+		var run = this.build();
+		
+		if(callback)callback.call(this, run);
+		
+		return fs.watch(this.fs, { recursive: true }, (type, filename) => {
+			if(!filename)return;
+			
+			var run = this.build();
+			
+			if(callback)callback.call(this, run);
+		});
+	}
+	async build(){
+		if(this.building)return;
+		
+		this.building  = true;
+		
+		if(this.config.log)console.log('Building...');
+		
+		var terser_opts = {
+				compress: this.config.fast ? false : true,
 				mangle: true,
 				format: {
 					comments: false,
@@ -65,32 +103,26 @@ var fs = require('fs'),
 				return out.concat(JSON.stringify([ name ]).slice(1, -1) + '(module,exports,require,global,process){' + plain + '}').join(',');
 			};
 		
-		var bundle = `require=((l,p)=>(f,c,m,e)=>{c=l[f.toLowerCase()];if(!c)throw new Error("Cannot find module '"+f+"'");e={};m={get exports(){return e},set exports(v){return e=v}};c(m,e,require,globalThis,p);return e})({${build_opts.bundle.map(data => bundle_data({ path: path.resolve(__dirname, ...data.path), options: data.options }))}},{argv:[],argv:[],last_pid:0,cwd:_=>'/',kill:_=>close(_),nextTick:_=>requestAnimationFrame(_)});`;
+		var bundle = `require=((l,p)=>(f,c,m,e)=>{c=l[f.toLowerCase()];if(!c)throw new Error("Cannot find module '"+f+"'");e={};m={get exports(){return e},set exports(v){return e=v}};c(m,e,require,globalThis,p);return e})({${this.config.bundle.map(data => bundle_data({ path: path.resolve(__dirname, ...data.path), options: data.options }))}},{argv:[],argv:[],last_pid:0,cwd:_=>'/',kill:_=>close(_),nextTick:_=>requestAnimationFrame(_)});`;
 		
-		if(build_opts.minify.enabled){
+		if(this.config.minify.enabled){
 			var terser_start = Date.now();
 			
 			bundle = await new Promise(resolve => terser.minify(bundle.toString('utf8'), terser_opts).then(data => resolve(data.code)));
 			
-			console.log('took ' + (Date.now() - terser_start) + 'ms for terser');
+			if(this.config.log)console.log('Took ' + (Date.now() - terser_start) + 'ms for terser');
 		}
 		
-		var fs_string = JSON.stringify(pack_fs(files.fs));
+		// fs.promises.writeFile(this.output + '.bin', this.parser.write(await this.pack_fs(this.fs)));
 		
-		fs.writeFileSync(files.dist, `<!DOCTYPE HTML><html><head><meta charset='utf8'><title>vibeOS NEW</title></head><body><script>\n/*  == WEBOS ==\n// BUILT ON ${new Date().toUTCString()}\n// DO NOT DISTRIBUTE!\n*/\n\ndocument.body.innerHTML='';var a=${fs_string},${bundle}require('webos');\n//# sourceURL=webOS_loader</script></body></html>`);
+		var fs_string = JSON.stringify(await this.pack_fs_1(this.fs));
 		
-		building = false;
-		console.log('build finished, output found at ' + files.dist);
-	};
+		await fs.promises.writeFile(this.output + '.html', `<!DOCTYPE HTML><html><head><meta charset='utf8'><title>vibeOS NEW</title></head><body><script>\n/*  == WEBOS ==\n// BUILT ON ${new Date().toUTCString()}\n// DO NOT DISTRIBUTE!\n*/\n\ndocument.body.innerHTML='';var a=${fs_string},${bundle}require('webos');\n//# sourceURL=webOS_loader</script></body></html>`);
+		
+		this.building = false;
+		
+		if(this.config.log)console.log('Build complete.');
+	}
+}
 
-build();
-
-fs.watch(files.fs, { recursive: true }, (type, filename) => {
-	if(!filename)return;
-	
-	console.log(type + ' ' + filename);
-	
-	build();
-});
-
-process.on('uncaughtException', err => console.log(err));
+module.exports = Builder;

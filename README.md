@@ -5,7 +5,7 @@ This repository contains the most current version of "new" vibeOS. This reposito
 
 ```npm install```
 
-```node build```
+```node ./index.js```
 
 run dist.html
 

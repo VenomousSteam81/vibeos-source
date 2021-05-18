@@ -4,6 +4,7 @@
 	"author": "vibeOS Development Team",
 	"description": "vibeOS",
 	"license": "vibeOS_License_R2",
+	"main": "index.js",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/vibeOS/vibeos-source/"
