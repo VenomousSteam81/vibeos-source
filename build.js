@@ -72,7 +72,7 @@ class Builder {
 		if(callback)callback.call(this, run);
 		
 		return fs.watch(this.fs, { recursive: true }, (type, filename) => {
-			if(!filename)return;
+			if(!filename || this.building)return;
 			
 			var run = this.build();
 			
@@ -108,7 +108,7 @@ class Builder {
 		if(this.config.minify.enabled){
 			var terser_start = Date.now();
 			
-			bundle = await new Promise(resolve => terser.minify(bundle.toString('utf8'), terser_opts).then(data => resolve(data.code)));
+			bundle = (await terser.minify(bundle.toString('utf8'), terser_opts)).code;
 			
 			if(this.config.log)console.log('Took ' + (Date.now() - terser_start) + 'ms for terser');
 		}
