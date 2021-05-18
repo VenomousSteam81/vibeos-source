@@ -108,7 +108,7 @@ class Builder {
 		if(this.config.minify.enabled){
 			var terser_start = Date.now();
 			
-			bundle = (await terser.minify(bundle.toString('utf8'), terser_opts)).code;
+			bundle = (await terser.minify(bundle.toString(), terser_opts)).code;
 			
 			if(this.config.log)console.log('Took ' + (Date.now() - terser_start) + 'ms for terser');
 		}
