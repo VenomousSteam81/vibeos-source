@@ -5,12 +5,6 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Build vibeOS",
-            "program": "${workspaceFolder}/build.js",
-            "request": "launch",
-            "type": "pwa-node"
-        },
-        {
             "type": "pwa-msedge",
             "request": "launch",
             "name": "Open Built File",

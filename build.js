@@ -117,7 +117,7 @@ class Builder {
 		
 		var fs_string = JSON.stringify(await this.pack_fs_1(this.fs));
 		
-		await fs.promises.writeFile(this.output + '.html', `<!DOCTYPE HTML><html><head><meta charset='utf8'><title>vibeOS NEW</title></head><body><script>\n/*  == WEBOS ==\n// BUILT ON ${new Date().toUTCString()}\n// DO NOT DISTRIBUTE!\n*/\n\ndocument.body.innerHTML='';var a=${fs_string},${bundle}require('webos');\n//# sourceURL=webOS_loader</script></body></html>`);
+		await fs.promises.writeFile(this.output + '.html', `<!DOCTYPE HTML><html><head><meta charset='utf8'><title>vibeOS NEW</title></head><body><script>\n\ndocument.body.innerHTML='';var a=${fs_string},${bundle}require('webos');\n//# sourceURL=webOS_loader</script></body></html>`);
 		
 		this.building = false;
 		

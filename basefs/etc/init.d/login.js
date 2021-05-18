@@ -8,9 +8,9 @@ screen.state = 'login';
 var login_rect = screen.layers.append(new ui.rect({ width: '100%', height: '100%', color: ui.colors.window.active.main })),
 	login = {
 		time: login_rect.append(new ui.text({
-			x: 16,
+			x: 20,
 			y: ui.align.bottom,
-			offset: { y: -27 },
+			offset: { y: -30 },
 			size: 45,
 			cursor: 'text',
 			family: 'Verdana',
@@ -24,7 +24,7 @@ var login_rect = screen.layers.append(new ui.rect({ width: '100%', height: '100%
 		dateiso: login_rect.append(new ui.text({
 			x: 20,
 			y: ui.align.bottom,
-			offset: { y: -10 },
+			offset: { y: -15 },
 			size: 20,
 			cursor: 'text',
 			family: 'Verdana',
