@@ -1,13 +1,19 @@
-# vibeOS Development
+# ![logo][] vibeOS
 This repository contains the most current version of "new" vibeOS. This repository and the code within are private and not to be released until further notice. The following instructions are WIP by Divide.
 
-## Building:
+[logo]: https://avatars.githubusercontent.com/u/74576368?s=50
 
-```npm install```
+## Building vibeOS 
+The following instructions apply only to Windows. Instructions for other operating systems are available online at [vibeos.github.io](https://vibeos.github.io/gettingstarted.html).
 
-```node build```
+1. Download and Install NodeJS from [nodejs.org](https://nodejs.org/en). Ensure "Add to PATH" is selected during setup. **You will need to reboot.**
+2. Download and Install PowerShell 7 from the [GitHub Repository](https://github.com/powershell/powershell). **This also requires a reboot**.
+3. Open PowerShell 7 by going to Windows Search and typing `pwsh`.
+4. Use `cd` to move to the directory containing vibeOS.
+5. Run `npm install`
+6. Run `node build`
+7. Open the `dist.html` file in your web browser. For vibeOS to function correctly, the `fs.bin` file will need to be in the same directory as `dist.html`.
 
-run dist.html
 
 ## Creating the docs
 
