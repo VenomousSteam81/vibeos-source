@@ -82,7 +82,7 @@ class Builder {
 	async build(){
 		if(this.building)return;
 		
-		this.building  = true;
+		this.building = true;
 		
 		if(this.config.log)console.log('Building...');
 		
