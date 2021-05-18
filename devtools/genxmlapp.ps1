@@ -1,3 +1,7 @@
+# Script to generate AppXML file
+# Written by ctaetcsh
+# Last modified: 2021-05-17
+
 $name = Read-Host -Prompt 'Enter App Name'
 $sizewidth = Read-Host -Prompt 'Enter App Window Width'
 $sizeheight = Read-Host -Prompt 'Enter App Window Height'
