@@ -67,7 +67,7 @@ user.bar.menu.open = [{
 	title: 'Games',
 	contents: [],
 },{
-	icon: '/usr/share/categ/system.png',
+	icon: '/usr/share/new/info.png',
 	path: '/var/xml/about.xml',
 	title: 'About vibeOS',
 	pinned: true,
@@ -99,6 +99,11 @@ user.bar.menu.open = [{
 			icon: '/usr/share/categ/development.png',
 			path: '/var/xml/reminders.xml',
 			title: 'reminders.xml'
+		},
+		{
+			icon: '/usr/share/new/info.png',
+			path: '/var/xml/iconviewer.xml',
+			title: 'iconviewer.xml'
 		},
 	],
 }];

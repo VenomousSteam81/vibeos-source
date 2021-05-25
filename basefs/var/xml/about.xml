@@ -3,7 +3,7 @@
 <app>
 	<meta>
 		<title>About vibeOS</title>
-		<icon src='/usr/share/categ/system.png'></icon>
+		<icon src='/usr/share/new/info.png'></icon>
 		<position x='ui.align.middle' y='ui.align.middle'></position>
 		<size width='500px' height='500px'></size>
 	</meta>
