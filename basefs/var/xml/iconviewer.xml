@@ -3,7 +3,7 @@
 <app>
 	<meta>
 		<title>NewIcons</title>
-		<icon src='/usr/share/new/info.png.png'></icon>
+		<icon src='/usr/share/new/info.png'></icon>
 		<position x='ui.align.middle' y='ui.align.middle'></position>
 		<size width='240px' height='223px'></size>
 	</meta>
