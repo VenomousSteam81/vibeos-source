@@ -4,7 +4,7 @@
 	"category": "graphics",
 	"description": "a",
 	"version": "0.0.1",
-	"icon": "/usr/share/mimes/media.png",
+	"icon": "aperture.svg",
 	"places": [ "menu" ],
 	"data": { "file": "/usr/share/wallpaper/default.png" }
 }

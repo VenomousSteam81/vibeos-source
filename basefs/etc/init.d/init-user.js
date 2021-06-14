@@ -19,7 +19,7 @@ user.bg = user.state.append(new ui.image({
 user.bar = user.state.append(new ui.bar({}));
 
 [{
-	icon: '/usr/share/categ/development.png',
+	icon: '/usr/share/newnew/codepen.svg',
 	path: '/var/apps/explorer.js',
 	pinned: true,
 },{
@@ -29,7 +29,7 @@ user.bar = user.state.append(new ui.bar({}));
 }].concat(JSON.parse(fs.readFileSync(bar_data_path, 'utf8'))).forEach(entry => user.bar.open.push(entry));
 
 user.bar.menu.open = [{
-	icon: '/usr/share/categ/configuration.png',
+	icon: '/usr/share/newnew/settings.svg',
 	title: 'Settings',
 	contents: [],
 },{
@@ -53,7 +53,7 @@ user.bar.menu.open = [{
 	title: 'Office',
 	contents: [],
 },{
-	icon: '/usr/share/newnew/settings.svg',
+	icon: '/usr/share/newnew/sliders.svg',
 	title: 'System',
 	contents: [
 		{
@@ -63,40 +63,40 @@ user.bar.menu.open = [{
 		}
 	],
 },{
-	icon: '/usr/share/categ/games.png',
+	icon: '/usr/share/newnew/crosshair.svg',
 	title: 'Games',
 	contents: [],
 },{
-	icon: '/usr/share/new/info.png',
+	icon: '/usr/share/newnew/info.svg',
 	path: '/var/xml/about.xml',
 	title: 'About vibeOS',
 	pinned: true,
 },{
-	icon: '/usr/share/categ/development.png',
+	icon: '/usr/share/newnew/codepen.svg',
 	title: 'Development XML',
 	contents: [
 		{
-			icon: '/usr/share/categ/development.png',
+			icon: '/usr/share/newnew/codepen.svg',
 			path: '/var/xml/about.xml',
 			title: 'about.xml'
 		},
 		{
-			icon: '/usr/share/categ/development.png',
+			icon: '/usr/share/newnew/codepen.svg',
 			path: '/var/xml/chatbox.xml',
 			title: 'chatbox.xml [WILL CRASH VIBEOS]'
 		},
 		{
-			icon: '/usr/share/categ/development.png',
+			icon: '/usr/share/newnew/codepen.svg',
 			path: '/var/xml/test.xml',
 			title: 'test.xml [WILL CRASH ON EXIT]'
 		},
 		{
-			icon: '/usr/share/categ/development.png',
+			icon: '/usr/share/newnew/codepen.svg',
 			path: '/var/xml/webview_demo.xml',
 			title: 'webview_demo.xml [DOES NOT LAUNCH]'
 		},
 		{
-			icon: '/usr/share/categ/development.png',
+			icon: '/usr/share/newnew/codepen.svg',
 			path: '/var/xml/reminders.xml',
 			title: 'reminders.xml'
 		},

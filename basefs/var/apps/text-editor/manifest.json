@@ -4,7 +4,7 @@
 	"category": "accessories",
 	"description": "editing or viewing files",
 	"version": "0.0.1",
-	"icon": "/usr/share/mimes/document.png",
+	"icon": "file-text.svg",
 	"places": [ "menu" ],
 	"data": { "file": "/var/readme.txt" }
 }

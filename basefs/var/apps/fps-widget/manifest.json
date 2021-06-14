@@ -4,7 +4,7 @@
 	"category": "graphics",
 	"description": "a",
 	"version": "0.0.1",
-	"icon": "/usr/share/mimes/media.png",
+	"icon": "/usr/share/newnew/bar-chart-2-2.svg",
 	"places": [ "menu", "desktop" ],
 	"data": {}
 }
