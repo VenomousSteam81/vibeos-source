@@ -3,3 +3,4 @@ package-lock.json
 dist.html
 .vscode/.exitafterbuild
 basefs/var/docs
+.DS_Store

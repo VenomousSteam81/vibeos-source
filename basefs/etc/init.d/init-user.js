@@ -33,27 +33,27 @@ user.bar.menu.open = [{
 	title: 'Settings',
 	contents: [],
 },{
-	icon: '/usr/share/categ/accessories.png',
+	icon: '/usr/share/newnew/tool.svg',
 	title: 'Accessories',
 	contents: [],
 },{
-	icon: '/usr/share/categ/graphics.png',
+	icon: '/usr/share/newnew/pen-tool.svg',
 	title: 'Graphics',
 	contents: [],
 },{
-	icon: '/usr/share/categ/internet.png',
+	icon: '/usr/share/newnew/globe.svg',
 	title: 'Internet',
 	contents: [],
 },{
-	icon: '/usr/share/categ/multimedia.png',
+	icon: '/usr/share/newnew/film.svg',
 	title: 'Multimedia',
 	contents: [],
 },{
-	icon: '/usr/share/categ/office.png',
+	icon: '/usr/share/newnew/briefcase.svg',
 	title: 'Office',
 	contents: [],
 },{
-	icon: '/usr/share/categ/system.png',
+	icon: '/usr/share/newnew/settings.svg',
 	title: 'System',
 	contents: [
 		{

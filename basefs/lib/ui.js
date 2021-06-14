@@ -1537,7 +1537,7 @@ ui.bar = class ui_bar extends ui.rect {
 		}));
 		
 		this.menu.icon = this.menu.append(new ui.image({
-			path: '/usr/share/applications.png',
+			path: '/usr/share/newnew/command-2.svg',
 			x: 8,
 			y: ui.align.middle,
 			width: 16,
