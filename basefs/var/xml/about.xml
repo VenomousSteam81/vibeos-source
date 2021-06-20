@@ -44,15 +44,20 @@
 		<text font='Courier New' size='25' x='243' y='63' color='#000'>IN DEV</text>
 		<text font='Courier New' size='25' x='243' y='85' color='#000'>NOT SET</text>
 
-		<text size='15' x='163' y='130' color='#000'>vibeOS was created by:</text>
-		<text size='15' x='163' y='145' color='#000'>Divide</text>
-		<text size='15' x='163' y='160' color='#000'>Nathan Ritchie (ctaetcsh)</text>
+		<text size='15' x='163' y='130' color='#000'>vibeOS Development Team</text>
+		<text size='15' x='163' y='145' color='#000'>· Divide</text>
+		<text size='15' x='163' y='160' color='#000'>· Nathan Ritchie (ctaetcsh)</text>
+		<text size='15' x='163' y='175' color='#000'></text>
+		<text size='15' x='163' y='190' color='#000'></text>
+		<text size='15' x='163' y='205' color='#000'></text>
 
-		<text size='15' x='163' y='175' color='#000'>with help from:</text>
-		<text size='15' x='163' y='190' color='#000'>[Placeholder]</text>
-		<text size='15' x='163' y='205' color='#000'>[Placeholder]</text>
+		<text size='15' x='163' y='220' color='#000'>vibeOS uses the Feather Icon Set under the MIT</text>
+		<text size='15' x='163' y='235' color='#000'>license. Copyright (C) 2013-2017 Cole Bemis</text>
 
-		<text size='18' x='20' y='390' color='#000' wrap='false'>Copyright (C) 2021 vibeOS Development Group</text>
+		<text size='15' x='163' y='265' color='#000'>The 2048 Game included with vibeOS was developed by</text>
+		<text size='15' x='163' y='280' color='#000'>Divide to match the original created by Gabriele Cirulli.</text>
+
+		<text size='18' x='20' y='390' color='#000' wrap='false'>Copyright (C) 2021 vibeOS Development Team</text>
 		<text size='18' x='20' y='400' color='#000'>vibeOS is Open Source Software</text>
 
 
