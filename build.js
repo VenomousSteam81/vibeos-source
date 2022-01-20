@@ -1,3 +1,4 @@
+console.log('Using build.js')
 'use strict';
 var fs = require('fs'),
 	path = require('path'),

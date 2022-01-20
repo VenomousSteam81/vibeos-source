@@ -1,3 +1,4 @@
+console.log('Using index.js')
 'use strict';
 var path = require('path'),
 	Builder = require('./build'),
